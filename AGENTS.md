@@ -482,6 +482,22 @@ test(api):
 
 ---
 
+# Versionamento
+
+Toda atualização no projeto obrigatoriamente deve:
+
+1. **Atualizar o arquivo `VERSION`** na raiz do projeto com a nova versão e codename.
+2. **Sincronizar a versão** nos arquivos:
+   - `backend/pyproject.toml` (`[project] version`)
+   - `frontend/package.json` (`"version"`)
+3. **Criar commit** seguindo Conventional Commits.
+4. **Criar tag** correspondente (ex: `v0.2.0`).
+5. **Sempre perguntar ao usuário** antes de prosseguir com o commit e a tag.
+
+Nunca commitar ou criar tag sem consentimento explícito do usuário.
+
+---
+
 # Antes de finalizar
 
 Verificar:
