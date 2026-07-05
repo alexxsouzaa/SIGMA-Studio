@@ -1,0 +1,469 @@
+---
+name: sigma-telemetry
+description: Atua como Arquiteto de Telemetria do ecossistema SIGMA. Responsável pela definição do modelo universal de aquisição, processamento, transmissão e armazenamento de dados provenientes dos dispositivos SIGMA, garantindo consistência entre Firmware, Backend, Dashboard e futuras integrações.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA Telemetry Skill
+
+# Objetivo
+
+Esta skill define o padrão oficial de telemetria do ecossistema SIGMA.
+
+Ela estabelece como todos os dados produzidos pelo firmware devem ser representados, transportados, armazenados e consumidos.
+
+Todo protocolo de comunicação deverá respeitar este documento.
+
+A telemetria representa a linguagem oficial do SIGMA.
+
+---
+
+# Filosofia
+
+O Firmware produz dados.
+
+A Telemetria organiza esses dados.
+
+Os protocolos apenas transportam.
+
+Nunca permitir que MQTT, HTTP ou WebSocket alterem o significado das informações.
+
+---
+
+# Arquitetura
+
+Firmware
+
+↓
+
+Telemetry Layer
+
+↓
+
+Transport Layer
+
+↓
+
+Backend
+
+↓
+
+Analytics
+
+↓
+
+Database
+
+↓
+
+Dashboard
+
+---
+
+# Camadas
+
+Aquisição
+
+↓
+
+Normalização
+
+↓
+
+Validação
+
+↓
+
+Empacotamento
+
+↓
+
+Transporte
+
+↓
+
+Persistência
+
+↓
+
+Visualização
+
+---
+
+# Princípios
+
+Consistência
+
+Baixa latência
+
+Integridade
+
+Escalabilidade
+
+Baixo consumo
+
+Determinismo
+
+---
+
+# Unidade Fundamental
+
+Toda comunicação deve utilizar uma estrutura denominada:
+
+TelemetrySample
+
+Ela representa uma fotografia completa do estado do dispositivo em um instante específico.
+
+Nunca transmitir variáveis isoladas.
+
+---
+
+# Estrutura Conceitual
+
+TelemetrySample
+
+Device
+
+Timestamp
+
+Status
+
+Sensores
+
+Analytics
+
+Sistema
+
+Energia
+
+Firmware
+
+---
+
+# Device
+
+deviceId
+
+serialNumber
+
+hardwareRevision
+
+firmwareVersion
+
+---
+
+# Timestamp
+
+UTC
+
+Precisão em milissegundos
+
+Nunca utilizar horário local.
+
+---
+
+# Sensores
+
+Temperatura
+
+Vibração RMS
+
+Posição
+
+Velocidade
+
+Aceleração
+
+Estado dos sensores
+
+Qualidade da leitura
+
+Preparar para sensores futuros.
+
+---
+
+# Analytics
+
+Health Score
+
+Rolling Mean
+
+Rolling Std
+
+Trend Slope
+
+Prediction Score
+
+Confidence
+
+Nunca recalcular no Dashboard.
+
+---
+
+# Sistema
+
+Tempo ligado
+
+Reset Count
+
+Reset Cause
+
+Watchdog Status
+
+Memory Usage
+
+CPU Load
+
+Boot Number
+
+---
+
+# Energia
+
+Battery Voltage
+
+Battery Percentage
+
+Charging
+
+Power Source
+
+Low Power Mode
+
+---
+
+# Firmware
+
+Version
+
+Build
+
+Compilation Date
+
+Git Commit
+
+Protocol Version
+
+---
+
+# Alarmes
+
+Alarm Level
+
+Alarm Code
+
+Alarm Description
+
+Alarm Timestamp
+
+---
+
+# Qualidade
+
+Toda amostra deve possuir indicador de validade.
+
+Exemplo
+
+sensorValid
+
+analyticsValid
+
+timestampValid
+
+Nunca assumir que todos os sensores responderam corretamente.
+
+---
+
+# Frequência
+
+A telemetria deve suportar:
+
+Tempo real
+
+Baixa frequência
+
+Sob demanda
+
+Burst
+
+Nunca assumir intervalo fixo.
+
+---
+
+# Compressão
+
+Preparar estrutura para:
+
+JSON
+
+MessagePack
+
+Protobuf
+
+CBOR
+
+Nunca depender exclusivamente de JSON.
+
+---
+
+# Transporte
+
+Compatível com:
+
+MQTT
+
+HTTP
+
+REST
+
+WebSocket
+
+BLE
+
+USB
+
+Serial
+
+---
+
+# Identificação
+
+Toda amostra deve possuir
+
+UUID
+
+Sequence Number
+
+Timestamp
+
+Device ID
+
+Permite detectar perda de pacotes.
+
+---
+
+# Ordem
+
+A telemetria deve suportar
+
+Reordenação
+
+Duplicação
+
+Pacotes perdidos
+
+Reconexão
+
+---
+
+# Buffer
+
+Preparar para transmissão offline.
+
+Quando não houver comunicação:
+
+Armazenar
+
+Sincronizar posteriormente
+
+---
+
+# Sincronização
+
+Permitir
+
+Full Sync
+
+Incremental Sync
+
+Recovery
+
+---
+
+# Segurança
+
+Preparar suporte para
+
+TLS
+
+Assinatura digital
+
+Checksum
+
+CRC
+
+Autenticação
+
+---
+
+# Escalabilidade
+
+Projetar para
+
+1 dispositivo
+
+↓
+
+10 dispositivos
+
+↓
+
+100 dispositivos
+
+↓
+
+1000 dispositivos
+
+↓
+
+10000 dispositivos
+
+Sem alterar o protocolo.
+
+---
+
+# Compatibilidade
+
+Adicionar novos campos
+
+Nunca remover campos existentes.
+
+Manter retrocompatibilidade.
+
+---
+
+# Eventos
+
+Boot
+
+Shutdown
+
+Restart
+
+Calibration
+
+Baseline
+
+Firmware Update
+
+Battery Low
+
+Sensor Failure
+
+Configuration Changed
+
+---
+
+# Diagnóstico
+
+Toda telemetria deve permitir diagnóstico remoto.
+
+Nunca depender exclusivamente da interface serial.
+
+---
+
+# Objetivo Final
+
+Construir um padrão universal de telemetria capaz de servir como base para todo o ecossistema SIGMA, permitindo comunicação consistente entre Firmware, Backend, Dashboard, aplicativos móveis, sistemas corporativos e futuras plataformas de Inteligência Artificial, independentemente do protocolo utilizado.

@@ -1,0 +1,72 @@
+---
+name: sigma-pcb
+description: Especialista em layout de PCB industrial do SIGMA.
+version: 1.0.0
+status: Official
+---
+
+# Objetivo
+
+Padronizar todo o desenvolvimento da PCB.
+
+---
+
+# Camadas
+
+Preferencialmente 4 camadas.
+
+Caso protótipo:
+
+2 camadas.
+
+---
+
+# Prioridades
+
+Integridade do sinal.
+
+Plano de terra contínuo.
+
+Baixo EMI.
+
+Baixo ruído.
+
+---
+
+# MPU6050
+
+Posicionado próximo ao centro mecânico.
+
+Nunca próximo ao ESP32.
+
+Nunca próximo da antena.
+
+---
+
+# Antena
+
+Área livre.
+
+Sem cobre abaixo.
+
+Distância mínima dos sensores.
+
+---
+
+# Testes
+
+Adicionar:
+
+Test Points
+
+SWD/UART
+
+USB-C
+
+Conectores de bancada.
+
+---
+
+# Objetivo Final
+
+Projetar uma PCB robusta e preparada para produção.

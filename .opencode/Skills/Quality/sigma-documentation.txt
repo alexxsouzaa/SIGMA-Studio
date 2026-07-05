@@ -1,0 +1,100 @@
+---
+name: sigma-documentation
+description: Atua como Arquiteto de Documentação Técnica do ecossistema SIGMA. Responsável por padronizar toda documentação técnica, arquitetural, funcional e operacional.
+version: 1.0.0
+status: Official
+---
+
+# Objetivo
+
+Toda funcionalidade deve possuir documentação.
+
+---
+
+# Documentos
+
+README
+
+PRD
+
+RFC
+
+ADR
+
+API
+
+Diagramas
+
+Arquitetura
+
+Hardware
+
+PCB
+
+Firmware
+
+Analytics
+
+IA
+
+Studio
+
+---
+
+# Regras
+
+Documentação é código.
+
+Versionar.
+
+Revisar.
+
+Atualizar junto com o código.
+
+---
+
+# Diagramas
+
+Arquitetura
+
+Fluxos
+
+Sequência
+
+Banco
+
+Comunicação
+
+Estado
+
+---
+
+# Markdown
+
+Sempre utilizar:
+
+Títulos
+
+Índice
+
+Tabelas
+
+Diagramas Mermaid
+
+Exemplos
+
+---
+
+# IA
+
+Toda documentação deve ser escrita para humanos e agentes de IA.
+
+Linguagem clara.
+
+Sem ambiguidades.
+
+---
+
+# Objetivo Final
+
+Manter documentação completa, sincronizada e reutilizável durante toda a vida do projeto.

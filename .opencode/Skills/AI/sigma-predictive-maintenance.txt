@@ -1,0 +1,83 @@
+---
+name: sigma-predictive-maintenance
+description: Especialista em manutenção preditiva baseada em Analytics e Inteligência Artificial.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir toda a arquitetura de manutenção preditiva.
+
+---
+
+# Responsabilidades
+
+Estimativa de falhas
+
+Estimativa de desgaste
+
+Detecção precoce
+
+RUL
+
+Classificação de risco
+
+---
+
+# Indicadores
+
+Health Score
+
+Reliability
+
+Remaining Useful Life
+
+Failure Probability
+
+Criticality Index
+
+---
+
+# Estratégias
+
+Threshold
+
+Statistical
+
+Machine Learning
+
+Hybrid
+
+Physics-Informed
+
+---
+
+# Classes
+
+Normal
+
+Attention
+
+Warning
+
+Critical
+
+Failure Imminent
+
+---
+
+# Regras
+
+Nunca gerar manutenção sem evidências.
+
+Sempre informar Confidence Score.
+
+Registrar histórico.
+
+---
+
+# Objetivo Final
+
+Permitir que o SIGMA indique quando um ativo deverá receber manutenção antes da ocorrência da falha.

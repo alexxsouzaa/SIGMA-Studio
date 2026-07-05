@@ -1,0 +1,549 @@
+---
+name: sigma-database
+description: Atua como Arquiteto de Banco de Dados do SIGMA Studio. Responsável pela modelagem lógica e física do banco, padronização das entidades, otimização de consultas, retenção de telemetria, versionamento de migrações e escalabilidade da plataforma.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA Database Skill
+
+# Objetivo
+
+Esta skill define toda a arquitetura de persistência do SIGMA Studio.
+
+O banco deve ser capaz de armazenar grandes volumes de telemetria industrial mantendo desempenho, integridade e facilidade de manutenção.
+
+Todo o modelo deve ser preparado para crescimento contínuo.
+
+Nunca modelar apenas para o estado atual do projeto.
+
+---
+
+# Banco Oficial
+
+PostgreSQL
+
+Versão mínima
+
+16
+
+ORM
+
+SQLAlchemy 2
+
+Migrações
+
+Alembic
+
+---
+
+# Filosofia
+
+O banco representa a fonte oficial da verdade.
+
+Toda alteração permanente deve passar por ele.
+
+Nunca utilizar o banco apenas como armazenamento.
+
+Ele deve representar corretamente o domínio do sistema.
+
+---
+
+# Princípios
+
+Normalização adequada
+
+Integridade referencial
+
+Baixo acoplamento
+
+Alta performance
+
+Escalabilidade
+
+Rastreabilidade
+
+---
+
+# Entidades Principais
+
+Devices
+
+Telemetry
+
+Analytics
+
+Alerts
+
+Events
+
+Firmware
+
+Users
+
+Roles
+
+Permissions
+
+Settings
+
+Projects
+
+Locations
+
+Organizations
+
+AuditLogs
+
+SystemLogs
+
+---
+
+# Device
+
+Representa um dispositivo físico SIGMA.
+
+Campos mínimos
+
+id
+
+uuid
+
+serialNumber
+
+deviceName
+
+model
+
+hardwareRevision
+
+firmwareVersion
+
+macAddress
+
+status
+
+createdAt
+
+updatedAt
+
+Nunca utilizar nome como chave.
+
+---
+
+# Telemetry
+
+Maior tabela do sistema.
+
+Cada registro representa uma amostra recebida.
+
+Campos
+
+deviceId
+
+timestamp
+
+temperature
+
+vibration
+
+healthScore
+
+alarmLevel
+
+runtimeHours
+
+signalQuality
+
+batteryVoltage
+
+Nunca armazenar dados agregados nesta tabela.
+
+---
+
+# Analytics
+
+Resultados processados.
+
+Campos
+
+deviceId
+
+timestamp
+
+rollingMean
+
+rollingStd
+
+trendSlope
+
+predictionScore
+
+confidence
+
+Nunca misturar telemetria bruta com analytics.
+
+---
+
+# Alerts
+
+Campos
+
+deviceId
+
+timestamp
+
+level
+
+type
+
+description
+
+acknowledged
+
+resolved
+
+---
+
+# Events
+
+Registrar:
+
+Boot
+
+Restart
+
+Calibration
+
+Baseline
+
+Firmware Update
+
+Configuration Change
+
+---
+
+# Firmware
+
+Version
+
+ReleaseDate
+
+Checksum
+
+Description
+
+Compatibility
+
+---
+
+# Users
+
+Nome
+
+Email
+
+Senha
+
+Perfil
+
+Status
+
+Último acesso
+
+---
+
+# Organizations
+
+Permite múltiplas empresas.
+
+Preparar arquitetura desde o início.
+
+---
+
+# Locations
+
+Empresa
+
+Planta
+
+Linha
+
+Setor
+
+Máquina
+
+---
+
+# Relacionamentos
+
+Organization
+
+↓
+
+Location
+
+↓
+
+Machine
+
+↓
+
+Device
+
+↓
+
+Telemetry
+
+↓
+
+Analytics
+
+↓
+
+Alerts
+
+---
+
+# Auditoria
+
+Registrar
+
+Usuário
+
+Ação
+
+IP
+
+Data
+
+Objeto alterado
+
+Resultado
+
+Nunca perder histórico administrativo.
+
+---
+
+# Chaves
+
+Utilizar
+
+UUID
+
+para identificação pública.
+
+IDs inteiros apenas para relacionamento interno.
+
+---
+
+# Datas
+
+Sempre UTC.
+
+Tipo
+
+TIMESTAMP WITH TIME ZONE
+
+---
+
+# Soft Delete
+
+Utilizar quando necessário.
+
+Nunca apagar registros críticos.
+
+---
+
+# Índices
+
+Criar índices para
+
+deviceId
+
+timestamp
+
+alarmLevel
+
+healthScore
+
+status
+
+firmwareVersion
+
+Nunca criar índices desnecessários.
+
+---
+
+# Particionamento
+
+Preparar Telemetry para particionamento por tempo.
+
+Exemplo
+
+Mensal
+
+Nunca deixar uma tabela crescer indefinidamente.
+
+---
+
+# Retenção
+
+Telemetria bruta
+
+Configurar política futura.
+
+Analytics
+
+Persistência longa.
+
+Eventos
+
+Persistência permanente.
+
+---
+
+# Integridade
+
+Sempre utilizar
+
+Foreign Keys
+
+Constraints
+
+Unique
+
+Check
+
+Nunca confiar apenas na aplicação.
+
+---
+
+# Migrações
+
+Toda alteração estrutural deve utilizar Alembic.
+
+Nunca alterar banco manualmente.
+
+---
+
+# Versionamento
+
+Cada migração deve possuir:
+
+Objetivo
+
+Data
+
+Autor
+
+Descrição
+
+Rollback
+
+---
+
+# Performance
+
+Priorizar
+
+Índices
+
+Paginação
+
+Consultas assíncronas
+
+Batch Insert
+
+Connection Pool
+
+---
+
+# Consultas
+
+Nunca utilizar SELECT *.
+
+Buscar apenas colunas necessárias.
+
+---
+
+# Segurança
+
+Nunca armazenar:
+
+Senhas em texto
+
+Tokens
+
+Chaves privadas
+
+Sempre utilizar hash seguro.
+
+---
+
+# Backup
+
+Preparar estratégia para
+
+Backup diário
+
+Backup incremental
+
+Restauração testada
+
+---
+
+# Escalabilidade
+
+Preparar arquitetura para
+
+Milhões de registros
+
+Milhares de dispositivos
+
+Centenas de usuários
+
+---
+
+# Convenções
+
+Tabelas
+
+snake_case
+
+Colunas
+
+snake_case
+
+Primary Keys
+
+id
+
+Foreign Keys
+
+xxx_id
+
+---
+
+# Checklist
+
+Antes de criar nova entidade verificar
+
+Existe duplicação?
+
+Relacionamentos corretos?
+
+Índices necessários?
+
+Escalável?
+
+Normalizada?
+
+Documentada?
+
+---
+
+# Objetivo Final
+
+Construir uma base de dados robusta, preparada para crescimento contínuo, capaz de armazenar grandes volumes de telemetria industrial, analytics e eventos do ecossistema SIGMA mantendo desempenho, integridade e facilidade de evolução durante muitos anos.

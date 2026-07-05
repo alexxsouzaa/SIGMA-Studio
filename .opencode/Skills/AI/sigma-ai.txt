@@ -1,0 +1,465 @@
+---
+name: sigma-ai
+description: Atua como Arquiteto de Inteligência Artificial Industrial do ecossistema SIGMA. Responsável pela arquitetura de IA, modelos preditivos, classificação de falhas, estimativa de vida útil, detecção de anomalias e integração entre Analytics, TinyML e SIGMA Studio.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA AI Skill
+
+# Objetivo
+
+Esta skill define toda a arquitetura de Inteligência Artificial do ecossistema SIGMA.
+
+A IA representa a camada responsável por aprender padrões operacionais, identificar comportamentos anômalos e auxiliar na tomada de decisão para manutenção preditiva.
+
+A IA nunca substitui o Analytics.
+
+Ela utiliza os resultados produzidos pelo Analytics para gerar conhecimento.
+
+---
+
+# Filosofia
+
+Firmware mede.
+
+Analytics interpreta.
+
+IA aprende.
+
+Dashboard explica.
+
+Nunca inverter essa ordem.
+
+---
+
+# Responsabilidades
+
+A IA é responsável por:
+
+Classificação
+
+Predição
+
+Anomalias
+
+Estimativa
+
+Correlação
+
+Aprendizado
+
+Nunca adquirir dados diretamente dos sensores.
+
+---
+
+# Arquitetura
+
+Firmware
+
+↓
+
+Telemetry
+
+↓
+
+Analytics
+
+↓
+
+Feature Engineering
+
+↓
+
+AI Engine
+
+↓
+
+Predictions
+
+↓
+
+Dashboard
+
+---
+
+# Entrada
+
+A IA nunca recebe dados brutos.
+
+Sempre utilizar:
+
+AnalyticsResult
+
+ou
+
+FeatureVector
+
+---
+
+# Feature Engineering
+
+Toda IA trabalha sobre Features.
+
+Exemplos:
+
+Rolling Mean
+
+Rolling Std
+
+Trend Slope
+
+EWMA
+
+Vibration Index
+
+Thermal Index
+
+Health Score
+
+Stability Index
+
+Runtime
+
+Alarm Frequency
+
+Event Density
+
+Nunca utilizar apenas temperatura e vibração.
+
+---
+
+# Categorias
+
+A arquitetura deve suportar:
+
+Machine Learning
+
+Deep Learning
+
+TinyML
+
+Modelos Estatísticos
+
+Modelos Híbridos
+
+---
+
+# Casos de Uso
+
+Detecção de anomalias
+
+Classificação de falhas
+
+Estimativa de desgaste
+
+Estimativa de vida útil (Remaining Useful Life)
+
+Predição de falhas
+
+Correlação entre sensores
+
+Identificação de degradação
+
+---
+
+# Modelos
+
+Preparar suporte para:
+
+Random Forest
+
+Gradient Boosting
+
+XGBoost
+
+LightGBM
+
+Isolation Forest
+
+One-Class SVM
+
+Autoencoder
+
+LSTM
+
+GRU
+
+Transformer (futuro)
+
+TinyML
+
+Nunca depender de um único algoritmo.
+
+---
+
+# Pipeline
+
+Telemetry
+
+↓
+
+Analytics
+
+↓
+
+Features
+
+↓
+
+Normalização
+
+↓
+
+Modelo
+
+↓
+
+Inferência
+
+↓
+
+Confidence Score
+
+↓
+
+Dashboard
+
+---
+
+# Treinamento
+
+Separar completamente:
+
+Treinamento
+
+Inferência
+
+Nunca treinar modelos embarcados no firmware.
+
+---
+
+# Inferência
+
+A inferência poderá ocorrer:
+
+Backend
+
+TinyML
+
+Cloud (futuro)
+
+A arquitetura deve suportar todos.
+
+---
+
+# TinyML
+
+O Firmware recebe apenas modelos prontos.
+
+Nunca executar treinamento no ESP32.
+
+---
+
+# Dataset
+
+Todo dataset deve possuir:
+
+Versão
+
+Origem
+
+Quantidade de amostras
+
+Período
+
+Sensores utilizados
+
+Condições operacionais
+
+Qualidade
+
+---
+
+# Versionamento
+
+Todo modelo deve registrar:
+
+Nome
+
+Versão
+
+Data
+
+Autor
+
+Dataset
+
+Métricas
+
+Checksum
+
+Framework
+
+---
+
+# Métricas
+
+Avaliar:
+
+Accuracy
+
+Precision
+
+Recall
+
+F1 Score
+
+ROC AUC
+
+Confusion Matrix
+
+MAE
+
+RMSE
+
+Nunca avaliar apenas Accuracy.
+
+---
+
+# Confiabilidade
+
+Toda inferência deve retornar:
+
+Prediction
+
+Confidence Score
+
+Model Version
+
+Inference Time
+
+Nunca retornar apenas a classe prevista.
+
+---
+
+# Explicabilidade
+
+Sempre que possível fornecer:
+
+Features mais relevantes
+
+Importância das variáveis
+
+Contribuição da previsão
+
+Preparar arquitetura para técnicas de Explainable AI.
+
+---
+
+# Atualização de Modelos
+
+Modelos devem ser distribuídos via OTA.
+
+Registrar:
+
+Versão
+
+Checksum
+
+Compatibilidade
+
+Rollback
+
+---
+
+# Segurança
+
+Validar integridade dos modelos.
+
+Nunca aceitar modelos não assinados.
+
+---
+
+# Performance
+
+Inferência deve ser rápida.
+
+Preparar para execução em tempo real.
+
+Evitar consumo excessivo de memória.
+
+---
+
+# Testes
+
+Todo modelo deve possuir:
+
+Validação cruzada
+
+Dataset de teste
+
+Casos extremos
+
+Teste de regressão
+
+---
+
+# Escalabilidade
+
+Projetar para:
+
+Múltiplos modelos
+
+Múltiplos ativos
+
+Múltiplas versões
+
+Sem alterar a arquitetura.
+
+---
+
+# Convenções
+
+Modelos
+
+PascalCase
+
+Features
+
+snake_case
+
+Classes
+
+PascalCase
+
+Arquivos
+
+snake_case
+
+---
+
+# Checklist
+
+Antes de publicar um modelo verificar:
+
+Treinado?
+
+Validado?
+
+Versionado?
+
+Documentado?
+
+Testado?
+
+Compatível?
+
+Explicável?
+
+---
+
+# Objetivo Final
+
+Construir uma plataforma de Inteligência Artificial Industrial capaz de aprender continuamente com os dados produzidos pelo ecossistema SIGMA, fornecendo previsões confiáveis, detecção antecipada de falhas e suporte inteligente à manutenção preditiva, mantendo total integração com Analytics, TinyML e SIGMA Studio.

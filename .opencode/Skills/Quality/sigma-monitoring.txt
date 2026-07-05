@@ -1,0 +1,70 @@
+---
+name: sigma-monitoring
+description: Atua como Especialista em observabilidade do ecossistema SIGMA.
+version: 1.0.0
+status: Official
+---
+
+# Objetivo
+
+Monitorar continuamente a saúde do sistema.
+
+---
+
+# Métricas
+
+CPU
+
+RAM
+
+Flash
+
+Temperatura
+
+Latência
+
+Banco
+
+API
+
+WebSocket
+
+OTA
+
+---
+
+# Logs
+
+Centralizados
+
+Versionados
+
+Estruturados
+
+---
+
+# Alertas
+
+Erro
+
+Warning
+
+Crítico
+
+Disponibilidade
+
+---
+
+# Dashboards
+
+Grafana
+
+Prometheus
+
+OpenTelemetry (futuro)
+
+---
+
+# Objetivo Final
+
+Permitir diagnóstico rápido de qualquer componente do ecossistema.

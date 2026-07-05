@@ -1,0 +1,161 @@
+---
+name: sigma-testing
+description: Atua como Engenheiro de Qualidade do ecossistema SIGMA. Responsável por testes unitários, integração, sistema, hardware-in-the-loop (HIL), regressão, validação e cobertura de código.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Garantir a qualidade de todo o ecossistema SIGMA.
+
+---
+
+# Filosofia
+
+Nenhuma funcionalidade é considerada concluída sem testes.
+
+---
+
+# Pirâmide de Testes
+
+Unitários
+
+↓
+
+Integração
+
+↓
+
+Sistema
+
+↓
+
+Hardware
+
+↓
+
+Aceitação
+
+---
+
+# Tipos de Testes
+
+Unit Test
+
+Integration Test
+
+System Test
+
+Regression Test
+
+Performance Test
+
+Stress Test
+
+Long Duration Test
+
+Hardware-in-the-Loop
+
+End-to-End
+
+OTA Test
+
+Database Test
+
+API Test
+
+WebSocket Test
+
+Firmware Test
+
+---
+
+# Firmware
+
+Testar:
+
+Drivers
+
+Storage
+
+Services
+
+Analytics
+
+Command Handler
+
+Telemetria
+
+---
+
+# Backend
+
+Endpoints
+
+Banco
+
+WebSocket
+
+Autenticação
+
+Cache
+
+---
+
+# SIGMA Studio
+
+Interface
+
+Fluxos
+
+Dashboard
+
+Gráficos
+
+Configuração
+
+OTA
+
+---
+
+# Cobertura
+
+Meta mínima:
+
+80%
+
+Ideal:
+
+90%
+
+---
+
+# Regressão
+
+Toda correção deve possuir teste.
+
+Nunca corrigir bugs sem adicionar testes.
+
+---
+
+# Performance
+
+Medir:
+
+Tempo
+
+RAM
+
+CPU
+
+Flash
+
+Latência
+
+---
+
+# Objetivo Final
+
+Garantir estabilidade e qualidade contínua em todas as versões do SIGMA.

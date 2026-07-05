@@ -1,0 +1,111 @@
+---
+name: sigma-industrial-design
+description: Atua como Designer Industrial do ecossistema SIGMA. Responsável pela aparência, ergonomia, montagem, materiais, fabricação e identidade física do dispositivo.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir toda a engenharia de design industrial.
+
+---
+
+# Filosofia
+
+Forma segue função.
+
+A estética nunca pode comprometer o desempenho.
+
+---
+
+# Conceito
+
+Industrial
+
+Minimalista
+
+Robusto
+
+Profissional
+
+---
+
+# Case
+
+Compacta
+
+Impermeável
+
+Resistente
+
+Sem LEDs externos
+
+Sem elementos decorativos.
+
+---
+
+# Materiais
+
+ABS
+
+Policarbonato
+
+Alumínio
+
+Aço Inoxidável
+
+---
+
+# Base
+
+Base metálica rígida.
+
+Fixação por parafusos.
+
+Contato direto com o ativo.
+
+---
+
+# Sensor
+
+O sensor de vibração deve estar mecanicamente desacoplado da tampa.
+
+Montagem rígida sobre a PCB.
+
+---
+
+# Vedação
+
+IP65 mínimo
+
+Preparado para IP67
+
+---
+
+# Produção
+
+Projeto preparado para:
+
+Injeção plástica
+
+Usinagem CNC
+
+Impressão 3D (protótipos)
+
+---
+
+# Manutenção
+
+Fácil abertura.
+
+Poucas peças.
+
+Baixo tempo de montagem.
+
+---
+
+# Objetivo Final
+
+Criar um dispositivo industrial robusto, elegante e preparado para fabricação em escala.

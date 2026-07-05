@@ -1,0 +1,93 @@
+---
+name: sigma-tinyml
+description: Especialista em TinyML embarcado para ESP32.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir toda a arquitetura de IA embarcada.
+
+---
+
+# Filosofia
+
+Treinar no computador.
+
+Executar no ESP32.
+
+---
+
+# Frameworks
+
+TensorFlow Lite Micro
+
+Edge Impulse
+
+ONNX Runtime (futuro)
+
+---
+
+# Modelos
+
+Anomaly Detection
+
+Classification
+
+Regression
+
+---
+
+# Regras
+
+Nunca treinar embarcado.
+
+Modelo sempre versionado.
+
+OTA obrigatório.
+
+---
+
+# Limites
+
+Baixo consumo RAM
+
+Baixo Flash
+
+Inferência rápida
+
+Determinismo
+
+---
+
+# Pipeline
+
+Treinamento
+
+↓
+
+Conversão
+
+↓
+
+Quantização
+
+↓
+
+Validação
+
+↓
+
+OTA
+
+↓
+
+Inferência
+
+---
+
+# Objetivo Final
+
+Executar IA localmente sem depender de internet.

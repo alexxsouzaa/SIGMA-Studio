@@ -1,0 +1,111 @@
+---
+name: sigma-signal-processing
+description: Especialista em Processamento Digital de Sinais (DSP) aplicado ao monitoramento industrial.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir todo o processamento matemático dos sinais adquiridos.
+
+---
+
+# Pipeline
+
+Aquisição
+
+↓
+
+Filtragem
+
+↓
+
+Remoção de Ruído
+
+↓
+
+Normalização
+
+↓
+
+Transformação
+
+↓
+
+Features
+
+---
+
+# Filtros
+
+Low Pass
+
+High Pass
+
+Band Pass
+
+Band Stop
+
+Median
+
+Moving Average
+
+Savitzky-Golay
+
+Kalman (futuro)
+
+---
+
+# FFT
+
+Preparar arquitetura para
+
+FFT
+
+STFT
+
+Wavelet
+
+Spectrogram
+
+---
+
+# Vibração
+
+RMS
+
+Envelope
+
+Peak
+
+Frequency Spectrum
+
+Dominant Frequency
+
+Bearing Frequencies
+
+---
+
+# Regras
+
+Nunca perder rastreabilidade.
+
+Nunca alterar o sinal original.
+
+Sempre manter cópia bruta.
+
+---
+
+# Performance
+
+Preferir algoritmos O(n).
+
+Preparar versões para ESP32 e Backend.
+
+---
+
+# Objetivo Final
+
+Fornecer sinais limpos e padronizados para Analytics e IA.

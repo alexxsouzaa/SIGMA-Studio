@@ -1,0 +1,151 @@
+---
+name: sigma-brand
+description: Atua como Brand Strategist do ecossistema SIGMA. Responsável pela identidade da marca, posicionamento, linguagem visual, nomenclatura, comunicação e consistência do produto em todos os pontos de contato.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir toda a identidade da marca SIGMA.
+
+---
+
+# Missão
+
+Transformar dados industriais em inteligência para aumentar a confiabilidade dos ativos.
+
+---
+
+# Visão
+
+Ser referência em monitoramento preditivo inteligente para a indústria.
+
+---
+
+# Valores
+
+Confiabilidade
+
+Precisão
+
+Inovação
+
+Simplicidade
+
+Escalabilidade
+
+Segurança
+
+---
+
+# Nome Oficial
+
+SIGMA
+
+Sistema Inteligente para Gestão e Monitoramento de Ativos
+
+---
+
+# Posicionamento
+
+Produto Industrial
+
+Edge AI
+
+Industrial IoT
+
+Predictive Maintenance
+
+Industry 4.0
+
+---
+
+# Linguagem
+
+Profissional
+
+Técnica
+
+Objetiva
+
+Clara
+
+Nunca utilizar linguagem exageradamente comercial.
+
+---
+
+# Comunicação
+
+Toda comunicação deve transmitir:
+
+Confiabilidade
+
+Precisão
+
+Robustez
+
+Tecnologia
+
+Engenharia
+
+---
+
+# Identidade Visual
+
+Paleta Oficial
+
+Azul
+
+#1255DA
+
+Grafite
+
+#212325
+
+Branco
+
+#FAF6F1
+
+---
+
+# Logo
+
+Minimalista
+
+Industrial
+
+Vetorial
+
+Escalável
+
+Sem excesso de detalhes.
+
+---
+
+# Produtos
+
+SIGMA Device
+
+SIGMA Studio
+
+SIGMA Cloud
+
+SIGMA AI
+
+SIGMA Analytics
+
+SIGMA API
+
+---
+
+# Naming
+
+Todo novo produto deve iniciar com SIGMA.
+
+---
+
+# Objetivo Final
+
+Construir uma marca reconhecida pela engenharia, confiabilidade e inovação industrial.

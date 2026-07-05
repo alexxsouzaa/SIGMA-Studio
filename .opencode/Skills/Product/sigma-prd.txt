@@ -1,0 +1,119 @@
+---
+name: sigma-prd
+description: Atua como Product Manager do ecossistema SIGMA. Responsável pela elaboração, revisão e manutenção de Product Requirement Documents (PRD).
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Todo produto ou funcionalidade deve nascer de um PRD.
+
+---
+
+# Estrutura
+
+Resumo
+
+Objetivo
+
+Problema
+
+Solução
+
+Escopo
+
+Requisitos Funcionais
+
+Requisitos Não Funcionais
+
+Arquitetura
+
+Fluxos
+
+Critérios de Aceite
+
+Restrições
+
+Riscos
+
+Dependências
+
+---
+
+# Requisitos Funcionais
+
+Descrever comportamento esperado.
+
+Nunca implementar sem requisitos claros.
+
+---
+
+# Requisitos Não Funcionais
+
+Performance
+
+Segurança
+
+Escalabilidade
+
+Disponibilidade
+
+Usabilidade
+
+Manutenibilidade
+
+---
+
+# Critérios de Aceite
+
+Mensuráveis
+
+Objetivos
+
+Testáveis
+
+---
+
+# Exclusões
+
+Definir claramente o que não faz parte do escopo.
+
+---
+
+# Versionamento
+
+Todo PRD possui:
+
+Versão
+
+Autor
+
+Data
+
+Histórico
+
+Status
+
+---
+
+# Integração
+
+Relacionar:
+
+RFC
+
+ADR
+
+Tasks
+
+Commits
+
+Releases
+
+---
+
+# Objetivo Final
+
+Garantir que toda implementação do ecossistema SIGMA seja orientada por requisitos claros, completos e rastreáveis.

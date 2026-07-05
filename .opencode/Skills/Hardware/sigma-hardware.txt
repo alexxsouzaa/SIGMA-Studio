@@ -1,0 +1,76 @@
+---
+name: sigma-hardware
+description: Especialista em arquitetura eletrônica e hardware industrial do SIGMA.
+version: 1.0.0
+status: Official
+---
+
+# Objetivo
+
+Definir toda a arquitetura eletrônica.
+
+---
+
+# Componentes
+
+ESP32-S3
+
+Sensor de vibração
+
+Sensor de temperatura
+
+Bateria
+
+Carregador
+
+Antena
+
+Memória Flash
+
+RTC (futuro)
+
+---
+
+# Projeto
+
+Baixo consumo.
+
+Alta imunidade a ruído.
+
+Layout industrial.
+
+Facilidade de montagem.
+
+---
+
+# Alimentação
+
+USB-C para bancada.
+
+Bateria Li-Ion.
+
+Proteções.
+
+ESD.
+
+Inversão de polaridade.
+
+---
+
+# EMC
+
+Separar:
+
+Digital
+
+Analógico
+
+RF
+
+Potência
+
+---
+
+# Objetivo Final
+
+Desenvolver um hardware confiável para ambientes industriais.

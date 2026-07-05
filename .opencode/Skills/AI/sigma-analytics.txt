@@ -1,0 +1,581 @@
+---
+name: sigma-analytics
+description: Atua como Arquiteto de Analytics Industrial do ecossistema SIGMA. Responsável pelo processamento matemático, estatístico e analítico de toda a telemetria, transformando dados brutos em informações, indicadores, tendências e predições para manutenção preditiva.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA Analytics Skill
+
+# Objetivo
+
+Esta skill define toda a arquitetura analítica do ecossistema SIGMA.
+
+O Analytics representa o cérebro matemático da plataforma.
+
+Sua missão é transformar telemetria bruta em conhecimento sobre a condição operacional dos ativos monitorados.
+
+Toda inteligência estatística do sistema deve ser centralizada neste módulo.
+
+---
+
+# Filosofia
+
+Firmware mede.
+
+Backend organiza.
+
+Analytics interpreta.
+
+IA aprende.
+
+Nunca misturar essas responsabilidades.
+
+---
+
+# Arquitetura
+
+Firmware
+
+↓
+
+Telemetry
+
+↓
+
+Database
+
+↓
+
+Analytics Engine
+
+↓
+
+Insights
+
+↓
+
+Dashboard
+
+↓
+
+IA
+
+---
+
+# Pipeline Analítico
+
+Aquisição
+
+↓
+
+Validação
+
+↓
+
+Normalização
+
+↓
+
+Limpeza
+
+↓
+
+Feature Extraction
+
+↓
+
+Rolling Statistics
+
+↓
+
+Trend Analysis
+
+↓
+
+Anomaly Detection
+
+↓
+
+Health Score
+
+↓
+
+Prediction
+
+↓
+
+Visualização
+
+---
+
+# Entrada
+
+Toda entrada deve utilizar:
+
+TelemetrySample
+
+Nunca utilizar variáveis isoladas.
+
+---
+
+# Estrutura
+
+Telemetry
+
+↓
+
+Features
+
+↓
+
+Statistics
+
+↓
+
+Indicators
+
+↓
+
+Predictions
+
+---
+
+# Dados Utilizados
+
+Temperatura
+
+Vibração RMS
+
+Posição
+
+Horímetro
+
+Alarmes
+
+Eventos
+
+Baseline
+
+Configuração
+
+Firmware
+
+---
+
+# Feature Extraction
+
+Extrair continuamente:
+
+Média
+
+Máximo
+
+Mínimo
+
+Amplitude
+
+Variância
+
+Desvio padrão
+
+Energia
+
+Crescimento
+
+Inclinação
+
+Derivada
+
+Taxa de variação
+
+Nunca calcular apenas médias simples.
+
+---
+
+# Rolling Statistics
+
+Implementar:
+
+Rolling Mean
+
+Rolling Std
+
+Rolling Variance
+
+Rolling RMS
+
+Rolling Max
+
+Rolling Min
+
+Rolling Median
+
+Rolling Percentile
+
+Tudo em O(1) sempre que possível.
+
+---
+
+# Trend Analysis
+
+Calcular:
+
+Slope
+
+Linear Regression
+
+Moving Average
+
+EWMA
+
+Taxa de crescimento
+
+Direção da tendência
+
+Estabilidade
+
+Persistência
+
+---
+
+# Health Score
+
+O Health Score representa a condição operacional do ativo.
+
+Escala:
+
+0
+
+↓
+
+100
+
+Nunca depender de apenas um sensor.
+
+O cálculo deve considerar múltiplas variáveis.
+
+---
+
+# Baseline
+
+Cada ativo possui seu próprio baseline.
+
+Nunca compartilhar baseline entre máquinas diferentes.
+
+Registrar:
+
+Data
+
+Condição
+
+Quantidade de amostras
+
+Confiabilidade
+
+---
+
+# Anomaly Detection
+
+Detectar:
+
+Mudanças abruptas
+
+Mudanças lentas
+
+Oscilações
+
+Deriva
+
+Picos
+
+Comportamento anômalo
+
+Nunca depender exclusivamente de limites fixos.
+
+---
+
+# Indicadores
+
+Gerar:
+
+Health Score
+
+Stability Index
+
+Thermal Index
+
+Vibration Index
+
+Reliability Score
+
+Confidence Score
+
+Trend Score
+
+Prediction Score
+
+---
+
+# Eventos Analíticos
+
+Baseline criado
+
+Baseline atualizado
+
+Tendência detectada
+
+Anomalia encontrada
+
+Piora significativa
+
+Melhora significativa
+
+---
+
+# Classificação
+
+Normal
+
+Observação
+
+Atenção
+
+Alerta
+
+Crítico
+
+Nunca utilizar apenas dois estados.
+
+---
+
+# Predições
+
+Preparar arquitetura para:
+
+Tempo até falha
+
+Evolução do desgaste
+
+Vida útil estimada
+
+Probabilidade de falha
+
+Nunca implementar IA diretamente nesta camada.
+
+---
+
+# Histórico
+
+Todo cálculo deve possuir:
+
+Timestamp
+
+Versão do algoritmo
+
+Dispositivo
+
+Origem
+
+Confiabilidade
+
+---
+
+# Confiabilidade
+
+Cada resultado analítico deve possuir:
+
+Confidence Score
+
+Baixa
+
+Média
+
+Alta
+
+Nunca assumir precisão absoluta.
+
+---
+
+# Versionamento
+
+Todo algoritmo deve possuir:
+
+Versão
+
+Autor
+
+Data
+
+Descrição
+
+Mudanças
+
+---
+
+# Performance
+
+Processamento incremental.
+
+Evitar recálculos completos.
+
+Utilizar buffers circulares.
+
+Complexidade constante sempre que possível.
+
+---
+
+# Memória
+
+Nunca duplicar dados.
+
+Reutilizar estruturas.
+
+Separar dados brutos de resultados.
+
+---
+
+# Escalabilidade
+
+Projetar para:
+
+1 dispositivo
+
+↓
+
+100
+
+↓
+
+1000
+
+↓
+
+10000
+
+↓
+
+100000
+
+Sem alterar arquitetura.
+
+---
+
+# IA
+
+Analytics prepara os dados.
+
+IA consome.
+
+Nunca inverter responsabilidades.
+
+---
+
+# Dashboard
+
+Disponibilizar:
+
+Indicadores
+
+Tendências
+
+Gráficos
+
+Eventos
+
+Alertas
+
+Comparações
+
+Nunca enviar cálculos brutos para a interface.
+
+---
+
+# API
+
+Toda informação deve ser consumida através da API.
+
+Nunca permitir acesso direto ao banco.
+
+---
+
+# Auditoria
+
+Registrar:
+
+Algoritmo
+
+Versão
+
+Tempo de execução
+
+Entradas
+
+Saídas
+
+---
+
+# Testes
+
+Todos os algoritmos devem possuir:
+
+Testes unitários
+
+Casos extremos
+
+Validação matemática
+
+Reprodutibilidade
+
+---
+
+# Convenções
+
+Algoritmos
+
+PascalCase
+
+Funções
+
+camelCase
+
+Features
+
+snake_case
+
+Enums
+
+PascalCase
+
+---
+
+# Checklist
+
+Antes de adicionar novo algoritmo verificar:
+
+Existe duplicação?
+
+É incremental?
+
+É determinístico?
+
+Possui testes?
+
+Possui documentação?
+
+É reutilizável?
+
+---
+
+# Evolução
+
+A arquitetura deve permitir incorporar novos algoritmos sem alterar os existentes.
+
+Novas análises devem ser adicionadas como módulos independentes.
+
+---
+
+# Objetivo Final
+
+Construir um mecanismo analítico industrial robusto, modular e escalável, capaz de transformar continuamente grandes volumes de telemetria em indicadores confiáveis, tendências operacionais e conhecimento preditivo, servindo como base para o Dashboard, APIs, manutenção preditiva e futuros modelos de Inteligência Artificial do ecossistema SIGMA.

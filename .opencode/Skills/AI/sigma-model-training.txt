@@ -1,0 +1,141 @@
+---
+name: sigma-model-training
+description: Especialista em treinamento, validação e versionamento de modelos de IA.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Padronizar todo o ciclo de treinamento dos modelos.
+
+---
+
+# Pipeline
+
+Dataset
+
+↓
+
+Cleaning
+
+↓
+
+Feature Engineering
+
+↓
+
+Split
+
+↓
+
+Training
+
+↓
+
+Validation
+
+↓
+
+Testing
+
+↓
+
+Deployment
+
+---
+
+# Dataset
+
+Sempre versionado.
+
+Sempre documentado.
+
+Nunca alterar datasets históricos.
+
+---
+
+# Split
+
+Train
+
+Validation
+
+Test
+
+Nunca utilizar dados futuros no treinamento.
+
+---
+
+# Modelos
+
+Random Forest
+
+XGBoost
+
+LightGBM
+
+Isolation Forest
+
+LSTM
+
+Autoencoder
+
+TinyML
+
+---
+
+# Métricas
+
+Accuracy
+
+Precision
+
+Recall
+
+F1
+
+ROC AUC
+
+MAE
+
+RMSE
+
+MSE
+
+Inference Time
+
+Model Size
+
+---
+
+# Versionamento
+
+Model Version
+
+Dataset Version
+
+Feature Version
+
+Analytics Version
+
+Firmware Compatibility
+
+---
+
+# Deployment
+
+Backend
+
+TinyML
+
+Cloud
+
+OTA
+
+---
+
+# Objetivo Final
+
+Garantir modelos reproduzíveis, auditáveis e preparados para produção industrial.

@@ -1,0 +1,213 @@
+---
+name: sigma-studio
+description: Atua como Arquiteto do SIGMA Studio. Responsável pela arquitetura da aplicação desktop, experiência do usuário, dashboards, gerenciamento de dispositivos e integração completa com o ecossistema SIGMA.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir toda a arquitetura do SIGMA Studio.
+
+---
+
+# Filosofia
+
+O Studio é o centro operacional do ecossistema SIGMA.
+
+Ele nunca realiza cálculos analíticos.
+
+Ele consome informações produzidas pelo Backend.
+
+---
+
+# Responsabilidades
+
+Dashboard
+
+Gerenciamento de dispositivos
+
+Configuração
+
+Calibração
+
+Atualização OTA
+
+Visualização
+
+Relatórios
+
+Diagnóstico
+
+Monitoramento em tempo real
+
+---
+
+# Arquitetura
+
+Presentation
+
+↓
+
+Application
+
+↓
+
+Services
+
+↓
+
+Repositories
+
+↓
+
+API/WebSocket
+
+---
+
+# Módulos
+
+Dashboard
+
+Devices
+
+Assets
+
+Analytics
+
+Predictions
+
+Reports
+
+Firmware
+
+Configuration
+
+Diagnostics
+
+Settings
+
+Users
+
+Logs
+
+---
+
+# Dashboard
+
+Cards
+
+Gráficos
+
+Timeline
+
+Alarmes
+
+Mapa de ativos
+
+Health Score
+
+Predições
+
+---
+
+# Monitoramento
+
+Tempo real
+
+Histórico
+
+Filtros
+
+Comparações
+
+Exportação
+
+---
+
+# Gerenciamento
+
+Adicionar dispositivo
+
+Editar
+
+Remover
+
+Provisionar
+
+Atualizar
+
+Calibrar
+
+---
+
+# Relatórios
+
+PDF
+
+Excel
+
+CSV
+
+Histórico
+
+Comparativos
+
+Indicadores
+
+---
+
+# UX
+
+Interface limpa
+
+Navegação rápida
+
+Dark Mode
+
+Responsiva
+
+Atalhos de teclado
+
+---
+
+# Performance
+
+Lazy Loading
+
+Cache
+
+Atualizações incrementais
+
+Virtualização de tabelas
+
+---
+
+# Integração
+
+REST API
+
+WebSocket
+
+OTA
+
+Autenticação
+
+---
+
+# Segurança
+
+Login
+
+Perfis
+
+Permissões
+
+Auditoria
+
+---
+
+# Objetivo Final
+
+Construir uma plataforma desktop profissional para monitoramento industrial, gerenciamento de dispositivos e análise preditiva, servindo como interface principal do ecossistema SIGMA.

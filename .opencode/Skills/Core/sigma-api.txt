@@ -1,0 +1,564 @@
+---
+name: sigma-api
+description: Atua como Arquiteto de APIs do SIGMA Studio. Responsável pelo design, padronização, versionamento, contratos, endpoints REST, WebSockets, documentação OpenAPI e integração entre Firmware, Backend, Frontend e serviços externos.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA API Skill
+
+# Objetivo
+
+Esta skill define toda a arquitetura da API do SIGMA Studio.
+
+A API representa o contrato oficial entre todos os componentes do ecossistema SIGMA.
+
+Toda comunicação entre sistemas deve ocorrer através de contratos bem definidos, previsíveis e versionados.
+
+---
+
+# Princípios
+
+Toda API deve ser:
+
+Consistente
+
+Versionada
+
+Tipada
+
+Documentada
+
+Escalável
+
+Previsível
+
+Nunca quebrar compatibilidade sem necessidade.
+
+---
+
+# Consumidores da API
+
+A API deverá atender:
+
+SIGMA Studio
+
+Firmware SIGMA
+
+Dashboard Web
+
+Aplicativo Mobile (futuro)
+
+Integrações externas
+
+Scripts de automação
+
+Nunca desenvolver endpoints exclusivos para um cliente.
+
+Sempre pensar na reutilização.
+
+---
+
+# Arquitetura
+
+Firmware
+
+↓
+
+MQTT
+
+↓
+
+Telemetry Service
+
+↓
+
+Application Services
+
+↓
+
+REST API
+
+↓
+
+Frontend
+
+---
+
+Também suportar
+
+REST
+
+WebSocket
+
+Server Sent Events (futuro)
+
+---
+
+# Versionamento
+
+Toda rota deve iniciar por:
+
+/api/v1/
+
+Nunca publicar endpoints sem versionamento.
+
+Quando houver mudanças incompatíveis:
+
+Criar:
+
+/api/v2/
+
+Nunca modificar silenciosamente uma versão existente.
+
+---
+
+# Padrão REST
+
+Utilizar:
+
+GET
+
+POST
+
+PUT
+
+PATCH
+
+DELETE
+
+Nunca utilizar verbos na URL.
+
+Correto
+
+/devices
+
+Errado
+
+/getDevices
+
+---
+
+# Recursos
+
+Devices
+
+Telemetry
+
+Analytics
+
+Alerts
+
+Users
+
+Settings
+
+Firmware
+
+Reports
+
+Logs
+
+Health
+
+System
+
+---
+
+# Estrutura das URLs
+
+/api/v1/devices
+
+/api/v1/devices/{id}
+
+/api/v1/devices/{id}/telemetry
+
+/api/v1/devices/{id}/analytics
+
+/api/v1/devices/{id}/alerts
+
+/api/v1/system
+
+/api/v1/settings
+
+---
+
+# JSON
+
+Sempre utilizar:
+
+camelCase
+
+Nunca misturar snake_case.
+
+---
+
+# Datas
+
+Utilizar ISO-8601.
+
+Exemplo
+
+2026-07-05T15:30:00Z
+
+Nunca enviar datas em formato local.
+
+---
+
+# Timestamp
+
+Sempre em UTC.
+
+Converter apenas na interface.
+
+---
+
+# Identificação
+
+Todo dispositivo possui:
+
+deviceId
+
+serialNumber
+
+firmwareVersion
+
+hardwareRevision
+
+model
+
+Nunca identificar dispositivos apenas pelo nome.
+
+---
+
+# Respostas
+
+Sempre retornar:
+
+success
+
+data
+
+message
+
+timestamp
+
+requestId
+
+Exemplo
+
+{
+  "success": true,
+  "data": {},
+  "message": "Operação realizada.",
+  "timestamp": "...",
+  "requestId": "..."
+}
+
+---
+
+# Erros
+
+Mesmo padrão para todos.
+
+{
+  "success": false,
+  "error": {
+      "code": "...",
+      "message": "...",
+      "details": []
+  },
+  "timestamp": "...",
+  "requestId": "..."
+}
+
+Nunca retornar exceções internas.
+
+---
+
+# HTTP Status
+
+200 OK
+
+201 Created
+
+204 No Content
+
+400 Bad Request
+
+401 Unauthorized
+
+403 Forbidden
+
+404 Not Found
+
+409 Conflict
+
+422 Validation Error
+
+429 Too Many Requests
+
+500 Internal Error
+
+---
+
+# Paginação
+
+Sempre utilizar:
+
+page
+
+limit
+
+total
+
+pages
+
+Nunca retornar milhares de registros.
+
+---
+
+# Ordenação
+
+Suportar:
+
+sort
+
+order
+
+---
+
+# Filtros
+
+Sempre permitir filtros.
+
+Exemplo
+
+temperatureMin
+
+temperatureMax
+
+healthMin
+
+healthMax
+
+alarmLevel
+
+status
+
+dateStart
+
+dateEnd
+
+---
+
+# Pesquisa
+
+Utilizar:
+
+search
+
+Nunca criar múltiplos parâmetros semelhantes.
+
+---
+
+# Validação
+
+Toda entrada deve utilizar Pydantic.
+
+Nunca confiar em dados do cliente.
+
+---
+
+# OpenAPI
+
+Toda rota deve possuir:
+
+Descrição
+
+Tags
+
+Schemas
+
+Exemplos
+
+Responses
+
+Nunca deixar documentação incompleta.
+
+---
+
+# WebSocket
+
+Criar canal dedicado.
+
+Exemplo
+
+/ws/telemetry
+
+/ws/alerts
+
+/ws/system
+
+Nunca misturar eventos.
+
+---
+
+# Eventos
+
+Todo evento deve possuir:
+
+event
+
+timestamp
+
+deviceId
+
+payload
+
+---
+
+# Firmware
+
+O firmware nunca deve conhecer regras da API.
+
+Toda tradução MQTT ⇄ REST ocorre no Backend.
+
+---
+
+# Uploads
+
+Preparar suporte para:
+
+Firmware
+
+Logs
+
+Relatórios
+
+Nunca armazenar arquivos diretamente na API.
+
+---
+
+# Segurança
+
+JWT
+
+HTTPS
+
+Rate Limit
+
+CORS
+
+Refresh Token
+
+Nunca permitir endpoints administrativos públicos.
+
+---
+
+# Auditoria
+
+Registrar:
+
+Usuário
+
+IP
+
+Timestamp
+
+Endpoint
+
+Método
+
+Resultado
+
+---
+
+# Performance
+
+Compressão
+
+Cache
+
+ETag
+
+Paginação
+
+Resposta assíncrona quando necessário
+
+---
+
+# Compatibilidade
+
+Nunca remover campos existentes.
+
+Adicionar novos campos sempre opcionais.
+
+---
+
+# Idempotência
+
+PUT
+
+DELETE
+
+PATCH
+
+Devem ser idempotentes sempre que possível.
+
+---
+
+# Logs
+
+Registrar:
+
+Request
+
+Response
+
+Tempo de execução
+
+Código HTTP
+
+Nunca registrar informações sensíveis.
+
+---
+
+# Convenções
+
+Rotas
+
+kebab-case
+
+Campos JSON
+
+camelCase
+
+Enums
+
+PascalCase
+
+---
+
+# Checklist
+
+Antes de publicar verificar:
+
+Versionamento correto?
+
+Documentação atualizada?
+
+Schemas tipados?
+
+Respostas padronizadas?
+
+Erros consistentes?
+
+Sem quebra de compatibilidade?
+
+---
+
+# Objetivo Final
+
+Construir uma API robusta, previsível e escalável, capaz de integrar firmware, dashboards, aplicações móveis, sistemas corporativos e futuras plataformas de inteligência artificial, mantendo contratos estáveis e documentação completa durante toda a evolução do ecossistema SIGMA.

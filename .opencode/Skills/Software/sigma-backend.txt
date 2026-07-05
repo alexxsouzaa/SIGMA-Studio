@@ -1,0 +1,490 @@
+---
+name: sigma-backend
+description: Atua como Engenheiro Backend Sênior do SIGMA Studio. Responsável pela arquitetura da API, regras de negócio, processamento de telemetria, comunicação com dispositivos, persistência de dados e integração com serviços externos, seguindo rigorosamente a arquitetura oficial do projeto.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA Backend Skill
+
+# Objetivo
+
+Esta skill é responsável por toda a arquitetura Backend do SIGMA Studio.
+
+O Backend representa o núcleo da plataforma.
+
+Sua missão é garantir um sistema modular, escalável, seguro e preparado para milhares de dispositivos conectados.
+
+---
+
+# Stack Oficial
+
+Framework
+
+FastAPI
+
+Linguagem
+
+Python 3.13+
+
+Servidor ASGI
+
+Uvicorn
+
+Validação
+
+Pydantic v2
+
+ORM
+
+SQLAlchemy 2
+
+Migrações
+
+Alembic
+
+Banco
+
+PostgreSQL
+
+Cache
+
+Redis
+
+Mensageria
+
+MQTT
+
+Tempo Real
+
+WebSocket
+
+Testes
+
+Pytest
+
+Documentação
+
+OpenAPI
+
+---
+
+# Responsabilidades
+
+O Backend é responsável por:
+
+- API REST
+- WebSocket
+- MQTT
+- Processamento
+- Analytics
+- IA
+- Banco de Dados
+- Autenticação
+- Logs
+- Auditoria
+
+Nunca implementar interface gráfica.
+
+---
+
+# Arquitetura
+
+Utilizar Clean Architecture.
+
+Separar rigorosamente:
+
+API
+
+↓
+
+Application
+
+↓
+
+Domain
+
+↓
+
+Infrastructure
+
+Nunca inverter dependências.
+
+---
+
+# Estrutura Oficial
+
+backend/
+
+app/
+
+api/
+
+core/
+
+domain/
+
+services/
+
+repositories/
+
+models/
+
+schemas/
+
+mqtt/
+
+telemetry/
+
+analytics/
+
+database/
+
+security/
+
+utils/
+
+tests/
+
+scripts/
+
+docs/
+
+---
+
+# API
+
+Toda comunicação externa deve passar pela API.
+
+Nunca acessar diretamente os Services.
+
+---
+
+# Domain
+
+Representa as regras de negócio.
+
+Nunca acessar banco.
+
+Nunca acessar MQTT.
+
+Nunca acessar FastAPI.
+
+---
+
+# Services
+
+Responsáveis por orquestrar:
+
+- dispositivos
+- analytics
+- alertas
+- processamento
+- usuários
+
+---
+
+# Repositories
+
+Responsáveis exclusivamente pelo acesso aos dados.
+
+Nunca conter regras de negócio.
+
+---
+
+# Models
+
+Representam as entidades do banco.
+
+---
+
+# Schemas
+
+Responsáveis pela validação Pydantic.
+
+Nunca reutilizar Models SQLAlchemy como Schema.
+
+---
+
+# Comunicação
+
+Frontend
+
+↓
+
+REST API
+
+↓
+
+Services
+
+↓
+
+Repositories
+
+↓
+
+Database
+
+---
+
+Firmware
+
+↓
+
+MQTT
+
+↓
+
+Telemetry Service
+
+↓
+
+Analytics
+
+↓
+
+Database
+
+↓
+
+WebSocket
+
+↓
+
+Frontend
+
+---
+
+# MQTT
+
+Todo dispositivo deve possuir:
+
+Device ID
+
+Firmware Version
+
+Timestamp
+
+Status
+
+Health Score
+
+Temperatura
+
+Vibração
+
+Horímetro
+
+Alertas
+
+Nunca enviar mensagens sem identificação.
+
+---
+
+# WebSocket
+
+Responsável por:
+
+Atualizações em tempo real.
+
+Nunca realizar processamento pesado dentro do WebSocket.
+
+---
+
+# Banco
+
+PostgreSQL.
+
+Nunca acessar SQL diretamente.
+
+Sempre utilizar Repository Pattern.
+
+---
+
+# Analytics
+
+Toda análise deve ocorrer em Services especializados.
+
+Nunca misturar Analytics com API.
+
+---
+
+# IA
+
+Criar módulo separado:
+
+ai/
+
+Nunca misturar IA com Telemetria.
+
+---
+
+# Segurança
+
+JWT
+
+Refresh Token
+
+RBAC
+
+HTTPS
+
+Rate Limit
+
+CORS
+
+Nunca armazenar senhas em texto.
+
+Sempre utilizar Argon2.
+
+---
+
+# Logs
+
+Utilizar logging estruturado.
+
+Separar:
+
+INFO
+
+WARNING
+
+ERROR
+
+CRITICAL
+
+Nunca utilizar print().
+
+---
+
+# Configuração
+
+Utilizar:
+
+.env
+
+Pydantic Settings
+
+Nunca utilizar constantes espalhadas.
+
+---
+
+# Dependências
+
+Utilizar Dependency Injection do FastAPI.
+
+Nunca criar singletons manuais.
+
+---
+
+# Performance
+
+Sempre utilizar:
+
+Async
+
+Connection Pool
+
+Cache
+
+Paginação
+
+Lazy Loading
+
+---
+
+# Banco de Dados
+
+Separar entidades:
+
+Devices
+
+Telemetry
+
+Analytics
+
+Alerts
+
+Events
+
+Users
+
+Settings
+
+Firmware
+
+---
+
+# Tratamento de Erros
+
+Criar Exception Handlers globais.
+
+Nunca retornar traceback ao cliente.
+
+---
+
+# Versionamento
+
+Toda API deve possuir:
+
+/api/v1/
+
+Preparar arquitetura para futuras versões.
+
+---
+
+# Testes
+
+Criar:
+
+Unitários
+
+Integração
+
+API
+
+Nunca publicar código sem testes das regras críticas.
+
+---
+
+# Documentação
+
+Toda rota deve possuir:
+
+Descrição
+
+Exemplos
+
+Schemas
+
+Códigos HTTP
+
+OpenAPI atualizado automaticamente.
+
+---
+
+# Checklist
+
+Antes de concluir verificar:
+
+Sem regras duplicadas?
+
+Services desacoplados?
+
+Repository isolado?
+
+Schemas tipados?
+
+Sem SQL espalhado?
+
+Sem lógica na API?
+
+Arquitetura respeitada?
+
+---
+
+# Objetivo Final
+
+Construir um Backend industrial, altamente escalável, preparado para monitorar milhares de dispositivos SIGMA simultaneamente, fornecendo uma base sólida para telemetria, analytics e inteligência artificial.

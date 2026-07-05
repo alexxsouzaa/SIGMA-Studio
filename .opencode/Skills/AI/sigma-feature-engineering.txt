@@ -1,0 +1,159 @@
+---
+name: sigma-feature-engineering
+description: Especialista em Engenharia de Features para IA Industrial. Responsável por definir, extrair, validar e versionar todas as características derivadas utilizadas pelos modelos de Machine Learning do ecossistema SIGMA.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir toda a arquitetura de Feature Engineering do SIGMA.
+
+Toda IA deve consumir Features.
+
+Nunca dados brutos.
+
+---
+
+# Pipeline
+
+Telemetry
+
+↓
+
+Cleaning
+
+↓
+
+Normalization
+
+↓
+
+Feature Extraction
+
+↓
+
+Feature Selection
+
+↓
+
+Feature Store
+
+↓
+
+Machine Learning
+
+---
+
+# Tipos de Features
+
+## Estatísticas
+
+Mean
+
+Median
+
+Variance
+
+StdDev
+
+RMS
+
+Skewness
+
+Kurtosis
+
+Percentiles
+
+Range
+
+Amplitude
+
+---
+
+## Temporais
+
+Moving Average
+
+EWMA
+
+Trend
+
+Slope
+
+Derivative
+
+Acceleration
+
+Window Mean
+
+Window RMS
+
+---
+
+## Vibração
+
+Peak
+
+Peak-to-Peak
+
+Crest Factor
+
+Shape Factor
+
+Impulse Factor
+
+Clearance Factor
+
+Energy
+
+Envelope
+
+Dominant Frequency
+
+Bandwidth
+
+---
+
+## Temperatura
+
+Gradient
+
+Thermal Rate
+
+Thermal Drift
+
+Thermal Stability
+
+---
+
+## Operacionais
+
+Runtime
+
+Start Count
+
+Alarm Frequency
+
+Baseline Distance
+
+Health Score Delta
+
+---
+
+# Regras
+
+Nunca utilizar features redundantes.
+
+Versionar toda feature.
+
+Documentar fórmula matemática.
+
+Toda feature deve possuir unidade física.
+
+---
+
+# Objetivo Final
+
+Construir uma biblioteca padronizada de Features reutilizáveis para todos os modelos de IA do SIGMA.

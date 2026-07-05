@@ -1,0 +1,669 @@
+---
+name: sigma-frontend
+description: Atua como Engenheiro Frontend Sênior especializado no desenvolvimento do SIGMA Studio. Responsável pela arquitetura React, Next.js, TypeScript, gerenciamento de estado, consumo da API, componentes, organização do projeto e implementação da interface seguindo rigorosamente o SIGMA Design System e a arquitetura oficial.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA Frontend Skill
+
+# Objetivo
+
+Esta skill é responsável por toda implementação do Frontend do SIGMA Studio.
+
+Seu objetivo é desenvolver uma interface moderna, altamente organizada, escalável e preparada para aplicações industriais de monitoramento em tempo real.
+
+Todo código produzido deve priorizar:
+
+- organização
+- reutilização
+- desempenho
+- previsibilidade
+- facilidade de manutenção
+
+---
+
+# Papel
+
+Esta skill atua exclusivamente na camada Frontend.
+
+Nunca implementar lógica de negócio.
+
+Nunca implementar acesso direto ao banco.
+
+Nunca implementar comunicação MQTT diretamente.
+
+Nunca implementar acesso Serial diretamente.
+
+Todo acesso externo ocorre exclusivamente através da API do Backend.
+
+---
+
+# Stack Oficial
+
+Framework
+
+Next.js 15
+
+Linguagem
+
+TypeScript
+
+Runtime
+
+React 19
+
+Build
+
+Turbopack
+
+Gerenciador
+
+pnpm
+
+Lint
+
+ESLint
+
+Formatter
+
+Prettier
+
+CSS
+
+TailwindCSS
+
+Ícones
+
+Lucide React
+
+Gráficos
+
+Recharts
+
+Tabela
+
+TanStack Table
+
+Formulários
+
+React Hook Form
+
+Validação
+
+Zod
+
+Estado Global
+
+Zustand
+
+Requisições
+
+TanStack Query
+
+Datas
+
+date-fns
+
+Animações
+
+Framer Motion
+
+Notificações
+
+Sonner
+
+Tema
+
+next-themes
+
+---
+
+# Arquitetura
+
+Utilizar App Router.
+
+Nunca utilizar Pages Router.
+
+---
+
+# Estrutura
+
+frontend/
+
+app/
+
+components/
+
+features/
+
+hooks/
+
+services/
+
+stores/
+
+types/
+
+utils/
+
+styles/
+
+assets/
+
+providers/
+
+contexts/
+
+config/
+
+constants/
+
+---
+
+# Organização
+
+Toda funcionalidade deve ser organizada em Feature.
+
+Exemplo
+
+features/
+
+dashboard/
+
+devices/
+
+analytics/
+
+settings/
+
+alerts/
+
+telemetry/
+
+users/
+
+---
+
+# Estrutura de Feature
+
+dashboard/
+
+components/
+
+hooks/
+
+services/
+
+types/
+
+pages/
+
+utils/
+
+index.ts
+
+---
+
+# Componentes
+
+Separar:
+
+UI Components
+
+Business Components
+
+Layout Components
+
+---
+
+# UI Components
+
+São totalmente reutilizáveis.
+
+Nunca possuem regra de negócio.
+
+Exemplos
+
+Button
+
+Card
+
+Dialog
+
+Badge
+
+Input
+
+Modal
+
+Progress
+
+---
+
+# Business Components
+
+Conhecem apenas sua Feature.
+
+Exemplo
+
+MotorCard
+
+HealthGauge
+
+DeviceStatus
+
+AlarmTimeline
+
+AnalyticsPanel
+
+---
+
+# Layout
+
+Separar:
+
+Sidebar
+
+Navbar
+
+Header
+
+Footer
+
+PageContainer
+
+DashboardLayout
+
+---
+
+# Estado
+
+Estado global
+
+Zustand
+
+Estado do servidor
+
+TanStack Query
+
+Estado local
+
+useState
+
+Nunca misturar responsabilidades.
+
+---
+
+# Hooks
+
+Criar hooks específicos.
+
+Nunca criar hooks gigantes.
+
+Exemplos
+
+useDevices
+
+useDashboard
+
+useAnalytics
+
+useHealth
+
+useSettings
+
+---
+
+# API
+
+Toda comunicação passa por Services.
+
+Nunca chamar fetch diretamente no componente.
+
+Errado
+
+Component
+
+↓
+
+fetch()
+
+Correto
+
+Component
+
+↓
+
+Hook
+
+↓
+
+Service
+
+↓
+
+API
+
+---
+
+# Services
+
+Cada domínio possui seu Service.
+
+Exemplo
+
+DeviceService
+
+DashboardService
+
+AnalyticsService
+
+TelemetryService
+
+UserService
+
+---
+
+# Tipagem
+
+Nunca utilizar any.
+
+Sempre utilizar interfaces ou types.
+
+Todos os contratos devem possuir tipagem completa.
+
+---
+
+# Validação
+
+Toda entrada do usuário deve utilizar:
+
+React Hook Form
+
++
+
+Zod
+
+---
+
+# Componentização
+
+Nunca criar componentes maiores que aproximadamente 300 linhas.
+
+Caso cresçam, dividir.
+
+---
+
+# Responsabilidade
+
+Cada componente deve possuir apenas uma responsabilidade.
+
+---
+
+# Performance
+
+Utilizar:
+
+memo()
+
+useMemo()
+
+useCallback()
+
+Lazy Loading
+
+Dynamic Import
+
+Suspense
+
+Streaming
+
+quando fizer sentido.
+
+Nunca otimizar prematuramente.
+
+---
+
+# Dashboard
+
+O Dashboard deverá apresentar:
+
+Resumo Geral
+
+Health Score
+
+Motores
+
+Alertas
+
+Temperatura
+
+Vibração
+
+Analytics
+
+Tendências
+
+Dispositivos
+
+Conectividade
+
+---
+
+# Comunicação
+
+Frontend
+
+↓
+
+API
+
+↓
+
+Backend
+
+↓
+
+ESP32
+
+Nunca comunicar diretamente.
+
+---
+
+# Rotas
+
+/dashboard
+
+/devices
+
+/device/[id]
+
+/analytics
+
+/settings
+
+/logs
+
+/about
+
+---
+
+# Tratamento de Erros
+
+Toda chamada deve possuir:
+
+Loading
+
+Empty State
+
+Retry
+
+Erro
+
+Timeout
+
+---
+
+# Loading
+
+Nunca deixar tela vazia.
+
+Sempre utilizar Skeleton.
+
+---
+
+# Skeleton
+
+Preferir Skeleton ao Spinner.
+
+Spinner apenas para ações rápidas.
+
+---
+
+# Atualização
+
+Atualizações em tempo real devem utilizar:
+
+Polling inicialmente.
+
+WebSocket futuramente.
+
+Nunca atualizar tela inteira.
+
+---
+
+# Organização CSS
+
+Utilizar Tailwind.
+
+Nunca utilizar CSS global desnecessariamente.
+
+Evitar estilos inline.
+
+---
+
+# Design
+
+Sempre seguir rigorosamente:
+
+SIGMA Design System
+
+---
+
+# Tema
+
+Suportar:
+
+Dark
+
+Light
+
+System
+
+---
+
+# Internacionalização
+
+Preparar arquitetura para:
+
+Português
+
+Inglês
+
+Mesmo que inicialmente apenas Português seja implementado.
+
+---
+
+# Logs
+
+Nunca utilizar console.log permanente.
+
+Criar Logger quando necessário.
+
+---
+
+# Segurança
+
+Nunca armazenar tokens em localStorage.
+
+Preferir cookies HTTPOnly quando houver autenticação.
+
+---
+
+# Código
+
+Priorizar:
+
+clareza
+
+simplicidade
+
+legibilidade
+
+Nunca escrever código "inteligente demais".
+
+---
+
+# Documentação
+
+Toda Feature relevante deve conter README.md.
+
+---
+
+# Testabilidade
+
+Toda lógica importante deve poder ser testada isoladamente.
+
+---
+
+# Convenções
+
+Arquivos
+
+PascalCase
+
+Componentes
+
+PascalCase
+
+Hooks
+
+camelCase
+
+Stores
+
+camelCase
+
+Utils
+
+camelCase
+
+---
+
+# Checklist
+
+Antes de concluir verificar:
+
+Segue Design System?
+
+Está tipado?
+
+Sem any?
+
+Sem duplicação?
+
+Responsabilidade única?
+
+Responsivo?
+
+Acessível?
+
+Performance adequada?
+
+---
+
+# Objetivo Final
+
+Construir um frontend profissional, moderno, altamente reutilizável e preparado para crescer durante muitos anos, mantendo organização, consistência e excelente experiência para o usuário.

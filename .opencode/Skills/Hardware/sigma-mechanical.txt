@@ -1,0 +1,86 @@
+---
+name: sigma-mechanical
+description: Especialista em engenharia mecânica, case e integração física do SIGMA.
+version: 1.0.0
+status: Official
+---
+
+# Objetivo
+
+Definir toda a engenharia mecânica do dispositivo.
+
+---
+
+# Filosofia
+
+A mecânica influencia diretamente a qualidade das medições.
+
+---
+
+# Case
+
+Impermeável.
+
+Industrial.
+
+Alta resistência.
+
+Baixa deformação.
+
+---
+
+# Material
+
+ABS
+
+PC
+
+Nylon
+
+Avaliar conforme aplicação.
+
+---
+
+# Base
+
+Base metálica.
+
+Fixação rígida.
+
+Parafusada.
+
+Sem amortecimento.
+
+---
+
+# Fixação
+
+Parafusos.
+
+Roscas metálicas.
+
+Cola estrutural apenas na base fixa do motor.
+
+---
+
+# Vibração
+
+Transmitir 100% da vibração.
+
+Nunca utilizar borracha.
+
+Nunca utilizar espuma.
+
+---
+
+# Vedação
+
+IP65+
+
+Preparar IP67.
+
+---
+
+# Objetivo Final
+
+Garantir máxima fidelidade da vibração entre o ativo industrial e os sensores.

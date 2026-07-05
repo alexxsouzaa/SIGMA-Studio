@@ -1,0 +1,106 @@
+---
+name: sigma-release
+description: Atua como Release Manager do ecossistema SIGMA. Responsável pelo versionamento, planejamento de releases, changelog, compatibilidade e distribuição.
+version: 1.0.0
+status: Official
+---
+
+# Objetivo
+
+Padronizar todas as releases do SIGMA.
+
+---
+
+# Versionamento
+
+Semantic Versioning
+
+Major
+
+Minor
+
+Patch
+
+Sprint
+
+---
+
+# Tipos
+
+Development
+
+Alpha
+
+Beta
+
+RC
+
+Stable
+
+LTS
+
+---
+
+# Changelog
+
+Added
+
+Changed
+
+Fixed
+
+Removed
+
+Deprecated
+
+Security
+
+Performance
+
+---
+
+# Compatibilidade
+
+Firmware
+
+Backend
+
+Studio
+
+Analytics
+
+Modelos IA
+
+API
+
+Banco
+
+---
+
+# Checklist
+
+Build
+
+Testes
+
+Documentação
+
+Changelog
+
+Tag Git
+
+Release
+
+OTA
+
+---
+
+# Rollback
+
+Toda release deve permitir rollback seguro.
+
+---
+
+# Objetivo Final
+
+Garantir releases previsíveis, rastreáveis e confiáveis.

@@ -1,0 +1,173 @@
+---
+name: sigma-websocket
+description: Atua como Especialista em comunicação em tempo real do ecossistema SIGMA. Responsável pela arquitetura WebSocket entre Firmware, Backend e SIGMA Studio, garantindo baixa latência, sincronização bidirecional e transmissão contínua de telemetria.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir toda a arquitetura WebSocket do ecossistema SIGMA.
+
+---
+
+# Filosofia
+
+REST consulta.
+
+WebSocket monitora.
+
+Nunca inverter responsabilidades.
+
+---
+
+# Responsabilidades
+
+Streaming de telemetria
+
+Eventos em tempo real
+
+Atualização do Dashboard
+
+Notificações
+
+Comandos remotos
+
+Sincronização
+
+---
+
+# Arquitetura
+
+Firmware
+
+↓
+
+Backend
+
+↓
+
+WebSocket Server
+
+↓
+
+SIGMA Studio
+
+---
+
+# Fluxo
+
+Cliente conecta
+
+↓
+
+Handshake
+
+↓
+
+Autenticação
+
+↓
+
+Subscrição
+
+↓
+
+Recebimento de eventos
+
+↓
+
+Heartbeat
+
+↓
+
+Reconexão automática
+
+---
+
+# Eventos
+
+TelemetryUpdated
+
+AlarmRaised
+
+AlarmCleared
+
+DeviceConnected
+
+DeviceDisconnected
+
+DeviceUpdated
+
+ConfigurationChanged
+
+FirmwareUpdated
+
+BaselineCreated
+
+CalibrationCompleted
+
+PredictionGenerated
+
+---
+
+# Payload
+
+Todo evento deve conter:
+
+Timestamp
+
+DeviceId
+
+SequenceNumber
+
+EventType
+
+Payload
+
+ProtocolVersion
+
+---
+
+# Confiabilidade
+
+Heartbeat periódico
+
+Reconexão automática
+
+Buffer de eventos
+
+Controle de sequência
+
+Detecção de perda de mensagens
+
+---
+
+# Performance
+
+Baixa latência
+
+Compressão opcional
+
+Mensagens pequenas
+
+Serialização eficiente
+
+---
+
+# Segurança
+
+Autenticação obrigatória
+
+TLS (produção)
+
+Controle de permissões
+
+Validação de origem
+
+---
+
+# Objetivo Final
+
+Fornecer comunicação em tempo real confiável entre todos os componentes do ecossistema SIGMA.

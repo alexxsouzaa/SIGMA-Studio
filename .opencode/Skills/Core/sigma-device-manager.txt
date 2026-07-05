@@ -1,0 +1,501 @@
+---
+name: sigma-device-manager
+description: Atua como Especialista em Gerenciamento de Dispositivos do ecossistema SIGMA. Responsável pelo ciclo de vida completo dos dispositivos, provisionamento, configuração, firmware, calibração, associação com ativos industriais e sincronização entre Firmware, Backend e SIGMA Studio.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA Device Manager Skill
+
+# Objetivo
+
+Esta skill define toda a arquitetura de gerenciamento dos dispositivos SIGMA.
+
+Um dispositivo representa uma unidade física instalada em um ativo industrial.
+
+Seu gerenciamento deve abranger todo o ciclo de vida, desde a fabricação até sua desativação.
+
+---
+
+# Filosofia
+
+O dispositivo é um ativo inteligente.
+
+Ele possui identidade própria.
+
+Nunca tratar dispositivos apenas como sensores.
+
+---
+
+# Ciclo de Vida
+
+Fabricação
+
+↓
+
+Provisionamento
+
+↓
+
+Registro
+
+↓
+
+Instalação
+
+↓
+
+Configuração
+
+↓
+
+Calibração
+
+↓
+
+Operação
+
+↓
+
+Atualização
+
+↓
+
+Manutenção
+
+↓
+
+Desativação
+
+---
+
+# Identidade
+
+Todo dispositivo deve possuir:
+
+UUID
+
+Device ID
+
+Número de Série
+
+Modelo
+
+Hardware Revision
+
+Firmware Version
+
+MAC Address
+
+Data de Fabricação
+
+Lote
+
+Nunca utilizar apenas o MAC Address.
+
+---
+
+# Provisionamento
+
+Ao sair da fábrica:
+
+O dispositivo deve possuir:
+
+UUID permanente
+
+Certificado (futuro)
+
+Firmware inicial
+
+Número de Série
+
+Hardware Revision
+
+---
+
+# Registro
+
+O Backend registra:
+
+Empresa
+
+Projeto
+
+Local
+
+Máquina
+
+Responsável
+
+Data
+
+---
+
+# Associação
+
+Um dispositivo deve ser associado a apenas um ativo por vez.
+
+Exemplo
+
+Empresa
+
+↓
+
+Planta
+
+↓
+
+Linha
+
+↓
+
+Motor
+
+↓
+
+SIGMA
+
+---
+
+# Estado
+
+Todo dispositivo deve possuir:
+
+Online
+
+Offline
+
+Configurando
+
+Calibrando
+
+Atualizando
+
+Erro
+
+Manutenção
+
+Desativado
+
+---
+
+# Informações
+
+Modelo
+
+Versão
+
+Bateria
+
+RSSI
+
+Tempo ligado
+
+Último contato
+
+Última calibração
+
+Última manutenção
+
+---
+
+# Firmware
+
+Registrar:
+
+Versão
+
+Build
+
+Commit
+
+Checksum
+
+Compatibilidade
+
+Nunca permitir downgrade incompatível.
+
+---
+
+# Configuração
+
+Toda configuração deve ser versionada.
+
+Registrar:
+
+Quem alterou
+
+Quando
+
+Valor anterior
+
+Novo valor
+
+---
+
+# Calibração
+
+Registrar:
+
+Temperatura ambiente
+
+Offsets
+
+Baseline
+
+Responsável
+
+Data
+
+Resultado
+
+---
+
+# Baseline
+
+Todo baseline deve possuir:
+
+Quantidade de amostras
+
+Data
+
+Condição operacional
+
+Fator K
+
+Observações
+
+---
+
+# Histórico
+
+Registrar permanentemente:
+
+Reboots
+
+OTA
+
+Calibrações
+
+Falhas
+
+Reset
+
+Eventos
+
+Troca de Firmware
+
+---
+
+# Saúde do Dispositivo
+
+Separar da saúde do motor.
+
+Indicadores:
+
+Bateria
+
+Memória
+
+Flash
+
+CPU
+
+RSSI
+
+Watchdog
+
+Sensores
+
+---
+
+# Localização
+
+Empresa
+
+Unidade
+
+Linha
+
+Máquina
+
+Posição
+
+Coordenadas (futuro)
+
+---
+
+# Configuração Remota
+
+Permitir alterar:
+
+Intervalo de leitura
+
+Intervalo MQTT
+
+Limiares
+
+Baseline
+
+Modo Debug
+
+Nunca aplicar sem confirmação.
+
+---
+
+# OTA
+
+Estados:
+
+Disponível
+
+Baixando
+
+Instalando
+
+Validando
+
+Concluído
+
+Erro
+
+Rollback
+
+---
+
+# Sincronização
+
+Firmware
+
+↓
+
+MQTT
+
+↓
+
+Backend
+
+↓
+
+Banco
+
+↓
+
+SIGMA Studio
+
+---
+
+# Reconexão
+
+Após reconectar:
+
+Enviar:
+
+Status
+
+Configuração
+
+Versão
+
+Pendências
+
+Último Sequence Number
+
+---
+
+# Segurança
+
+Cada dispositivo possui:
+
+Identidade única
+
+Credenciais próprias
+
+ACL MQTT
+
+Registro de autenticação
+
+---
+
+# Manutenção
+
+Registrar:
+
+Substituição
+
+Reparo
+
+Troca de bateria
+
+Troca de sensor
+
+Reinstalação
+
+---
+
+# Diagnóstico
+
+Permitir visualizar:
+
+Heap
+
+Flash
+
+CPU
+
+Temperatura interna
+
+RSSI
+
+Watchdog
+
+Reset Cause
+
+Tempo ligado
+
+---
+
+# Auditoria
+
+Registrar:
+
+Quem alterou
+
+Quando
+
+O que alterou
+
+Resultado
+
+---
+
+# Escalabilidade
+
+Projetar para:
+
+1 dispositivo
+
+↓
+
+100
+
+↓
+
+1000
+
+↓
+
+10000
+
+↓
+
+100000
+
+Sem alterar arquitetura.
+
+---
+
+# Objetivo Final
+
+Construir um sistema completo de gerenciamento de dispositivos industriais, permitindo controle total sobre identidade, configuração, firmware, manutenção e operação dos dispositivos SIGMA durante todo o seu ciclo de vida.

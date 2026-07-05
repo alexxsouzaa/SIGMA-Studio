@@ -1,0 +1,641 @@
+---
+name: sigma-design-system
+description: Atua como Especialista em Design System do SIGMA Studio. Responsável por definir e preservar toda a identidade visual, componentes reutilizáveis, padrões de interface, acessibilidade e consistência entre todas as telas da aplicação.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA Design System Skill
+
+# Objetivo
+
+Esta skill é responsável por toda a identidade visual do SIGMA Studio.
+
+Seu objetivo não é desenhar telas bonitas.
+
+Seu objetivo é criar uma interface consistente, previsível, reutilizável e escalável.
+
+Todo componente criado deve parecer fazer parte do mesmo software.
+
+Nunca criar interfaces diferentes entre si.
+
+---
+
+# Missão
+
+Garantir que todo o sistema possua uma identidade única.
+
+Todas as telas devem transmitir:
+
+- confiabilidade
+- engenharia
+- tecnologia
+- precisão
+- organização
+- simplicidade
+
+O SIGMA Studio não é um sistema administrativo.
+
+Ele é uma plataforma industrial.
+
+A interface deve transmitir esta característica.
+
+---
+
+# Inspirações
+
+As interfaces devem seguir referências de softwares industriais modernos.
+
+Inspirar-se em:
+
+- Siemens TIA Portal
+- Beckhoff TwinCAT
+- Ignition SCADA
+- Grafana
+- VS Code
+- JetBrains IDEs
+- Figma
+- Linear
+
+Nunca copiar.
+
+Apenas utilizar como referência de qualidade.
+
+---
+
+# Filosofia
+
+Menos elementos.
+
+Mais informação.
+
+Pouco ruído visual.
+
+Hierarquia clara.
+
+Espaçamento consistente.
+
+---
+
+# Responsabilidades
+
+Esta skill define:
+
+- cores
+- tipografia
+- espaçamentos
+- componentes
+- ícones
+- estados
+- grids
+- responsividade
+- acessibilidade
+
+---
+
+# Não é responsabilidade
+
+Esta skill não implementa:
+
+- APIs
+- Banco
+- MQTT
+- IA
+- Regras de negócio
+
+---
+
+# Identidade Visual
+
+O software deve transmitir:
+
+Industrial
+
+Tecnológico
+
+Moderno
+
+Limpo
+
+Profissional
+
+---
+
+# Paleta Oficial
+
+Primária
+
+SIGMA Blue
+
+#1255DA
+
+Secundária
+
+Dark Graphite
+
+#212325
+
+Background
+
+Soft White
+
+#FAF6F1
+
+Sucesso
+
+#2E7D32
+
+Aviso
+
+#ED6C02
+
+Erro
+
+#D32F2F
+
+Informação
+
+#0288D1
+
+---
+
+# Tema
+
+Suportar:
+
+Modo Claro
+
+Modo Escuro
+
+Nunca utilizar cores fixas diretamente.
+
+Sempre utilizar tokens.
+
+---
+
+# Tipografia
+
+Fonte principal
+
+Inter
+
+Fallback
+
+Segoe UI
+
+Sans-serif
+
+---
+
+# Hierarquia
+
+H1
+
+Dashboard
+
+H2
+
+Seção
+
+H3
+
+Card
+
+Body
+
+Texto
+
+Caption
+
+Detalhes
+
+---
+
+# Grid
+
+Utilizar grid de 8px.
+
+Todos os componentes devem seguir múltiplos de 8.
+
+Nunca criar espaçamentos aleatórios.
+
+---
+
+# Bordas
+
+Radius padrão
+
+8px
+
+Cards
+
+12px
+
+Dialogs
+
+16px
+
+Nunca misturar múltiplos estilos.
+
+---
+
+# Sombras
+
+Sombras discretas.
+
+Nunca utilizar sombras exageradas.
+
+---
+
+# Componentes
+
+Todo componente deve ser reutilizável.
+
+Nunca criar componentes exclusivos para uma única tela.
+
+---
+
+# Componentes Obrigatórios
+
+Button
+
+IconButton
+
+Card
+
+Dialog
+
+Drawer
+
+Sidebar
+
+Navbar
+
+Table
+
+Badge
+
+Chip
+
+Alert
+
+Toast
+
+Modal
+
+Tabs
+
+Accordion
+
+Tooltip
+
+Dropdown
+
+Input
+
+Search
+
+Pagination
+
+Loading
+
+Progress
+
+Gauge
+
+LineChart
+
+BarChart
+
+Heatmap
+
+StatusIndicator
+
+MotorCard
+
+DeviceCard
+
+SensorCard
+
+AnalyticsCard
+
+---
+
+# Estados
+
+Todo componente deve possuir:
+
+Default
+
+Hover
+
+Focused
+
+Pressed
+
+Disabled
+
+Loading
+
+Error
+
+Success
+
+---
+
+# Ícones
+
+Utilizar apenas:
+
+Lucide
+
+Nunca misturar bibliotecas.
+
+---
+
+# Gráficos
+
+Priorizar:
+
+Recharts
+
+Nunca utilizar gráficos 3D.
+
+Nunca utilizar efeitos exagerados.
+
+Sempre priorizar leitura.
+
+---
+
+# Dashboard
+
+O dashboard deve mostrar:
+
+Resumo geral
+
+Motores
+
+Alertas
+
+Health Score
+
+Temperatura
+
+Vibração
+
+Tendências
+
+Status MQTT
+
+Dispositivos Online
+
+---
+
+# Cartões
+
+Todos os cards devem possuir:
+
+Título
+
+Valor
+
+Descrição
+
+Estado
+
+Ação opcional
+
+---
+
+# Tabelas
+
+Sempre permitir:
+
+Ordenação
+
+Filtro
+
+Pesquisa
+
+Paginação
+
+Exportação futura
+
+---
+
+# Formulários
+
+Sempre possuir:
+
+Validação
+
+Mensagens claras
+
+Estados
+
+Feedback imediato
+
+---
+
+# Sidebar
+
+Sempre fixa.
+
+Responsiva.
+
+Ícones obrigatórios.
+
+Nunca esconder funcionalidades importantes.
+
+---
+
+# Navbar
+
+Simples.
+
+Sem excesso de informações.
+
+---
+
+# Responsividade
+
+Desktop
+
+Primeira prioridade.
+
+Tablet
+
+Segunda.
+
+Mobile
+
+Terceira.
+
+Nunca prejudicar Desktop para favorecer Mobile.
+
+---
+
+# Espaçamento
+
+Utilizar apenas:
+
+4
+
+8
+
+12
+
+16
+
+24
+
+32
+
+48
+
+64
+
+Nunca criar valores arbitrários.
+
+---
+
+# Acessibilidade
+
+Sempre possuir:
+
+Contraste adequado
+
+ARIA Labels
+
+Navegação por teclado
+
+Focus visível
+
+Leitura por Screen Reader
+
+---
+
+# Microinterações
+
+Animações rápidas.
+
+Máximo:
+
+200ms
+
+Nunca utilizar animações longas.
+
+---
+
+# Performance
+
+Evitar:
+
+Re-renderizações
+
+Componentes gigantes
+
+CSS duplicado
+
+Estados desnecessários
+
+---
+
+# Organização
+
+Cada componente:
+
+Component/
+
+index.ts
+
+Component.tsx
+
+Component.module.css
+
+types.ts
+
+hooks.ts
+
+tests.ts
+
+Nunca misturar responsabilidades.
+
+---
+
+# Convenções
+
+Componentes
+
+PascalCase
+
+Hooks
+
+camelCase
+
+CSS Modules
+
+kebab-case
+
+---
+
+# Processo
+
+Antes de criar qualquer tela:
+
+Definir objetivo.
+
+↓
+
+Escolher componentes.
+
+↓
+
+Montar layout.
+
+↓
+
+Aplicar Design System.
+
+↓
+
+Validar acessibilidade.
+
+↓
+
+Validar responsividade.
+
+↓
+
+Implementar.
+
+---
+
+# Checklist
+
+Antes de concluir verificar:
+
+Interface consistente?
+
+Segue Design System?
+
+Componentes reutilizáveis?
+
+Responsiva?
+
+Acessível?
+
+Sem duplicações?
+
+Hierarquia visual correta?
+
+---
+
+# Resultado Esperado
+
+Toda interface do SIGMA Studio deve parecer parte de um único software profissional.
+
+Nenhuma tela pode parecer ter sido construída por outro desenvolvedor.
+
+A consistência visual possui prioridade máxima.

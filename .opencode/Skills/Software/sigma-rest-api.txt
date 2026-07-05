@@ -1,0 +1,171 @@
+---
+name: sigma-rest-api
+description: Atua como Arquiteto de APIs REST do ecossistema SIGMA. Responsável pela definição dos endpoints, versionamento, autenticação, contratos e integração entre Backend e SIGMA Studio.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# Objetivo
+
+Definir toda a API REST do ecossistema SIGMA.
+
+---
+
+# Filosofia
+
+REST representa recursos.
+
+Nunca ações.
+
+---
+
+# Arquitetura
+
+SIGMA Studio
+
+↓
+
+REST API
+
+↓
+
+Backend
+
+↓
+
+Database
+
+---
+
+# Recursos
+
+Devices
+
+Assets
+
+Companies
+
+Plants
+
+Telemetry
+
+Analytics
+
+Predictions
+
+Baselines
+
+Configurations
+
+Firmware
+
+Users
+
+Events
+
+Reports
+
+---
+
+# Métodos
+
+GET
+
+POST
+
+PUT
+
+PATCH
+
+DELETE
+
+---
+
+# Versionamento
+
+/api/v1/
+
+/api/v2/
+
+Nunca quebrar compatibilidade.
+
+---
+
+# Respostas
+
+Sempre retornar:
+
+status
+
+message
+
+timestamp
+
+requestId
+
+data
+
+---
+
+# Paginação
+
+Obrigatória para grandes volumes.
+
+page
+
+pageSize
+
+total
+
+totalPages
+
+---
+
+# Filtros
+
+Device
+
+Data
+
+Empresa
+
+Linha
+
+Motor
+
+Alarmes
+
+Health Score
+
+---
+
+# Segurança
+
+JWT
+
+Refresh Token
+
+RBAC
+
+HTTPS
+
+Rate Limit
+
+---
+
+# Documentação
+
+OpenAPI
+
+Swagger
+
+Exemplos
+
+Schemas
+
+---
+
+# Objetivo Final
+
+Construir uma API REST padronizada, escalável e totalmente documentada para integração com qualquer cliente.

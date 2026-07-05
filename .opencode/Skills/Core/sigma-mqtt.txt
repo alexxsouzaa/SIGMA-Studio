@@ -1,0 +1,541 @@
+---
+name: sigma-mqtt
+description: Atua como Especialista em MQTT Industrial do ecossistema SIGMA. Responsável por definir toda a arquitetura de comunicação MQTT entre Firmware, SIGMA Studio, dispositivos IoT e serviços externos, garantindo escalabilidade, segurança, confiabilidade e baixo consumo de banda.
+version: 1.0.0
+author: Bruno Alex Souza da Silva
+status: Official
+---
+
+# SIGMA MQTT Skill
+
+# Objetivo
+
+Esta skill define a arquitetura oficial de comunicação MQTT do ecossistema SIGMA.
+
+O MQTT será o principal protocolo de comunicação entre os dispositivos SIGMA e o Backend.
+
+Sua missão é garantir comunicação confiável, eficiente e escalável para milhares de dispositivos conectados.
+
+---
+
+# Filosofia
+
+O MQTT transporta informações.
+
+Nunca cria regras de negócio.
+
+Nunca modifica dados.
+
+Nunca calcula analytics.
+
+Toda inteligência permanece no Backend.
+
+---
+
+# Arquitetura
+
+Firmware
+
+↓
+
+MQTT Broker
+
+↓
+
+MQTT Service
+
+↓
+
+Telemetry Service
+
+↓
+
+Analytics
+
+↓
+
+Database
+
+↓
+
+WebSocket
+
+↓
+
+SIGMA Studio
+
+---
+
+# Broker Oficial
+
+Compatível com:
+
+Mosquitto
+
+EMQX
+
+HiveMQ
+
+AWS IoT Core
+
+Azure IoT Hub
+
+Preparar abstração para qualquer broker.
+
+---
+
+# Estrutura de Tópicos
+
+Todos os tópicos devem seguir o padrão:
+
+sigma/{deviceId}/{categoria}
+
+Nunca utilizar tópicos genéricos.
+
+---
+
+# Categorias
+
+telemetry
+
+status
+
+events
+
+alerts
+
+config
+
+command
+
+response
+
+firmware
+
+diagnostics
+
+heartbeat
+
+---
+
+# Exemplos
+
+sigma/SGM001/telemetry
+
+sigma/SGM001/status
+
+sigma/SGM001/events
+
+sigma/SGM001/config
+
+sigma/SGM001/command
+
+sigma/SGM001/response
+
+sigma/SGM001/heartbeat
+
+---
+
+# Wildcards
+
+Backend
+
+sigma/+/telemetry
+
+Dashboard
+
+sigma/+/status
+
+Analytics
+
+sigma/+/events
+
+Nunca utilizar #
+
+Exceto para ferramentas administrativas.
+
+---
+
+# QoS
+
+Heartbeat
+
+QoS 0
+
+Telemetria
+
+QoS 1
+
+Configuração
+
+QoS 1
+
+Comandos
+
+QoS 2
+
+Firmware Update
+
+QoS 2
+
+Nunca utilizar QoS 2 para telemetria contínua.
+
+---
+
+# Retained Messages
+
+Utilizar apenas para:
+
+Status
+
+Última configuração
+
+Versão do firmware
+
+Nunca utilizar retained em telemetria.
+
+---
+
+# Last Will
+
+Todo dispositivo deve registrar:
+
+Offline
+
+Motivo
+
+Timestamp
+
+Backend deve detectar desconexões automaticamente.
+
+---
+
+# Heartbeat
+
+Todo dispositivo publica:
+
+status
+
+online
+
+uptime
+
+firmware
+
+battery
+
+RSSI
+
+Intervalo recomendado:
+
+30 segundos
+
+---
+
+# Telemetria
+
+Nunca publicar sensores individualmente.
+
+Sempre publicar:
+
+TelemetrySample completo.
+
+---
+
+# Payload
+
+Preferencialmente JSON.
+
+Preparar compatibilidade futura com:
+
+CBOR
+
+MessagePack
+
+Protocol Buffers
+
+---
+
+# Identificação
+
+Todo payload deve conter:
+
+deviceId
+
+timestamp
+
+sequence
+
+firmwareVersion
+
+protocolVersion
+
+---
+
+# Comandos
+
+Todos os comandos devem possuir:
+
+commandId
+
+deviceId
+
+timestamp
+
+payload
+
+responseRequired
+
+---
+
+# Respostas
+
+Toda resposta deve possuir:
+
+commandId
+
+status
+
+timestamp
+
+executionTime
+
+message
+
+---
+
+# Configuração
+
+Toda alteração de configuração deve ser confirmada.
+
+Nunca assumir sucesso.
+
+---
+
+# Reconexão
+
+Firmware deve implementar:
+
+Reconexão automática
+
+Backoff exponencial
+
+Fila local
+
+Reenvio
+
+Nunca bloquear o monitoramento.
+
+---
+
+# Buffer Offline
+
+Se MQTT estiver indisponível:
+
+Continuar monitorando.
+
+Armazenar dados localmente.
+
+Sincronizar posteriormente.
+
+---
+
+# Segurança
+
+TLS
+
+Client Certificate
+
+Username
+
+Password
+
+ACL
+
+Nunca permitir publicação em tópicos administrativos.
+
+---
+
+# ACL
+
+Cada dispositivo publica apenas em:
+
+sigma/{deviceId}/...
+
+Nunca permitir acesso cruzado.
+
+---
+
+# Compressão
+
+Preparar arquitetura para:
+
+Compressão opcional.
+
+Nunca depender exclusivamente de JSON.
+
+---
+
+# Atualização OTA
+
+Criar canal exclusivo.
+
+sigma/{deviceId}/firmware
+
+Nunca misturar OTA com telemetria.
+
+---
+
+# Diagnóstico
+
+Canal dedicado:
+
+sigma/{deviceId}/diagnostics
+
+Informações:
+
+Heap
+
+Flash
+
+Reset
+
+CPU
+
+Wi-Fi
+
+RSSI
+
+Watchdog
+
+---
+
+# Eventos
+
+Boot
+
+Restart
+
+Calibration
+
+Baseline
+
+OTA
+
+Sensor Failure
+
+Battery Low
+
+Configuration Changed
+
+---
+
+# Escalabilidade
+
+Projetar para:
+
+10
+
+100
+
+1000
+
+10000
+
+100000 dispositivos
+
+Sem alterar estrutura de tópicos.
+
+---
+
+# Versionamento
+
+Toda mensagem deve conter:
+
+protocolVersion
+
+Permitir evolução futura.
+
+---
+
+# Compatibilidade
+
+Adicionar novos campos.
+
+Nunca remover campos existentes.
+
+---
+
+# Performance
+
+Evitar payloads grandes.
+
+Evitar mensagens duplicadas.
+
+Evitar publicações desnecessárias.
+
+---
+
+# Boas Práticas
+
+Publicar apenas mudanças relevantes quando possível.
+
+Utilizar heartbeat separado da telemetria.
+
+Nunca misturar configuração com dados operacionais.
+
+---
+
+# Integração
+
+MQTT nunca conversa diretamente com o Frontend.
+
+Fluxo oficial:
+
+Firmware
+
+↓
+
+MQTT
+
+↓
+
+Backend
+
+↓
+
+Database
+
+↓
+
+WebSocket
+
+↓
+
+Frontend
+
+---
+
+# Checklist
+
+Antes de publicar verificar:
+
+Payload válido?
+
+Timestamp presente?
+
+Sequence Number?
+
+Device ID?
+
+Protocol Version?
+
+QoS correto?
+
+Tópico correto?
+
+---
+
+# Objetivo Final
+
+Construir uma infraestrutura MQTT industrial, robusta e escalável, capaz de conectar milhares de dispositivos SIGMA ao SIGMA Studio com alta confiabilidade, baixa latência e total compatibilidade com futuras evoluções do ecossistema.
