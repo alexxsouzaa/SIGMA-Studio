@@ -21,3 +21,13 @@ Thumbs.db
 # Env
 .env
 *.env.local
+
+# Agent / AI
+.opencode/
+
+# Build outputs
+apps/backend/dist/
+apps/desktop/dist/
+
+# Egg info
+*.egg-info/
