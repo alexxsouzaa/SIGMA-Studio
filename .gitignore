@@ -27,7 +27,7 @@ Thumbs.db
 
 # Build outputs
 apps/backend/dist/
-apps/desktop/dist/
+apps/web/dist/
 
 # Egg info
 *.egg-info/

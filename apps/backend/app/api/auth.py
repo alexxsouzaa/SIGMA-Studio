@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_session
-from app.schemas.auth import LoginRequest, TokenResponse, UserResponse
+from app.schemas.auth import LoginRequest, TokenResponse, UserResponse, LoginResponse
+from app.schemas.organization import OrganizationResponse
 from app.schemas.common import StandardResponse
 from app.services.auth_service import AuthService, get_current_user
 
@@ -12,9 +13,17 @@ router = APIRouter()
 @router.post("/login")
 async def login(data: LoginRequest, session: AsyncSession = Depends(get_session)):
     service = AuthService(session)
-    tokens = await service.authenticate(data.username, data.password)
+    result = await service.authenticate(data.username, data.password)
     return StandardResponse(
-        data=TokenResponse(**tokens),
+        data=LoginResponse(
+            access_token=result["access_token"],
+            refresh_token=result["refresh_token"],
+            token_type=result["token_type"],
+            user=UserResponse.model_validate(result["user"]),
+            organizations=[
+                OrganizationResponse.model_validate(o) for o in result["organizations"]
+            ],
+        ),
         message="Login successful",
     )
 

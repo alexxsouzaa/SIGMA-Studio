@@ -15,18 +15,35 @@ from app.utils.auth import (
 
 class AuthService:
     def __init__(self, session: AsyncSession):
+        self._session = session
         self._repository = UserRepository(session)
 
     async def authenticate(self, username: str, password: str) -> dict:
+        from sqlalchemy import select
+        from app.models.organization import Organization
+        from app.models.member import Member
+
         user = await self._repository.get_by_username(username)
         if not user or not verify_password(password, user.password_hash):
             raise HTTPException(status_code=401, detail="Invalid credentials")
         if not user.active:
             raise HTTPException(status_code=403, detail="User is inactive")
+
+        result = await self._session.execute(
+            select(Organization).join(Member).where(
+                Member.user_id == user.id,
+                Member.active == True,
+                Organization.active == True,
+            )
+        )
+        organizations = list(result.scalars().all())
+
         return {
             "access_token": create_access_token(str(user.id)),
             "refresh_token": create_refresh_token(str(user.id)),
             "token_type": "bearer",
+            "user": user,
+            "organizations": organizations,
         }
 
     async def refresh_token(self, refresh_token: str) -> dict:

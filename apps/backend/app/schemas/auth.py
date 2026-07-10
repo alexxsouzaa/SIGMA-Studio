@@ -1,6 +1,8 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
+
+from app.schemas.organization import OrganizationResponse
 
 
 class LoginRequest(BaseModel):
@@ -21,7 +23,16 @@ class UserResponse(BaseModel):
     email: str
     display_name: str | None
     role_id: int | None
+    current_organization_id: int | None
     active: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class LoginResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+    organizations: list[OrganizationResponse]

@@ -48,6 +48,8 @@ async def startup():
 
     from app.models.role import Role
     from app.models.user import User
+    from app.models.organization import Organization
+    from app.models.member import Member
 
     async with async_session() as session:
         existing = await session.get(Role, 1)
@@ -61,7 +63,8 @@ async def startup():
         existing_admin = await session.execute(
             select(User).where(User.username == "admin")
         )
-        if not existing_admin.scalar_one_or_none():
+        admin_user = existing_admin.scalar_one_or_none()
+        if not admin_user:
             admin_user = User(
                 username="admin",
                 email="admin@sigma.io",
@@ -71,6 +74,24 @@ async def startup():
                 active=True,
             )
             session.add(admin_user)
+            await session.commit()
+            await session.refresh(admin_user)
+
+        existing_org = await session.execute(
+            select(Organization).where(Organization.slug == "default")
+        )
+        if not existing_org.scalar_one_or_none():
+            org = Organization(name="Default Organization", slug="default")
+            session.add(org)
+            await session.commit()
+            await session.refresh(org)
+
+            member = Member(
+                user_id=admin_user.id,
+                organization_id=org.id,
+                role_id=1,
+            )
+            session.add(member)
             await session.commit()
 
 

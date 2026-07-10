@@ -489,7 +489,7 @@ Toda atualização no projeto obrigatoriamente deve:
 1. **Atualizar o arquivo `VERSION`** na raiz do projeto com a nova versão e codename.
 2. **Sincronizar a versão** nos arquivos:
    - `backend/pyproject.toml` (`[project] version`)
-   - `frontend/package.json` (`"version"`)
+   - `apps/web/package.json` (`"version"`)
 3. **Criar commit** seguindo Conventional Commits.
 4. **Criar tag** correspondente (ex: `v0.2.0`).
 5. **Sempre perguntar ao usuário** antes de prosseguir com o commit e a tag.
@@ -519,3 +519,39 @@ Commit preparado?
 # Objetivo Final
 
 Toda contribuição realizada por agentes de IA deve possuir qualidade equivalente à de uma equipe de engenharia industrial sênior, respeitando integralmente a arquitetura, os padrões e a visão de longo prazo do ecossistema SIGMA.
+
+---
+
+# Session Context — SIGMA Studio
+
+## Goal
+Rebuild SIGMA Studio from scratch as a web-only application, following the design in `C:\Users\Bruno\Downloads\Web-Prototype\index.html`.
+
+## State
+- Clean slate: all previous frontend code removed.
+- `apps/desktop/` renamed to `apps/web/`.
+- `packages/` directory removed entirely.
+- Root workspace now only references `apps/web`.
+- Backend untouched (FastAPI, auth, multi-tenant endpoints).
+- Config files preserved: `vite.config.ts`, `tsconfig*.json`, `shadcn.json`, `package.json`.
+
+## Design Reference
+- **Primary:** `C:\Users\Bruno\Downloads\Web-Prototype\index.html` — single-page dashboard design.
+- **Handoff:** `C:\Users\Bruno\Downloads\Web-Prototype\DESIGN-HANDOFF.md` — visual contract rules.
+- **Manifest:** `C:\Users\Bruno\Downloads\Web-Prototype\DESIGN-MANIFEST.json`.
+- Treated as source of truth for pixels, layout, tokens, and behavior.
+
+## Tech Stack (preserved from config)
+- Vite 8 + React 19 + TypeScript 6 + react-router-dom 7
+- Tailwind CSS 4 (@theme inline + @custom-variant dark in index.css)
+- shadcn/ui (Radix base) via `shadcn.json`
+- Zustand 5, TanStack Query 5, RHF + Zod
+- Recharts 3, lucide-react, sonner
+
+## Relevant Files
+- `apps/web/index.html` — entry point (lang="pt-BR", class="dark").
+- `apps/web/package.json` — `name: "sigma-studio"`.
+- `apps/web/vite.config.ts` — Vite config.
+- `apps/web/shadcn.json` — shadcn registry config.
+- `apps/web/tsconfig*.json` — TypeScript configs.
+- `apps/backend/` — FastAPI backend (untouched).

@@ -1,15 +1,14 @@
 {
-  "name": "sigma-studio-monorepo",
+  "name": "sigma-studio",
   "private": true,
-  "version": "0.3.2",
+  "version": "0.4.0",
   "workspaces": [
-    "apps/desktop",
-    "packages/*"
+    "apps/web"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=sigma-studio",
-    "build": "npm run build --workspace=sigma-studio",
-    "lint": "npm run lint --workspace=sigma-studio",
-    "test": "npm run test --workspace=sigma-studio"
+    "dev": "npm run dev -w apps/web",
+    "build": "npm run build -w apps/web",
+    "lint": "npm run lint -w apps/web",
+    "test": "npm run test -w apps/web"
   }
 }
