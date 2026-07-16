@@ -1,9 +1,7 @@
 from uuid import uuid4
-
-from uuid import uuid4
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, func, Index
+from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func, Index
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database.session import Base
@@ -20,6 +18,7 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     display_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    preferences: Mapped[str | None] = mapped_column(Text, nullable=True)
     role_id: Mapped[int | None] = mapped_column(ForeignKey("roles.id"), nullable=True)
     current_organization_id: Mapped[int | None] = mapped_column(
         ForeignKey("organizations.id"), nullable=True

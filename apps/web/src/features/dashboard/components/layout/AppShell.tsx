@@ -18,10 +18,6 @@ import {
   Moon,
   Sun,
   LogOut,
-  AlertTriangle,
-  AlertCircle,
-  CheckCircle,
-  Clock,
 } from 'lucide-react'
 import { useThemeStore } from '@/stores/themeStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -31,8 +27,8 @@ const navSections = [
     label: 'Principal',
     items: [
       { icon: LayoutDashboard, label: 'Dashboard', path: '/app' },
-      { icon: Cpu, label: 'Dispositivos', path: '/app/devices', badge: '1.247' },
-      { icon: BellRing, label: 'Alarmes', path: '/app/alarms', badge: '23' },
+      { icon: Cpu, label: 'Dispositivos', path: '/app/devices' },
+      { icon: BellRing, label: 'Alarmes', path: '/app/alarms' },
       { icon: Activity, label: 'Telemetria', path: '/app/telemetry' },
     ],
   },
@@ -67,13 +63,6 @@ const titleMap: Record<string, string> = {
   '/app/profile': 'Meu Perfil',
   '/app/settings': 'Configurações',
 }
-
-const NOTIFICATIONS = [
-  { icon: AlertTriangle, iconClass: 'danger', title: 'ALM-014 — Alta vibração na Bomba BC-001', time: 'Há 12 min', unread: true },
-  { icon: AlertCircle, iconClass: 'warning', title: 'GW-PlantaA — Latência acima do limite (180ms)', time: 'Há 34 min', unread: true },
-  { icon: HardDrive, iconClass: 'info', title: 'Firmware v4.2.1 disponível para 6 dispositivos', time: 'Há 1 h', unread: true },
-  { icon: CheckCircle, iconClass: 'success', title: 'IA — Modelo predição de falhas treinado com sucesso', time: 'Há 3 h', unread: false },
-]
 
 export function Sidebar() {
   const location = useLocation()
@@ -112,16 +101,13 @@ export function Sidebar() {
               const isActive = location.pathname === item.path
               return (
                 <Link
-                  key={item.label + (item.badge ?? '')}
+                  key={item.label}
                   to={item.path}
                   className={`sidebar-item${isActive ? ' active' : ''}`}
                   aria-label={item.label}
                 >
                   <item.icon />
                   <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="sidebar-item-badge">{item.badge}</span>
-                  )}
                 </Link>
               )
             })}
@@ -152,11 +138,8 @@ export function Topbar() {
   const { theme, toggle: toggleTheme } = useThemeStore()
   const title = titleMap[location.pathname] ?? 'SIGMA Studio'
   const [notifOpen, setNotifOpen] = useState(false)
-  const [notifications, setNotifications] = useState(NOTIFICATIONS)
   const notifPanelRef = useRef<HTMLDivElement>(null)
   const notifBtnRef = useRef<HTMLButtonElement>(null)
-
-  const unreadCount = notifications.filter((n) => n.unread).length
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -179,10 +162,6 @@ export function Topbar() {
       document.removeEventListener('keydown', handleKey)
     }
   }, [])
-
-  function markAllRead() {
-    setNotifications((prev) => prev.map((n) => ({ ...n, unread: false })))
-  }
 
   function openMobileMenu() {
     const sidebar = document.getElementById('sidebar') as HTMLElement | null
@@ -231,33 +210,15 @@ export function Topbar() {
             onClick={(e) => { e.stopPropagation(); setNotifOpen(!notifOpen) }}
           >
             <Bell />
-            {unreadCount > 0 && <span className="notif-dot" />}
           </button>
           <div ref={notifPanelRef} className={`notif-panel${notifOpen ? ' open' : ''}`} role="menu" aria-label="Notificações">
             <div className="notif-panel-header">
               <span className="notif-panel-title">Notificações</span>
-              {unreadCount > 0 && <span className="notif-panel-badge">{unreadCount} novas</span>}
-              <span className="notif-panel-mark" onClick={markAllRead}>Marcar como lidas</span>
             </div>
             <div className="notif-list">
-              {notifications.map((n, i) => {
-                const IconComp = n.icon
-                return (
-                  <div key={i} className={`notif-item${n.unread ? ' unread' : ''}`} role="menuitem">
-                    <div className={`notif-item-icon ${n.iconClass}`}>
-                      <IconComp />
-                    </div>
-                    <div className="notif-item-body">
-                      <div className="notif-item-text" dangerouslySetInnerHTML={{ __html: n.title.replace('—', '&mdash;') }} />
-                      <div className="notif-item-time"><Clock /> {n.time}</div>
-                    </div>
-                    {n.unread && <div className="notif-item-dot" />}
-                  </div>
-                )
-              })}
-            </div>
-            <div className="notif-panel-footer">
-              <Link to="/app/alarms" onClick={() => setNotifOpen(false)}>Ver todas as notificações</Link>
+              <div style={{ padding: '32px 16px', textAlign: 'center', fontSize: 13, color: 'var(--fg-muted)' }}>
+                Nenhuma notificação
+              </div>
             </div>
           </div>
         </div>

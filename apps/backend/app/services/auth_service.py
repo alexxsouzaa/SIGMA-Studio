@@ -100,6 +100,27 @@ class AuthService:
         await self._session.commit()
         return user
 
+    async def get_preferences(self, user_id: int) -> dict:
+        import json
+        user = await self._repository.get_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        if user.preferences:
+            try:
+                return json.loads(user.preferences)
+            except (json.JSONDecodeError, TypeError):
+                return {}
+        return {}
+
+    async def update_preferences(self, user_id: int, preferences: dict) -> dict:
+        import json
+        user = await self._repository.get_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        user.preferences = json.dumps(preferences)
+        await self._session.commit()
+        return preferences
+
     async def refresh_token(self, refresh_token: str) -> dict:
         payload = decode_token(refresh_token)
         if not payload or payload.get("type") != "refresh":

@@ -91,3 +91,14 @@ export async function changePassword(data: ChangePasswordRequest) {
     body: JSON.stringify(data),
   })
 }
+
+export async function getPreferences(): Promise<ApiResponse<Record<string, unknown>>> {
+  return request<Record<string, unknown>>('/auth/me/preferences')
+}
+
+export async function updatePreferences(preferences: Record<string, unknown>): Promise<ApiResponse<Record<string, unknown>>> {
+  return request<Record<string, unknown>>('/auth/me/preferences', {
+    method: 'PATCH',
+    body: JSON.stringify({ preferences }),
+  })
+}

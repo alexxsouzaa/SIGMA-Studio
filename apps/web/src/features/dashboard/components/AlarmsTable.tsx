@@ -1,12 +1,7 @@
-import { Filter, Download, ExternalLink, Check } from 'lucide-react'
+import { Filter, Download, ExternalLink } from 'lucide-react'
+import { EmptyState } from '@/lib/hooks'
 
-const alarms = [
-  { severity: 'critical' as const, label: 'Crítico', device: 'PLC-07', desc: 'Temperatura acima do limite — 82,3°C / 80°C', value: '82,3°C', valueColor: 'var(--danger)', time: '14:32:18' },
-  { severity: 'high' as const, label: 'Alto', device: 'Gateway-M04', desc: 'Latência elevada — EtherCAT jitter > 2ms', value: '4,2ms', valueColor: 'var(--warning)', time: '14:28:05' },
-  { severity: 'high' as const, label: 'Alto', device: 'Sensor-P12', desc: 'Dispositivo offline — sem heartbeat há 12min', value: '—', valueColor: 'var(--danger)', time: '14:21:33' },
-  { severity: 'medium' as const, label: 'Médio', device: 'RTU-Festo', desc: 'Pressão variando — amplitude > 1,5 bar', value: '6,3 bar', valueColor: 'var(--info)', time: '14:15:47' },
-  { severity: 'low' as const, label: 'Baixo', device: 'Sensor-T21', desc: 'Bateria baixa — 18% restante', value: '18%', valueColor: 'var(--success)', time: '14:08:12' },
-]
+// TODO: connect to GET /api/v1/alerts when endpoint exists
 
 export function AlarmsTable() {
   return (
@@ -33,37 +28,21 @@ export function AlarmsTable() {
             <tr>
               <th>Severidade</th>
               <th>Dispositivo</th>
-              <th>Descrição</th>
+              <th>Descricao</th>
               <th>Valor</th>
-              <th>Horário</th>
-              <th>Ações</th>
+              <th>Horario</th>
+              <th>Acoes</th>
             </tr>
           </thead>
           <tbody>
-            {alarms.map((a, i) => (
-              <tr key={i}>
-                <td>
-                  <span className={`alarm-severity ${a.severity}`}>
-                    <span className="alarm-severity-dot" />
-                    {a.label}
-                  </span>
-                </td>
-                <td className="alarm-device">{a.device}</td>
-                <td>{a.desc}</td>
-                <td style={{ fontFamily: 'var(--font-mono)', fontWeight: 600, color: a.valueColor }}>
-                  {a.value}
-                </td>
-                <td className="alarm-time">{a.time}</td>
-                <td className="alarm-actions">
-                  <button className="alarm-action-btn" aria-label="Confirmar">
-                    <Check />
-                  </button>
-                  <button className="alarm-action-btn" aria-label="Detalhes">
-                    <ExternalLink />
-                  </button>
-                </td>
-              </tr>
-            ))}
+            <tr>
+              <td colSpan={6}>
+                <EmptyState
+                  title="Nenhum alarme ativo"
+                  description="Endpoint de alarmes sera conectado em breve"
+                />
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>

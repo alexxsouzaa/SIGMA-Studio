@@ -1,15 +1,9 @@
 import { ExternalLink } from 'lucide-react'
-
-const devices = [
-  { name: 'PLC-07 Siemens S7-1500', meta: 'Linha 3 · Modbus TCP', indicator: 'online' as const, value: '72,4°C', color: 'var(--success)' },
-  { name: 'Sensor-T21 ABB CT310', meta: 'Zona B · MQTT', indicator: 'online' as const, value: '23,1°C', color: 'var(--fg)' },
-  { name: 'Gateway-M04 Beckhoff', meta: 'Rack 2 · EtherCAT', indicator: 'warning' as const, value: '4,2ms', color: 'var(--warning)' },
-  { name: 'RTU-Festo VTSA', meta: 'Linha 1 · OPC-UA', indicator: 'online' as const, value: '6,3 bar', color: 'var(--fg)' },
-  { name: 'HMI-Panel Schneider', meta: 'Operador 2 · Wi-Fi', indicator: 'online' as const, value: 'Ativo', color: 'var(--success)' },
-  { name: 'Sensor-P12 Phoenix', meta: 'Zona A · BLE', indicator: 'offline' as const, value: 'Offline', color: 'var(--danger)' },
-]
+import { useDevices, LoadingSpinner, ErrorState, EmptyState } from '@/lib/hooks'
 
 export function DeviceStatus() {
+  const { data: devices, isLoading, error, refetch } = useDevices()
+
   return (
     <div className="widget">
       <div className="widget-header">
@@ -23,20 +17,35 @@ export function DeviceStatus() {
         </div>
       </div>
       <div className="widget-body">
-        <div className="device-grid">
-          {devices.map((d) => (
-            <div key={d.name} className="device-card">
-              <span className={`device-card-indicator ${d.indicator}`} />
-              <div className="device-card-info">
-                <div className="device-card-name">{d.name}</div>
-                <div className="device-card-meta">{d.meta}</div>
+        {isLoading && <LoadingSpinner />}
+        {error && (
+          <ErrorState
+            message={error}
+            onRetry={() => refetch()}
+          />
+        )}
+        {!isLoading && !error && (!devices || devices.length === 0) && (
+          <EmptyState title="Nenhum dispositivo encontrado" />
+        )}
+        {!isLoading && !error && devices && devices.length > 0 && (
+          <div className="device-grid">
+            {devices.slice(0, 6).map((d) => (
+              <div key={d.serial_number} className="device-card">
+                <span className={`device-card-indicator ${d.active ? 'online' : 'offline'}`} />
+                <div className="device-card-info">
+                  <div className="device-card-name">{d.name}</div>
+                  <div className="device-card-meta">{d.serial_number}</div>
+                </div>
+                <div
+                  className="device-card-value"
+                  style={{ color: d.active ? 'var(--success)' : 'var(--danger)' }}
+                >
+                  {d.firmware_version ?? '---'}
+                </div>
               </div>
-              <div className="device-card-value" style={{ color: d.color }}>
-                {d.value}
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

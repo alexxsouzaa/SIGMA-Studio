@@ -45,6 +45,14 @@ app.include_router(router, prefix="/api/v1")
 async def startup():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        try:
+            await conn.run_sync(
+                lambda sync_conn: sync_conn.exec_driver_sql(
+                    "ALTER TABLE users ADD COLUMN preferences TEXT"
+                )
+            )
+        except Exception:
+            pass
 
     from app.models.role import Role
     from app.models.user import User

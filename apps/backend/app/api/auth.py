@@ -7,6 +7,7 @@ from app.schemas.auth import (
     RegisterRequest,
     UpdateProfileRequest,
     ChangePasswordRequest,
+    PreferencesRequest,
     TokenResponse,
     UserResponse,
     LoginResponse,
@@ -94,6 +95,27 @@ async def change_password(
     service = AuthService(session)
     await service.change_password(user.id, data.current_password, data.new_password)
     return StandardResponse(message="Password changed successfully")
+
+
+@router.get("/me/preferences")
+async def get_preferences(
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    service = AuthService(session)
+    prefs = await service.get_preferences(user.id)
+    return StandardResponse(data=prefs, message="Preferences retrieved")
+
+
+@router.patch("/me/preferences")
+async def update_preferences(
+    data: PreferencesRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    service = AuthService(session)
+    prefs = await service.update_preferences(user.id, data.preferences)
+    return StandardResponse(data=prefs, message="Preferences updated")
 
 
 @router.post("/logout")

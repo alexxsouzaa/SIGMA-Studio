@@ -1,28 +1,7 @@
 import { Settings } from 'lucide-react'
+import { EmptyState } from '@/lib/hooks'
 
-const insights = [
-  {
-    badge: 'Previsão',
-    time: 'há 8min',
-    text: 'Temperatura do PLC-07 deve atingir ',
-    metric: '85°C',
-    suffix: ' nas próximas 2h. Recomendação: reduzir carga na Linha 3 ou ativar resfriamento auxiliar.',
-  },
-  {
-    badge: 'Anomalia',
-    time: 'há 23min',
-    text: 'Padrão anômalo detectado no Sensor-T21. Oscilação de ',
-    metric: '±4,2°C',
-    suffix: ' em 15min — fora do comportamento histórico de 97,3%.',
-  },
-  {
-    badge: 'Otimização',
-    time: 'há 1h',
-    text: 'Consumo energético da Zona B ',
-    metric: '12% acima',
-    suffix: ' da média. Possível causa: RTU-Festo em modo contínuo ao invés de intermitente.',
-  },
-]
+// TODO: connect to GET /api/v1/ai/insights when endpoint exists
 
 export function AiInsights() {
   return (
@@ -39,21 +18,10 @@ export function AiInsights() {
         </div>
       </div>
       <div className="widget-body">
-        <div className="ai-insight-list">
-          {insights.map((item, i) => (
-            <div key={i} className="ai-insight-item">
-              <div className="ai-insight-header">
-                <span className="ai-insight-badge">{item.badge}</span>
-                <span className="ai-insight-time">{item.time}</span>
-              </div>
-              <div className="ai-insight-text">
-                {item.text}
-                <span className="ai-insight-metric">{item.metric}</span>
-                {item.suffix}
-              </div>
-            </div>
-          ))}
-        </div>
+        <EmptyState
+          title="Nenhum insight disponivel"
+          description="Modelos de IA em treinamento"
+        />
       </div>
     </div>
   )

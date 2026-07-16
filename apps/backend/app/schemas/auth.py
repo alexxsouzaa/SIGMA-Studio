@@ -27,6 +27,10 @@ class ChangePasswordRequest(BaseModel):
     new_password: str = Field(..., min_length=6, max_length=128)
 
 
+class PreferencesRequest(BaseModel):
+    preferences: dict = Field(default_factory=dict)
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str

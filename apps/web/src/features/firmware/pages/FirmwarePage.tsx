@@ -1,21 +1,13 @@
 import { useState } from 'react'
-import { HardDrive, Upload, RefreshCw, Eye } from 'lucide-react'
+import { HardDrive, Upload, RefreshCw } from 'lucide-react'
 
-const ALL_DEVICES = [
-  { id: 'FW-001', name: 'PLC-07 Siemens S7-1500', type: 'STM32L4', current: 'v4.2.0', latest: 'v4.2.1', status: 'outdated', date: '2026-05-10', progress: 0 },
-  { id: 'FW-002', name: 'Sensor-T21 ABB CT310', type: 'ESP32-S3', current: 'v3.1.0', latest: 'v3.1.0', status: 'current', date: '2026-07-01', progress: 100 },
-  { id: 'FW-003', name: 'Gateway-M04 Beckhoff', type: 'ARM Cortex-M7', current: 'v2.8.2', latest: 'v2.8.3', status: 'outdated', date: '2026-04-22', progress: 0 },
-  { id: 'FW-004', name: 'RTU-Festo VTSA', type: 'ESP32', current: 'v5.0.1', latest: 'v5.0.1', status: 'current', date: '2026-06-15', progress: 100 },
-  { id: 'FW-005', name: 'HMI-Panel Schneider', type: 'STM32H7', current: 'v6.2.0', latest: 'v6.3.0', status: 'outdated', date: '2026-03-30', progress: 0 },
-  { id: 'FW-006', name: 'Sensor-P12 Phoenix', type: 'RP2040', current: 'v1.9.0', latest: 'v1.9.0', status: 'current', date: '2026-06-28', progress: 100 },
-  { id: 'FW-007', name: 'Drive-Freq ABB ACS580', type: 'STM32L4', current: 'v3.4.1', latest: 'v3.4.2', status: 'outdated', date: '2026-05-18', progress: 0 },
-  { id: 'FW-008', name: 'Sensor-Vib VibroSyst', type: 'ESP32-S3', current: 'v4.1.0', latest: 'v4.1.0', status: 'current', date: '2026-07-10', progress: 100 },
-]
+// TODO: connect to GET /api/v1/firmware when endpoint exists
+const ALL_DEVICES: Array<{ id: string; name: string; type: string; current: string; latest: string; status: string; date: string; progress: number }> = []
 
 const FILTERS = [
-  { label: 'Todos', value: 'all', count: ALL_DEVICES.length },
-  { label: 'Atualizados', value: 'current', count: ALL_DEVICES.filter((d) => d.status === 'current').length },
-  { label: 'Desatualizados', value: 'outdated', count: ALL_DEVICES.filter((d) => d.status === 'outdated').length },
+  { label: 'Todos', value: 'all', count: 0 },
+  { label: 'Atualizados', value: 'current', count: 0 },
+  { label: 'Desatualizados', value: 'outdated', count: 0 },
   { label: 'Falhas', value: 'failed', count: 0 },
   { label: 'Atualizando', value: 'pending', count: 0 },
 ]
@@ -33,9 +25,9 @@ export default function FirmwarePage() {
   const filtered = filter === 'all' ? ALL_DEVICES : ALL_DEVICES.filter((d) => d.status === filter)
 
   const stats = [
-    { label: 'Dispositivos', value: ALL_DEVICES.length, className: 'accent' },
-    { label: 'Atualizados', value: ALL_DEVICES.filter((d) => d.status === 'current').length, className: 'success' },
-    { label: 'Desatualizados', value: ALL_DEVICES.filter((d) => d.status === 'outdated').length, className: 'warning' },
+    { label: 'Dispositivos', value: 0, className: 'accent' },
+    { label: 'Atualizados', value: 0, className: 'success' },
+    { label: 'Desatualizados', value: 0, className: 'warning' },
     { label: 'Falhas OTA', value: 0, className: 'danger' },
   ]
 
@@ -73,54 +65,61 @@ export default function FirmwarePage() {
           </div>
         </div>
         <div className="widget-body" style={{ padding: 0, overflowX: 'auto' }}>
-          <table className="alarms-table" style={{ width: '100%' }}>
-            <thead>
-              <tr>
-                <th>Dispositivo</th>
-                <th>Versão Atual</th>
-                <th>Versão Mais Recente</th>
-                <th>Status</th>
-                <th>Última Atualização</th>
-                <th>Progresso</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((d) => {
-                const status = STATUS_MAP[d.status]
-                return (
-                  <tr key={d.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{d.name}</div>
-                      <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)' }}>{d.type}</div>
-                    </td>
-                    <td className="alarm-device">{d.current}</td>
-                    <td className="alarm-device">{d.latest}</td>
-                    <td>
-                      <span className={`alarm-severity ${d.status === 'current' ? 'low' : 'medium'}`}>
-                        <span className="alarm-severity-dot" />{status.label}
-                      </span>
-                    </td>
-                    <td className="alarm-time">{d.date}</td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ width: 80, height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
-                          <div style={{ height: '100%', borderRadius: 2, width: `${d.progress}%`, background: d.progress === 100 ? 'var(--success)' : 'var(--info)', transition: 'width 300ms ease' }} />
+          {filtered.length === 0 ? (
+            <div className="empty-state" style={{ padding: 48 }}>
+              <HardDrive size={32} />
+              <div className="empty-state-text">Nenhum dispositivo com firmware cadastrado</div>
+            </div>
+          ) : (
+            <table className="alarms-table" style={{ width: '100%' }}>
+              <thead>
+                <tr>
+                  <th>Dispositivo</th>
+                  <th>Versão Atual</th>
+                  <th>Versão Mais Recente</th>
+                  <th>Status</th>
+                  <th>Última Atualização</th>
+                  <th>Progresso</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.map((d) => {
+                  const status = STATUS_MAP[d.status]
+                  return (
+                    <tr key={d.id}>
+                      <td>
+                        <div style={{ fontWeight: 600 }}>{d.name}</div>
+                        <div style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)' }}>{d.type}</div>
+                      </td>
+                      <td className="alarm-device">{d.current}</td>
+                      <td className="alarm-device">{d.latest}</td>
+                      <td>
+                        <span className={`alarm-severity ${d.status === 'current' ? 'low' : 'medium'}`}>
+                          <span className="alarm-severity-dot" />{status?.label ?? d.status}
+                        </span>
+                      </td>
+                      <td className="alarm-time">{d.date}</td>
+                      <td>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ width: 80, height: 4, background: 'var(--border)', borderRadius: 2, overflow: 'hidden' }}>
+                            <div style={{ height: '100%', borderRadius: 2, width: `${d.progress}%`, background: d.progress === 100 ? 'var(--success)' : 'var(--info)', transition: 'width 300ms ease' }} />
+                          </div>
+                          <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--fg)' }}>{d.progress}%</span>
                         </div>
-                        <span style={{ fontSize: 12, fontFamily: 'var(--font-mono)', color: 'var(--fg)' }}>{d.progress}%</span>
-                      </div>
-                    </td>
-                    <td>
-                      <div className="alarm-actions">
-                        <button className="alarm-action-btn"><RefreshCw /></button>
-                        <button className="alarm-action-btn"><Eye /></button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                      </td>
+                      <td>
+                        <div className="alarm-actions">
+                          <button className="alarm-action-btn"><RefreshCw /></button>
+                          <button className="alarm-action-btn"><HardDrive /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import {
   Plus,
   Upload,
@@ -15,31 +15,22 @@ import {
   Wifi,
   Cable,
 } from 'lucide-react'
+import { useDevices, LoadingSpinner, ErrorState, EmptyState } from '@/lib/hooks'
 
-const ALL_DEVICES = [
-  { id: 'DEV-001', name: 'PLC-07 Siemens S7-1500', type: 'Controlador', model: 'S7-1500', status: 'online', protocol: 'Modbus TCP', gateway: 'GW-Modbus-01', location: 'Linha 3 - Painel Principal', firmware: 'v4.2.1', ip: '192.168.1.100', mac: '00:1B:44:11:3A:B7', lastSeen: 'Há 2 min', uptime: '127d 14h', temp: 72.4, tags: ['PLC', 'Siemens', 'Linha 3'] },
-  { id: 'DEV-003', name: 'Sensor-T21 ABB CT310', type: 'Sensor', model: 'CT310', status: 'online', protocol: 'MQTT', gateway: 'GW-MQTT-01', location: 'Zona B - Tanque 4', firmware: 'v3.1.0', ip: '192.168.1.42', mac: '00:0C:29:5E:D3:11', lastSeen: 'Há 30s', uptime: '245d 3h', temp: 23.1, tags: ['Sensor', 'ABB', 'Temperatura'] },
-  { id: 'DEV-005', name: 'Gateway-M04 Beckhoff', type: 'Gateway', model: 'CX9020', status: 'warning', protocol: 'EtherCAT', gateway: 'GW-ECAT-01', location: 'Rack 2 - Sala de Controle', firmware: 'v2.8.3', ip: '192.168.1.50', mac: '00:30:1A:8F:22:C4', lastSeen: 'Há 5 min', uptime: '30d 8h', temp: 48.5, tags: ['Gateway', 'Beckhoff', 'EtherCAT'] },
-  { id: 'DEV-008', name: 'RTU-Festo VTSA', type: 'Atuador', model: 'VTSA-44', status: 'online', protocol: 'OPC-UA', gateway: 'GW-OPC-01', location: 'Linha 1 - Válvulas', firmware: 'v5.0.1', ip: '192.168.1.75', mac: '00:1E:C0:44:7B:38', lastSeen: 'Há 45s', uptime: '89d 22h', temp: 38.2, tags: ['RTU', 'Festo', 'Pneumática'] },
-  { id: 'DEV-010', name: 'HMI-Panel Schneider', type: 'IHM', model: 'HMISTU855', status: 'online', protocol: 'Modbus TCP', gateway: 'GW-Modbus-01', location: 'Painel Operador 2', firmware: 'v6.3.0', ip: '192.168.1.200', mac: '00:80:F4:AA:12:D8', lastSeen: 'Há 1 min', uptime: '312d 5h', temp: 41.0, tags: ['HMI', 'Schneider', 'Operação'] },
-  { id: 'DEV-012', name: 'Sensor-P12 Phoenix', type: 'Sensor', model: 'RAD-2400', status: 'offline', protocol: 'BLE', gateway: 'GW-BLE-A', location: 'Zona A - Forno', firmware: 'v1.9.0', ip: '—', mac: '00:07:80:33:CC:E1', lastSeen: 'Há 12 min', uptime: '—', temp: 0, tags: ['Sensor', 'Phoenix', 'Temperatura'] },
-  { id: 'DEV-015', name: 'Drive-Freq ABB ACS580', type: 'Drive', model: 'ACS580-01', status: 'online', protocol: 'Modbus TCP', gateway: 'GW-Modbus-01', location: 'Linha 2 - Motor Principal', firmware: 'v3.4.2', ip: '192.168.1.155', mac: '00:50:56:C0:00:08', lastSeen: 'Há 15s', uptime: '180d 12h', temp: 54.7, tags: ['Drive', 'ABB', 'Motor'] },
-  { id: 'DEV-020', name: 'Sensor-Vib VibroSyst', type: 'Sensor', model: 'VIB10-45', status: 'warning', protocol: 'OPC-UA', gateway: 'GW-OPC-01', location: 'Zona C - Bomba BC-001', firmware: 'v4.1.0', ip: '192.168.1.180', mac: '00:0A:35:01:FE:DC', lastSeen: 'Há 3 min', uptime: '67d 8h', temp: 31.8, tags: ['Sensor', 'Vibração', 'Análise'] },
-]
-
-const FILTERS = [
-  { label: 'Todos', value: 'all', count: ALL_DEVICES.length },
-  { label: 'Online', value: 'online', count: ALL_DEVICES.filter((d) => d.status === 'online').length },
-  { label: 'Alerta', value: 'warning', count: ALL_DEVICES.filter((d) => d.status === 'warning').length },
-  { label: 'Offline', value: 'offline', count: ALL_DEVICES.filter((d) => d.status === 'offline').length },
-]
-
-const STATS = [
-  { label: 'Total', value: ALL_DEVICES.length, icon: Cpu, className: 'accent' },
-  { label: 'Online', value: ALL_DEVICES.filter((d) => d.status === 'online').length, icon: Wifi, className: 'success' },
-  { label: 'Offline', value: ALL_DEVICES.filter((d) => d.status === 'offline').length, icon: Cable, className: 'danger' },
-  { label: 'Com alertas', value: ALL_DEVICES.filter((d) => d.status === 'warning').length, icon: Search, className: 'info' },
-]
+interface Device {
+  id: number
+  uuid: string
+  organization_id: number
+  site_id: number | null
+  project_id: number | null
+  name: string
+  serial_number: string
+  firmware_version: string
+  location: string | null
+  active: boolean
+  created_at: string
+  updated_at: string
+}
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   online: { label: 'Online', className: 'online' },
@@ -47,12 +38,65 @@ const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   warning: { label: 'Alerta', className: 'warning' },
 }
 
+function deviceStatus(d: Device): 'online' | 'offline' {
+  return d.active ? 'online' : 'offline'
+}
+
 export default function DevicesPage() {
+  const { data: devices, isLoading, error, refetch } = useDevices()
   const [filter, setFilter] = useState('all')
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [selectedDevice, setSelectedDevice] = useState<(typeof ALL_DEVICES)[0] | null>(null)
+  const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
 
-  const filtered = filter === 'all' ? ALL_DEVICES : ALL_DEVICES.filter((d) => d.status === filter)
+  const FILTERS = useMemo(() => {
+    const list = devices ?? []
+    const online = list.filter((d) => d.active).length
+    const offline = list.filter((d) => !d.active).length
+    return [
+      { label: 'Todos', value: 'all', count: list.length },
+      { label: 'Online', value: 'online', count: online },
+      { label: 'Alerta', value: 'warning', count: 0 },
+      { label: 'Offline', value: 'offline', count: offline },
+    ]
+  }, [devices])
+
+  const STATS = useMemo(() => {
+    const list = devices ?? []
+    const online = list.filter((d) => d.active).length
+    const offline = list.filter((d) => !d.active).length
+    return [
+      { label: 'Total', value: list.length, icon: Cpu, className: 'accent' },
+      { label: 'Online', value: online, icon: Wifi, className: 'success' },
+      { label: 'Offline', value: offline, icon: Cable, className: 'danger' },
+      { label: 'Com alertas', value: 0, icon: Search, className: 'info' },
+    ]
+  }, [devices])
+
+  const filtered = useMemo(() => {
+    const list = devices ?? []
+    return list.filter((d) => {
+      switch (filter) {
+        case 'online': return d.active
+        case 'offline': return !d.active
+        case 'warning': return false
+        default: return true
+      }
+    })
+  }, [devices, filter])
+
+  if (isLoading) return <LoadingSpinner />
+
+  if (error) return <ErrorState message={error} onRetry={refetch} />
+
+  if (!devices || devices.length === 0) {
+    return (
+      <EmptyState
+        icon={<Cpu />}
+        title="Nenhum dispositivo encontrado"
+        description="Cadastre seu primeiro dispositivo para começar a monitorar."
+      />
+    )
+  }
 
   return (
     <>
@@ -112,16 +156,19 @@ export default function DevicesPage() {
         <div className="widget-body">
           {viewMode === 'grid' ? (
             <div className="device-grid">
-              {filtered.map((d) => (
-                <div key={d.id} className="device-card" onClick={() => setSelectedDevice(d)} style={{ cursor: 'pointer' }}>
-                  <div className={`device-card-indicator ${d.status}`} />
-                  <div className="device-card-info">
-                    <div className="device-card-name">{d.name}</div>
-                    <div className="device-card-meta">{d.id} · {d.gateway}</div>
+              {filtered.map((d) => {
+                const status = deviceStatus(d)
+                return (
+                  <div key={d.id} className="device-card" onClick={() => setSelectedDevice(d)} style={{ cursor: 'pointer' }}>
+                    <div className={`device-card-indicator ${status}`} />
+                    <div className="device-card-info">
+                      <div className="device-card-name">{d.name}</div>
+                      <div className="device-card-meta">{d.serial_number} · {d.location ?? '—'}</div>
+                    </div>
+                    <div className="device-card-value">{d.firmware_version}</div>
                   </div>
-                  <div className="device-card-value">{d.temp > 0 ? `${d.temp}°C` : '—'}</div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           ) : (
             <div style={{ overflowX: 'auto' }}>
@@ -129,36 +176,41 @@ export default function DevicesPage() {
                 <thead>
                   <tr>
                     <th>Dispositivo</th>
-                    <th>Tipo</th>
+                    <th>Firmware</th>
                     <th>Status</th>
-                    <th>Gateway</th>
-                    <th>Última Leitura</th>
+                    <th>Localização</th>
+                    <th>Atualizado em</th>
                     <th>Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((d) => (
-                    <tr key={d.id} onClick={() => setSelectedDevice(d)} style={{ cursor: 'pointer' }}>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>{d.name}</div>
-                        <div className="alarm-device">{d.id}</div>
-                      </td>
-                      <td>{d.type}</td>
-                      <td>
-                        <span className={`alarm-severity ${d.status === 'online' ? 'low' : d.status === 'warning' ? 'medium' : 'critical'}`}>
-                          <span className="alarm-severity-dot" />{STATUS_LABELS[d.status]?.label}
-                        </span>
-                      </td>
-                      <td>{d.gateway}</td>
-                      <td className="alarm-time">{d.lastSeen}</td>
-                      <td>
-                        <div className="alarm-actions">
-                          <button className="alarm-action-btn"><Edit /></button>
-                          <button className="alarm-action-btn"><RotateCcw /></button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {filtered.map((d) => {
+                    const status = deviceStatus(d)
+                    return (
+                      <tr key={d.id} onClick={() => setSelectedDevice(d)} style={{ cursor: 'pointer' }}>
+                        <td>
+                          <div style={{ fontWeight: 600 }}>{d.name}</div>
+                          <div className="alarm-device">{d.serial_number}</div>
+                        </td>
+                        <td>{d.firmware_version}</td>
+                        <td>
+                          <span className={`alarm-severity ${status === 'online' ? 'low' : 'critical'}`}>
+                            <span className="alarm-severity-dot" />{STATUS_LABELS[status]?.label}
+                          </span>
+                        </td>
+                        <td>{d.location ?? '—'}</td>
+                        <td className="alarm-time">
+                          {new Date(d.updated_at).toLocaleDateString('pt-BR')}
+                        </td>
+                        <td>
+                          <div className="alarm-actions">
+                            <button className="alarm-action-btn"><Edit /></button>
+                            <button className="alarm-action-btn"><RotateCcw /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -168,7 +220,7 @@ export default function DevicesPage() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 4px' }}>
         <span className="alarm-time" style={{ fontSize: 12, color: 'var(--fg-muted)' }}>
-          Mostrando {filtered.length} de {ALL_DEVICES.length} dispositivos
+          Mostrando {filtered.length} de {devices.length} dispositivos
         </span>
         <div style={{ display: 'flex', gap: 4 }}>
           <button className="widget-action-btn" disabled><ChevronLeft /></button>
@@ -192,18 +244,13 @@ export default function DevicesPage() {
                 <div className="detail-section-title">Informações Gerais</div>
                 <div className="detail-info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   {[
-                    ['ID', selectedDevice.id],
-                    ['Modelo', selectedDevice.model],
-                    ['Tipo', selectedDevice.type],
-                    ['Status', selectedDevice.status],
-                    ['Localização', selectedDevice.location],
-                    ['Gateway', selectedDevice.gateway],
-                    ['IP', selectedDevice.ip],
-                    ['MAC', selectedDevice.mac],
-                    ['Protocolo', selectedDevice.protocol],
-                    ['Última leitura', selectedDevice.lastSeen],
-                    ['Uptime', selectedDevice.uptime],
-                    ['Temperatura', `${selectedDevice.temp > 0 ? `${selectedDevice.temp}°C` : '—'}`],
+                    ['Nome', selectedDevice.name],
+                    ['Serial', selectedDevice.serial_number],
+                    ['Firmware', selectedDevice.firmware_version],
+                    ['Status', STATUS_LABELS[deviceStatus(selectedDevice)]?.label],
+                    ['Localização', selectedDevice.location ?? '—'],
+                    ['Criado em', new Date(selectedDevice.created_at).toLocaleDateString('pt-BR')],
+                    ['Atualizado em', new Date(selectedDevice.updated_at).toLocaleDateString('pt-BR')],
                   ].map(([label, value]) => (
                     <div key={label} className="detail-info-item">
                       <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</div>
