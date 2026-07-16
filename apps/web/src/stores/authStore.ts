@@ -1,6 +1,6 @@
 import { create } from 'zustand'
-import type { User } from '@/types/auth'
-import { login as apiLogin, logout as apiLogout, getMe } from '@/lib/api'
+import type { User, RegisterRequest, UpdateProfileRequest, ChangePasswordRequest } from '@/types/auth'
+import { login as apiLogin, register as apiRegister, logout as apiLogout, getMe, updateProfile as apiUpdateProfile, changePassword as apiChangePassword } from '@/lib/api'
 
 interface AuthState {
   user: User | null
@@ -8,9 +8,12 @@ interface AuthState {
   isLoading: boolean
   error: string | null
   login: (username: string, password: string) => Promise<boolean>
+  register: (data: RegisterRequest) => Promise<boolean>
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
   clearError: () => void
+  updateProfile: (data: UpdateProfileRequest) => Promise<boolean>
+  changePassword: (data: ChangePasswordRequest) => Promise<boolean>
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -31,8 +34,25 @@ export const useAuthStore = create<AuthState>((set) => ({
       })
       return true
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Erro ao conectar ao servidor'
+      const message = err instanceof Error ? err.message : 'Erro ao conectar ao servidor'
+      set({ isLoading: false, error: message })
+      return false
+    }
+  },
+
+  register: async (data: RegisterRequest) => {
+    set({ isLoading: true, error: null })
+    try {
+      const res = await apiRegister(data)
+      set({
+        user: res.data.user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      })
+      return true
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao conectar ao servidor'
       set({ isLoading: false, error: message })
       return false
     }
@@ -61,4 +81,30 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   clearError: () => set({ error: null }),
+
+  updateProfile: async (data: UpdateProfileRequest) => {
+    set({ isLoading: true, error: null })
+    try {
+      const res = await apiUpdateProfile(data)
+      set({ user: res.data, isLoading: false })
+      return true
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao atualizar perfil'
+      set({ isLoading: false, error: message })
+      return false
+    }
+  },
+
+  changePassword: async (data: ChangePasswordRequest) => {
+    set({ isLoading: true, error: null })
+    try {
+      await apiChangePassword(data)
+      set({ isLoading: false })
+      return true
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao alterar senha'
+      set({ isLoading: false, error: message })
+      return false
+    }
+  },
 }))

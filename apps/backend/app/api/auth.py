@@ -2,12 +2,37 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_session
-from app.schemas.auth import LoginRequest, TokenResponse, UserResponse, LoginResponse
+from app.schemas.auth import (
+    LoginRequest,
+    RegisterRequest,
+    UpdateProfileRequest,
+    ChangePasswordRequest,
+    TokenResponse,
+    UserResponse,
+    LoginResponse,
+)
 from app.schemas.organization import OrganizationResponse
 from app.schemas.common import StandardResponse
 from app.services.auth_service import AuthService, get_current_user
+from app.models.user import User
 
 router = APIRouter()
+
+
+@router.post("/register")
+async def register(data: RegisterRequest, session: AsyncSession = Depends(get_session)):
+    service = AuthService(session)
+    result = await service.register(data.username, data.email, data.password, data.display_name)
+    return StandardResponse(
+        data=LoginResponse(
+            access_token=result["access_token"],
+            refresh_token=result["refresh_token"],
+            token_type=result["token_type"],
+            user=UserResponse.model_validate(result["user"]),
+            organizations=[],
+        ),
+        message="Registration successful",
+    )
 
 
 @router.post("/login")
@@ -44,6 +69,31 @@ async def get_me(user=Depends(get_current_user)):
         data=UserResponse.model_validate(user),
         message="User retrieved",
     )
+
+
+@router.patch("/me")
+async def update_me(
+    data: UpdateProfileRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    service = AuthService(session)
+    updated = await service.update_profile(user.id, data.display_name, data.email)
+    return StandardResponse(
+        data=UserResponse.model_validate(updated),
+        message="Profile updated",
+    )
+
+
+@router.post("/change-password")
+async def change_password(
+    data: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+):
+    service = AuthService(session)
+    await service.change_password(user.id, data.current_password, data.new_password)
+    return StandardResponse(message="Password changed successfully")
 
 
 @router.post("/logout")

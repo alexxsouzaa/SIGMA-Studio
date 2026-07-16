@@ -30,9 +30,30 @@ export interface ApiResponse<T> {
   success: boolean
   message: string
   data: T
+  timestamp?: string
+  request_id?: string
 }
 
 export interface LoginRequest {
   username: string
   password: string
 }
+
+export interface RegisterRequest {
+  username: string
+  email: string
+  password: string
+  display_name: string
+}
+
+export interface UpdateProfileRequest {
+  display_name?: string | null
+  email?: string | null
+}
+
+export interface ChangePasswordRequest {
+  current_password: string
+  new_password: string
+}
+
+export interface RegisterResponse extends LoginResponse {}

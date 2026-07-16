@@ -10,6 +10,23 @@ class LoginRequest(BaseModel):
     password: str = Field(..., min_length=6, max_length=128)
 
 
+class RegisterRequest(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    email: str = Field(..., min_length=5, max_length=255)
+    password: str = Field(..., min_length=6, max_length=128)
+    display_name: str = Field(default="", max_length=100)
+
+
+class UpdateProfileRequest(BaseModel):
+    display_name: str | None = Field(None, max_length=100)
+    email: str | None = Field(None, min_length=5, max_length=255)
+
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str = Field(..., min_length=1, max_length=128)
+    new_password: str = Field(..., min_length=6, max_length=128)
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str

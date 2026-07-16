@@ -12,36 +12,48 @@ import {
   Sun,
   Eye,
   EyeOff,
-  KeyRound,
   Loader2,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useThemeStore } from '@/stores/themeStore'
 
-const loginSchema = z.object({
-  username: z.string().min(1, 'Informe seu e-mail ou usuário.'),
-  password: z.string().min(1, 'Informe sua senha.'),
-})
+const registerSchema = z
+  .object({
+    username: z.string().min(3, 'Mínimo 3 caracteres'),
+    email: z.string().min(1, 'Informe seu e-mail').email('E-mail inválido'),
+    display_name: z.string().min(1, 'Informe seu nome'),
+    password: z.string().min(6, 'Mínimo 6 caracteres'),
+    confirmPassword: z.string().min(1, 'Confirme sua senha'),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: 'Senhas não conferem',
+    path: ['confirmPassword'],
+  })
 
-type LoginForm = z.infer<typeof loginSchema>
+type RegisterForm = z.infer<typeof registerSchema>
 
-export function LoginPage() {
+export function RegisterPage() {
   const navigate = useNavigate()
-  const { login, isLoading, error, clearError } = useAuthStore()
+  const { register: registerUser, isLoading, error, clearError } = useAuthStore()
   const { theme, toggle } = useThemeStore()
   const [showPassword, setShowPassword] = useState(false)
 
   const {
-    register,
+    register: registerField,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForm>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterForm>({
+    resolver: zodResolver(registerSchema),
   })
 
-  async function onSubmit(data: LoginForm) {
+  async function onSubmit(data: RegisterForm) {
     clearError()
-    const ok = await login(data.username, data.password)
+    const ok = await registerUser({
+      username: data.username,
+      email: data.email,
+      password: data.password,
+      display_name: data.display_name,
+    })
     if (ok) {
       navigate('/app', { replace: true })
     }
@@ -49,8 +61,8 @@ export function LoginPage() {
 
   return (
     <div className="login-shell">
-      <a href="#login-username" className="skip-link">
-        Pular para o formulário de login
+      <a href="#register-username" className="skip-link">
+        Pular para o formulário de cadastro
       </a>
 
       <div className="login-brand">
@@ -113,9 +125,9 @@ export function LoginPage() {
 
         <div className="login-card">
           <div className="login-card-header">
-            <h2 className="login-card-title">Entrar na plataforma</h2>
+            <h2 className="login-card-title">Criar conta</h2>
             <p className="login-card-subtitle">
-              Insira suas credenciais para acessar o painel.
+              Preencha os dados para começar a usar o SIGMA Studio.
             </p>
           </div>
 
@@ -123,24 +135,43 @@ export function LoginPage() {
             className="login-form"
             onSubmit={handleSubmit(onSubmit)}
             noValidate
-            aria-label="Formulário de login"
+            aria-label="Formulário de cadastro"
           >
-            <div
-              className={`login-field${errors.username ? ' login-field-error' : ''}`}
-            >
-              <label className="login-label" htmlFor="login-username">
-                E-mail
+            <div className={`login-field${errors.display_name ? ' login-field-error' : ''}`}>
+              <label className="login-label" htmlFor="register-name">
+                Nome completo
               </label>
               <div className="login-input-wrap">
                 <input
-                  id="login-username"
+                  id="register-name"
                   className="login-input"
                   type="text"
-                  placeholder="operador@sigma.studio"
-                  autoComplete="email"
-                  aria-label="Endereço de e-mail"
+                  placeholder="Ana Silva"
+                  autoComplete="name"
+                  aria-invalid={errors.display_name ? 'true' : undefined}
+                  {...registerField('display_name')}
+                />
+              </div>
+              {errors.display_name && (
+                <span className="login-error-msg" role="alert" style={{ display: 'block' }}>
+                  {errors.display_name.message}
+                </span>
+              )}
+            </div>
+
+            <div className={`login-field${errors.username ? ' login-field-error' : ''}`}>
+              <label className="login-label" htmlFor="register-username">
+                Nome de usuário
+              </label>
+              <div className="login-input-wrap">
+                <input
+                  id="register-username"
+                  className="login-input"
+                  type="text"
+                  placeholder="ana.silva"
+                  autoComplete="username"
                   aria-invalid={errors.username ? 'true' : undefined}
-                  {...register('username')}
+                  {...registerField('username')}
                 />
               </div>
               {errors.username && (
@@ -150,22 +181,41 @@ export function LoginPage() {
               )}
             </div>
 
-            <div
-              className={`login-field${errors.password ? ' login-field-error' : ''}`}
-            >
-              <label className="login-label" htmlFor="login-password">
+            <div className={`login-field${errors.email ? ' login-field-error' : ''}`}>
+              <label className="login-label" htmlFor="register-email">
+                E-mail
+              </label>
+              <div className="login-input-wrap">
+                <input
+                  id="register-email"
+                  className="login-input"
+                  type="email"
+                  placeholder="ana@sigma.studio"
+                  autoComplete="email"
+                  aria-invalid={errors.email ? 'true' : undefined}
+                  {...registerField('email')}
+                />
+              </div>
+              {errors.email && (
+                <span className="login-error-msg" role="alert" style={{ display: 'block' }}>
+                  {errors.email.message}
+                </span>
+              )}
+            </div>
+
+            <div className={`login-field${errors.password ? ' login-field-error' : ''}`}>
+              <label className="login-label" htmlFor="register-password">
                 Senha
               </label>
               <div className="login-input-wrap">
                 <input
-                  id="login-password"
+                  id="register-password"
                   className="login-input login-input-password"
                   type={showPassword ? 'text' : 'password'}
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  aria-label="Senha"
+                  placeholder="Mínimo 6 caracteres"
+                  autoComplete="new-password"
                   aria-invalid={errors.password ? 'true' : undefined}
-                  {...register('password')}
+                  {...registerField('password')}
                 />
                 <button
                   type="button"
@@ -184,6 +234,28 @@ export function LoginPage() {
               )}
             </div>
 
+            <div className={`login-field${errors.confirmPassword ? ' login-field-error' : ''}`}>
+              <label className="login-label" htmlFor="register-confirm">
+                Confirmar senha
+              </label>
+              <div className="login-input-wrap">
+                <input
+                  id="register-confirm"
+                  className="login-input"
+                  type="password"
+                  placeholder="Repita a senha"
+                  autoComplete="new-password"
+                  aria-invalid={errors.confirmPassword ? 'true' : undefined}
+                  {...registerField('confirmPassword')}
+                />
+              </div>
+              {errors.confirmPassword && (
+                <span className="login-error-msg" role="alert" style={{ display: 'block' }}>
+                  {errors.confirmPassword.message}
+                </span>
+              )}
+            </div>
+
             {error && (
               <div className="login-field" style={{ marginTop: -8 }}>
                 <span className="login-error-msg" role="alert" style={{ display: 'block', color: 'var(--danger)' }}>
@@ -191,20 +263,6 @@ export function LoginPage() {
                 </span>
               </div>
             )}
-
-            <div className="login-options">
-              <label className="login-checkbox-wrap">
-                <input
-                  type="checkbox"
-                  className="login-checkbox"
-                  defaultChecked
-                />
-                <span className="login-checkbox-label">Lembrar-me</span>
-              </label>
-              <a href="#" className="login-forgot" onClick={(e) => e.preventDefault()}>
-                Esqueceu a senha?
-              </a>
-            </div>
 
             <button
               type="submit"
@@ -215,25 +273,14 @@ export function LoginPage() {
               {isLoading ? (
                 <Loader2 className="login-spinner" style={{ display: 'block', animation: 'spin 600ms linear infinite' }} />
               ) : (
-                <span className="login-submit-text">Entrar</span>
+                <span className="login-submit-text">Criar conta</span>
               )}
             </button>
 
-            <div className="login-divider">
-              <div className="login-divider-line" />
-              <span className="login-divider-text">ou</span>
-              <div className="login-divider-line" />
-            </div>
-
-            <button type="button" className="login-sso">
-              <KeyRound />
-              Entrar com SSO corporativo
-            </button>
-
             <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--fg-secondary)' }}>
-              Não tem uma conta?{' '}
-              <Link to="/register" style={{ color: 'var(--fg)', fontWeight: 600 }}>
-                Criar conta
+              Já tem uma conta?{' '}
+              <Link to="/login" style={{ color: 'var(--fg)', fontWeight: 600 }}>
+                Entrar
               </Link>
             </p>
           </form>
@@ -241,9 +288,6 @@ export function LoginPage() {
 
         <div className="login-footer">
           SIGMA Studio v2.4.1 &middot; Plataforma Industrial IoT
-          <div className="login-footer-hint">
-            Pressione <kbd>Enter</kbd> para enviar
-          </div>
         </div>
       </div>
     </div>
