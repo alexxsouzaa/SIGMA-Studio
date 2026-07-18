@@ -1,7 +1,7 @@
 {
   "name": "sigma-studio",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,14 +12,11 @@
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@tailwindcss/vite": "^4.3.2",
-    "@tanstack/react-query": "^5.101.2",
     "lucide-react": "^1.23.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-hook-form": "^7.81.0",
     "react-router-dom": "^7.18.1",
-    "recharts": "^3.9.2",
-    "sonner": "^2.0.7",
     "tailwindcss": "^4.3.2",
     "zod": "^4.4.3",
     "zustand": "^5.0.14"

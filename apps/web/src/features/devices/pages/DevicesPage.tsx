@@ -16,21 +16,7 @@ import {
   Cable,
 } from 'lucide-react'
 import { useDevices, LoadingSpinner, ErrorState, EmptyState } from '@/lib/hooks'
-
-interface Device {
-  id: number
-  uuid: string
-  organization_id: number
-  site_id: number | null
-  project_id: number | null
-  name: string
-  serial_number: string
-  firmware_version: string
-  location: string | null
-  active: boolean
-  created_at: string
-  updated_at: string
-}
+import type { Device } from '@/types/device'
 
 const STATUS_LABELS: Record<string, { label: string; className: string }> = {
   online: { label: 'Online', className: 'online' },

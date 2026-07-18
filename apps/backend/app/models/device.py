@@ -1,10 +1,16 @@
 from uuid import uuid4
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, func, Index
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.session import Base
+
+if TYPE_CHECKING:
+    from app.models.organization import Organization
+    from app.models.site import Site
+    from app.models.project import Project
 
 
 class Device(Base):
@@ -24,7 +30,7 @@ class Device(Base):
         ForeignKey("projects.id"), nullable=True
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-    serial_number: Mapped[str] = mapped_column(String(50), nullable=False, unique=True)
+    serial_number: Mapped[str] = mapped_column(String(50), nullable=False)
     firmware_version: Mapped[str] = mapped_column(String(20), nullable=False)
     location: Mapped[str | None] = mapped_column(String(200), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -34,6 +40,10 @@ class Device(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+    organization: Mapped["Organization"] = relationship()
+    site: Mapped["Site | None"] = relationship()
+    project: Mapped["Project | None"] = relationship()
 
     __table_args__ = (
         Index("ix_device_serial", "serial_number"),

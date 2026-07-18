@@ -6,7 +6,11 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from alembic import context
 
 from app.database.session import Base
-from app.models import Device, Sample, Alert, Event, Configuration
+from app.models import (
+    Role, User, Organization, Site, Project, Member,
+    Device, DeviceStatus, Sample, Event, Alert,
+    Configuration, Analytics, Log,
+)
 
 config = context.config
 

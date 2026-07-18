@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends
+﻿from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_session
 from app.schemas.site import SiteCreate, SiteUpdate, SiteResponse
 from app.schemas.common import StandardResponse
 from app.services.site_service import SiteService
+from app.services.auth_service import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -19,6 +21,7 @@ async def list_sites(
     skip: int = 0,
     limit: int = 100,
     service: SiteService = Depends(get_site_service),
+    _user: User = Depends(get_current_user),
 ):
     sites, total = await service.list_sites(org_id, skip=skip, limit=limit)
     return StandardResponse(
@@ -32,6 +35,7 @@ async def get_site(
     org_id: int,
     site_id: int,
     service: SiteService = Depends(get_site_service),
+    _user: User = Depends(get_current_user),
 ):
     site = await service.get_site(org_id, site_id)
     return StandardResponse(
@@ -45,6 +49,7 @@ async def create_site(
     org_id: int,
     data: SiteCreate,
     service: SiteService = Depends(get_site_service),
+    _user: User = Depends(get_current_user),
 ):
     site = await service.create_site(org_id, data)
     return StandardResponse(
@@ -59,9 +64,11 @@ async def update_site(
     site_id: int,
     data: SiteUpdate,
     service: SiteService = Depends(get_site_service),
+    _user: User = Depends(get_current_user),
 ):
     site = await service.update_site(org_id, site_id, data)
     return StandardResponse(
         data=SiteResponse.model_validate(site),
         message="Site updated",
     )
+

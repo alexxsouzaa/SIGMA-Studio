@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  Hexagon,
   Activity,
   BrainCircuit,
   ShieldCheck,
@@ -14,9 +13,11 @@ import {
   EyeOff,
   KeyRound,
   Loader2,
+  ArrowLeft,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useThemeStore } from '@/stores/themeStore'
+import { APP_VERSION_LABEL } from '@/version'
 
 const loginSchema = z.object({
   username: z.string().min(1, 'Informe seu e-mail ou usuário.'),
@@ -30,6 +31,7 @@ export function LoginPage() {
   const { login, isLoading, error, clearError } = useAuthStore()
   const { theme, toggle } = useThemeStore()
   const [showPassword, setShowPassword] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
 
   const {
     register,
@@ -57,9 +59,9 @@ export function LoginPage() {
         <div className="login-brand-grid" />
         <div className="login-brand-content">
           <div className="login-brand-logo">
-            <Hexagon />
+            <img className="theme-logo-dark" src="/logo-light.png" alt="SIGMA Studio" style={{ height: 33, width: 'auto' }} />
+            <img className="theme-logo-light" src="/logo-dark.png" alt="SIGMA Studio" style={{ height: 33, width: 'auto' }} />
           </div>
-          <h1 className="login-brand-name">SIGMA Studio</h1>
           <p className="login-brand-tagline">
             Plataforma de monitoramento industrial com IA integrada para IoT,
             automação e gestão de dispositivos.
@@ -103,6 +105,21 @@ export function LoginPage() {
       </div>
 
       <div className="login-form-panel">
+        <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', gap: 8 }}>
+          <Link
+            to="/"
+            style={{
+              width: 36, height: 36, borderRadius: 'var(--radius-md)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--fg-muted)', transition: 'background var(--transition), color var(--transition)',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-hover)'; e.currentTarget.style.color = 'var(--fg)' }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--fg-muted)' }}
+            aria-label="Voltar para pagina inicial"
+          >
+            <ArrowLeft size={18} />
+          </Link>
+        </div>
         <button
           className="login-theme-toggle"
           onClick={toggle}
@@ -197,7 +214,8 @@ export function LoginPage() {
                 <input
                   type="checkbox"
                   className="login-checkbox"
-                  defaultChecked
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
                 />
                 <span className="login-checkbox-label">Lembrar-me</span>
               </label>
@@ -240,7 +258,7 @@ export function LoginPage() {
         </div>
 
         <div className="login-footer">
-          SIGMA Studio v2.4.1 &middot; Plataforma Industrial IoT
+          SIGMA Studio {APP_VERSION_LABEL} &middot; Plataforma Industrial IoT
           <div className="login-footer-hint">
             Pressione <kbd>Enter</kbd> para enviar
           </div>

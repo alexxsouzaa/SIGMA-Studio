@@ -9,10 +9,10 @@ import {
   HardDrive,
   BrainCircuit,
   ScrollText,
+  Users as UsersIcon,
   User,
   Settings,
   Search,
-  Hexagon,
   Bell,
   Menu,
   Moon,
@@ -21,31 +21,39 @@ import {
 } from 'lucide-react'
 import { useThemeStore } from '@/stores/themeStore'
 import { useAuthStore } from '@/stores/authStore'
+import { APP_VERSION_LABEL } from '@/version'
+import { hasPermission, getRoleLabel } from '@/lib/permissions'
 
 const navSections = [
   {
     label: 'Principal',
     items: [
-      { icon: LayoutDashboard, label: 'Dashboard', path: '/app' },
-      { icon: Cpu, label: 'Dispositivos', path: '/app/devices' },
-      { icon: BellRing, label: 'Alarmes', path: '/app/alarms' },
-      { icon: Activity, label: 'Telemetria', path: '/app/telemetry' },
+      { icon: LayoutDashboard, label: 'Dashboard', path: '/app', permission: 'dashboard' },
+      { icon: Cpu, label: 'Dispositivos', path: '/app/devices', permission: 'devices' },
+      { icon: BellRing, label: 'Alarmes', path: '/app/alarms', permission: 'alarms' },
+      { icon: Activity, label: 'Telemetria', path: '/app/telemetry', permission: 'telemetry' },
     ],
   },
   {
     label: 'Sistema',
     items: [
-      { icon: Router, label: 'Gateways', path: '/app/gateways' },
-      { icon: HardDrive, label: 'Firmware', path: '/app/firmware' },
-      { icon: BrainCircuit, label: 'IA / TinyML', path: '/app/ia' },
-      { icon: ScrollText, label: 'Logs', path: '/app/logs' },
+      { icon: Router, label: 'Gateways', path: '/app/gateways', permission: 'gateways' },
+      { icon: HardDrive, label: 'Firmware', path: '/app/firmware', permission: 'firmware' },
+      { icon: BrainCircuit, label: 'IA / TinyML', path: '/app/ia', permission: 'ia' },
+      { icon: ScrollText, label: 'Logs', path: '/app/logs', permission: 'logs' },
     ],
   },
   {
     label: 'Conta',
     items: [
-      { icon: User, label: 'Perfil', path: '/app/profile' },
-      { icon: Settings, label: 'Configurações', path: '/app/settings' },
+      { icon: User, label: 'Perfil', path: '/app/profile', permission: 'profile' },
+      { icon: Settings, label: 'Configurações', path: '/app/settings', permission: 'settings' },
+    ],
+  },
+  {
+    label: 'Administracao',
+    items: [
+      { icon: UsersIcon, label: 'Usuarios', path: '/app/users', permission: 'users' },
     ],
   },
 ]
@@ -64,7 +72,7 @@ const titleMap: Record<string, string> = {
   '/app/settings': 'Configurações',
 }
 
-export function Sidebar() {
+export function Sidebar({ mobileOpen = false }: { mobileOpen?: boolean }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuthStore()
@@ -81,38 +89,43 @@ export function Sidebar() {
     .join('')
     .toUpperCase()
     .slice(0, 2)
-  const subtitle = user?.email || user?.username || ''
+  const roleLabel = getRoleLabel(user?.role_name ?? null)
 
   return (
-    <aside className="sidebar" id="sidebar">
-      <Link to="/" className="sidebar-brand">
-        <div className="sidebar-brand-icon">
-          <Hexagon />
-        </div>
-        <span className="sidebar-brand-name">SIGMA Studio</span>
-        <span className="sidebar-brand-version">v2.4</span>
+    <aside className={`sidebar${mobileOpen ? ' mobile-open' : ''}`}>
+      <Link to="/app" className="sidebar-brand" style={{ justifyContent: 'center', gap: 6 }}>
+        <img className="sidebar-brand-logo theme-logo-dark" src="/logo-light.png" alt="SIGMA Studio" />
+        <img className="sidebar-brand-logo theme-logo-light" src="/logo-dark.png" alt="SIGMA Studio" />
+        <span className="sidebar-brand-version">{APP_VERSION_LABEL}</span>
       </Link>
 
       <nav className="sidebar-nav">
-        {navSections.map((section) => (
-          <div key={section.label}>
-            <div className="sidebar-section-label">{section.label}</div>
-            {section.items.map((item) => {
-              const isActive = location.pathname === item.path
-              return (
-                <Link
-                  key={item.label}
-                  to={item.path}
-                  className={`sidebar-item${isActive ? ' active' : ''}`}
-                  aria-label={item.label}
-                >
-                  <item.icon />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-          </div>
-        ))}
+        {navSections.map((section) => {
+          const visibleItems = section.items.filter(
+            (item) => hasPermission(user, item.permission)
+          )
+          if (visibleItems.length === 0) return null
+          return (
+            <div key={section.label}>
+              <div className="sidebar-section-label">{section.label}</div>
+              {visibleItems.map((item) => {
+                const isActive = location.pathname === item.path
+                return (
+                  <Link
+                    key={item.label}
+                    to={item.path}
+                    className={`sidebar-item${isActive ? ' active' : ''}`}
+                    aria-label={item.label}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <item.icon />
+                    <span>{item.label}</span>
+                  </Link>
+                )
+              })}
+            </div>
+          )
+        })}
       </nav>
 
       <div className="sidebar-footer">
@@ -120,7 +133,7 @@ export function Sidebar() {
           <div className="sidebar-user-avatar">{initials}</div>
           <div className="sidebar-user-info">
             <div className="sidebar-user-name">{displayName}</div>
-            <div className="sidebar-user-role">{subtitle}</div>
+            <div className="sidebar-user-role">{roleLabel}</div>
           </div>
         </Link>
         <button className="sidebar-logout" onClick={handleLogout}>
@@ -132,7 +145,7 @@ export function Sidebar() {
   )
 }
 
-export function Topbar() {
+export function Topbar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMobileOpen: (v: boolean) => void }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { theme, toggle: toggleTheme } = useThemeStore()
@@ -153,34 +166,28 @@ export function Topbar() {
       }
     }
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') setNotifOpen(false)
+      if (e.key === 'Escape') {
+        setNotifOpen(false)
+        setMobileOpen(false)
+      }
+    }
+    function handleResize() {
+      if (window.innerWidth >= 1024) setMobileOpen(false)
     }
     document.addEventListener('click', handleClick)
     document.addEventListener('keydown', handleKey)
+    window.addEventListener('resize', handleResize)
     return () => {
       document.removeEventListener('click', handleClick)
       document.removeEventListener('keydown', handleKey)
+      window.removeEventListener('resize', handleResize)
     }
   }, [])
-
-  function openMobileMenu() {
-    const sidebar = document.getElementById('sidebar') as HTMLElement | null
-    const overlay = document.getElementById('sidebar-overlay') as HTMLElement | null
-    if (sidebar) sidebar.classList.add('mobile-open')
-    if (overlay) overlay.classList.add('open')
-  }
-
-  function closeMobileMenu() {
-    const sidebar = document.getElementById('sidebar') as HTMLElement | null
-    const overlay = document.getElementById('sidebar-overlay') as HTMLElement | null
-    if (sidebar) sidebar.classList.remove('mobile-open')
-    if (overlay) overlay.classList.remove('open')
-  }
 
   return (
     <>
       <header className="topbar">
-        <button className="topbar-menu-btn" onClick={openMobileMenu} aria-label="Abrir menu">
+        <button className="topbar-menu-btn" onClick={() => setMobileOpen(true)} aria-label="Abrir menu">
           <Menu />
         </button>
         <span className="topbar-title">{title}</span>
@@ -231,7 +238,7 @@ export function Topbar() {
           {theme === 'dark' ? <Moon /> : <Sun />}
         </button>
       </header>
-      <div className="sidebar-overlay" id="sidebar-overlay" onClick={closeMobileMenu} />
+      <div className={`sidebar-overlay${mobileOpen ? ' open' : ''}`} onClick={() => setMobileOpen(false)} />
     </>
   )
 }

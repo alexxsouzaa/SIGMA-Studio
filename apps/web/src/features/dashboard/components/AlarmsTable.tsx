@@ -1,60 +1,96 @@
-import { Filter, Download, ExternalLink } from 'lucide-react'
-import { EmptyState } from '@/lib/hooks'
+import { Filter, Download, ExternalLink, Check, BellRing } from 'lucide-react'
+import { useApi } from '@/lib/hooks'
+import { LoadingSpinner, ErrorState, EmptyState } from '@/components/shared/StatusStates'
 
-// TODO: connect to GET /api/v1/alerts when endpoint exists
+interface Alert {
+  id: number
+  device_id: number
+  alarm_type: string
+  level: string
+  value: number | null
+  threshold: number | null
+  acknowledged: boolean
+  created_at: string
+}
+
+const SEV_MAP: Record<string, { label: string; className: string }> = {
+  critical: { label: 'Critico', className: 'critical' },
+  error: { label: 'Erro', className: 'high' },
+  warning: { label: 'Alto', className: 'medium' },
+  info: { label: 'Baixo', className: 'low' },
+}
 
 export function AlarmsTable() {
+  const { data: alerts, isLoading, error, refetch } = useApi<Alert[]>('/alerts/?limit=5')
+
   return (
     <div className="widget" style={{ gridColumn: 'span 2' }}>
       <div className="widget-header">
         <div className="widget-title">
-          <BellRingIcon />Alarmes Recentes
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BellRing size={16} style={{ color: 'var(--fg-muted)' }} />
+            Alarmes Recentes
+          </span>
         </div>
         <div className="widget-actions">
-          <button className="widget-action-btn" aria-label="Filtrar">
-            <Filter />
-          </button>
-          <button className="widget-action-btn" aria-label="Exportar">
-            <Download />
-          </button>
-          <button className="widget-action-btn" aria-label="Ver todos">
-            <ExternalLink />
-          </button>
+          <button className="widget-action-btn" aria-label="Filtrar"><Filter /></button>
+          <button className="widget-action-btn" aria-label="Download"><Download /></button>
+          <button className="widget-action-btn" aria-label="Ver todos"><ExternalLink /></button>
         </div>
       </div>
-      <div className="widget-body-flush">
-        <table className="alarms-table">
-          <thead>
-            <tr>
-              <th>Severidade</th>
-              <th>Dispositivo</th>
-              <th>Descricao</th>
-              <th>Valor</th>
-              <th>Horario</th>
-              <th>Acoes</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colSpan={6}>
-                <EmptyState
-                  title="Nenhum alarme ativo"
-                  description="Endpoint de alarmes sera conectado em breve"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="widget-body widget-body-flush">
+        {isLoading && <LoadingSpinner />}
+        {error && <ErrorState message={error} onRetry={refetch} />}
+        {!isLoading && !error && (!alerts || alerts.length === 0) && (
+          <EmptyState title="Nenhum alarme ativo" description="Nenhum alerta encontrado no sistema." />
+        )}
+        {!isLoading && !error && alerts && alerts.length > 0 && (
+          <table className="alarms-table" style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th>Severidade</th>
+                <th>Dispositivo</th>
+                <th>Descricao</th>
+                <th>Valor</th>
+                <th>Horario</th>
+                <th>Acoes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {alerts.map((a) => {
+                const sev = SEV_MAP[a.level] ?? SEV_MAP.info
+                return (
+                  <tr key={a.id}>
+                    <td>
+                      <span className={`alarm-severity ${sev.className}`}>
+                        <span className="alarm-severity-dot" />{sev.label}
+                      </span>
+                    </td>
+                    <td className="alarm-device">DEV-{String(a.device_id).padStart(3, '0')}</td>
+                    <td style={{ maxWidth: 280, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12, color: 'var(--fg-secondary)' }}>
+                      {a.alarm_type}
+                    </td>
+                    <td className="alarm-device">
+                      {a.value != null ? `${a.value} / ${a.threshold ?? '-'}` : '---'}
+                    </td>
+                    <td className="alarm-time">
+                      {new Date(a.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                    </td>
+                    <td>
+                      <div className="alarm-actions">
+                        {!a.acknowledged && (
+                          <button className="alarm-action-btn" title="Confirmar"><Check /></button>
+                        )}
+                        <button className="alarm-action-btn" title="Detalhes"><ExternalLink /></button>
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
-  )
-}
-
-function BellRingIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--fg-muted)' }}>
-      <path d="M6 8a6 6 0 0 1 12 0c0 7 4 11 4 11H2s4-4 4-11" />
-      <path d="M9.5 17.5a2.5 2.5 0 0 0 5 0" />
-    </svg>
   )
 }

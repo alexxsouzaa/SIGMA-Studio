@@ -4,6 +4,7 @@ import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Camera, Save, Loader2 } from "lucide-react"
 import { useAuthStore } from "@/stores/authStore"
+import { getRoleLabel } from "@/lib/permissions"
 
 const profileSchema = z.object({
   display_name: z.string().min(1, "Nome obrigatorio"),
@@ -26,9 +27,11 @@ const passwordSchema = z
 type PasswordForm = z.infer<typeof passwordSchema>
 
 export default function ProfilePage() {
-  const { user, updateProfile, changePassword, isLoading } = useAuthStore()
+  const { user, updateProfile, changePassword } = useAuthStore()
   const [saved, setSaved] = useState(false)
   const [pwdSaved, setPwdSaved] = useState(false)
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [passwordSaving, setPasswordSaving] = useState(false)
   const [profileError, setProfileError] = useState<string | null>(null)
   const [pwdError, setPwdError] = useState<string | null>(null)
 
@@ -58,24 +61,28 @@ export default function ProfilePage() {
 
   async function onSaveProfile(data: ProfileForm) {
     setProfileError(null)
+    setProfileSaving(true)
     const ok = await updateProfile({ display_name: data.display_name, email: data.email })
+    setProfileSaving(false)
     if (ok) {
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } else {
-      setProfileError(useAuthStore.getState().error ?? "Erro ao salvar perfil")
+      setProfileError("Erro ao salvar perfil. Tente novamente.")
     }
   }
 
   async function onChangePassword(data: PasswordForm) {
     setPwdError(null)
+    setPasswordSaving(true)
     const ok = await changePassword({ current_password: data.current_password, new_password: data.new_password })
+    setPasswordSaving(false)
     if (ok) {
       setPwdSaved(true)
       resetPwd()
       setTimeout(() => setPwdSaved(false), 2500)
     } else {
-      setPwdError(useAuthStore.getState().error ?? "Erro ao alterar senha")
+      setPwdError("Erro ao alterar senha. Tente novamente.")
     }
   }
 
@@ -99,8 +106,8 @@ export default function ProfilePage() {
             <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 2 }}>
               {user?.display_name ?? user?.username ?? "Usuario"}
             </h1>
-            <p style={{ fontSize: 14, color: "var(--fg-secondary)", marginBottom: 8 }}>
-              @{user?.username}
+<p style={{ fontSize: 14, color: "var(--fg-secondary)", marginBottom: 8 }}>
+              {getRoleLabel(user?.role_name ?? null)} &middot; @{user?.username}
             </p>
             <div style={{ display: "flex", gap: 16, flexWrap: "wrap", fontSize: 13, color: "var(--fg-muted)" }}>
               <span>{user?.email}</span>
@@ -131,8 +138,8 @@ export default function ProfilePage() {
               <input className="login-input" value={user?.username ?? ""} readOnly style={{ height: 36, opacity: 0.6, cursor: "not-allowed" }} />
             </div>
             {profileError && <span className="login-error-msg" role="alert" style={{ display: "block", color: "var(--danger)" }}>{profileError}</span>}
-            <button type="submit" className="widget-action-btn" disabled={isLoading} style={{ padding: "8px 20px", width: "auto", alignSelf: "flex-start", background: "var(--fg)", color: "var(--bg)" }}>
-              {isLoading ? <Loader2 className="login-spinner" style={{ display: "block", animation: "spin 600ms linear infinite" }} /> : <><Save /> Salvar</>}
+            <button type="submit" className="widget-action-btn" disabled={profileSaving} style={{ padding: "8px 20px", width: "auto", alignSelf: "flex-start", background: "var(--fg)", color: "var(--bg)" }}>
+              {profileSaving ? <Loader2 className="login-spinner" style={{ display: "block", animation: "spin 600ms linear infinite" }} /> : <><Save /> Salvar</>}
             </button>
           </form>
         </div>
@@ -161,8 +168,8 @@ export default function ProfilePage() {
                 </div>
               </div>
               {pwdError && <span className="login-error-msg" role="alert" style={{ display: "block", color: "var(--danger)" }}>{pwdError}</span>}
-              <button type="submit" className="widget-action-btn" disabled={isLoading} style={{ padding: "8px", width: "auto", justifyContent: "center" }}>
-                {isLoading ? <Loader2 className="login-spinner" style={{ display: "block", animation: "spin 600ms linear infinite" }} /> : "Alterar senha"}
+              <button type="submit" className="widget-action-btn" disabled={passwordSaving} style={{ padding: "8px", width: "auto", justifyContent: "center" }}>
+                {passwordSaving ? <Loader2 className="login-spinner" style={{ display: "block", animation: "spin 600ms linear infinite" }} /> : "Alterar senha"}
               </button>
             </form>
           </div>

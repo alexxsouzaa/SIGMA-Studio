@@ -23,6 +23,9 @@ class DeviceService:
             serial_number=data.serial_number,
             firmware_version=data.firmware_version,
             location=data.location,
+            organization_id=data.organization_id,
+            site_id=data.site_id,
+            project_id=data.project_id,
         )
         return await self._repository.create(device)
 

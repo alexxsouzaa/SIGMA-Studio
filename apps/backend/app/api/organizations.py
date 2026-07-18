@@ -9,6 +9,8 @@ from app.schemas.organization import (
 )
 from app.schemas.common import StandardResponse
 from app.services.organization_service import OrganizationService
+from app.services.auth_service import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -22,6 +24,7 @@ async def list_organizations(
     skip: int = 0,
     limit: int = 100,
     service: OrganizationService = Depends(get_org_service),
+    _user: User = Depends(get_current_user),
 ):
     orgs, total = await service.list_organizations(skip=skip, limit=limit)
     return StandardResponse(
@@ -34,6 +37,7 @@ async def list_organizations(
 async def get_organization(
     org_id: int,
     service: OrganizationService = Depends(get_org_service),
+    _user: User = Depends(get_current_user),
 ):
     org = await service.get_organization(org_id)
     return StandardResponse(
@@ -46,6 +50,7 @@ async def get_organization(
 async def create_organization(
     data: OrganizationCreate,
     service: OrganizationService = Depends(get_org_service),
+    _user: User = Depends(get_current_user),
 ):
     org = await service.create_organization(data)
     return StandardResponse(
@@ -59,6 +64,7 @@ async def update_organization(
     org_id: int,
     data: OrganizationUpdate,
     service: OrganizationService = Depends(get_org_service),
+    _user: User = Depends(get_current_user),
 ):
     org = await service.update_organization(org_id, data)
     return StandardResponse(

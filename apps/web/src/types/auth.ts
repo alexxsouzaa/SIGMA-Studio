@@ -5,6 +5,8 @@ export interface User {
   email: string
   display_name: string | null
   role_id: number
+  role_name: string | null
+  permissions: string[]
   current_organization_id: number
   active: boolean
   created_at: string

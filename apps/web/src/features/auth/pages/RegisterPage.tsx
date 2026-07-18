@@ -4,7 +4,6 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  Hexagon,
   Activity,
   BrainCircuit,
   ShieldCheck,
@@ -16,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { useThemeStore } from '@/stores/themeStore'
+import { APP_VERSION_LABEL } from '@/version'
 
 const registerSchema = z
   .object({
@@ -69,9 +69,9 @@ export function RegisterPage() {
         <div className="login-brand-grid" />
         <div className="login-brand-content">
           <div className="login-brand-logo">
-            <Hexagon />
+            <img className="theme-logo-dark" src="/logo-light.png" alt="SIGMA Studio" style={{ height: 33, width: 'auto' }} />
+            <img className="theme-logo-light" src="/logo-dark.png" alt="SIGMA Studio" style={{ height: 33, width: 'auto' }} />
           </div>
-          <h1 className="login-brand-name">SIGMA Studio</h1>
           <p className="login-brand-tagline">
             Plataforma de monitoramento industrial com IA integrada para IoT,
             automação e gestão de dispositivos.
@@ -287,7 +287,7 @@ export function RegisterPage() {
         </div>
 
         <div className="login-footer">
-          SIGMA Studio v2.4.1 &middot; Plataforma Industrial IoT
+          SIGMA Studio {APP_VERSION_LABEL} &middot; Plataforma Industrial IoT
         </div>
       </div>
     </div>

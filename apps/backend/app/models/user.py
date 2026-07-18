@@ -1,10 +1,16 @@
 from uuid import uuid4
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, DateTime, ForeignKey, String, Text, func, Index
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.session import Base
+
+if TYPE_CHECKING:
+    from app.models.role import Role
+    from app.models.organization import Organization
+    from app.models.member import Member
 
 
 class User(Base):
@@ -30,6 +36,10 @@ class User(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+    role: Mapped["Role | None"] = relationship(back_populates="users")
+    current_organization: Mapped["Organization | None"] = relationship(back_populates="users")
+    memberships: Mapped[list["Member"]] = relationship(back_populates="user")
 
     __table_args__ = (
         Index("ix_user_email", "email"),

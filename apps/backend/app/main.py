@@ -48,7 +48,7 @@ async def startup():
         try:
             await conn.run_sync(
                 lambda sync_conn: sync_conn.exec_driver_sql(
-                    "ALTER TABLE users ADD COLUMN preferences TEXT"
+                    "ALTER TABLE roles ADD COLUMN permissions TEXT"
                 )
             )
         except Exception:
@@ -62,10 +62,29 @@ async def startup():
     async with async_session() as session:
         existing = await session.get(Role, 1)
         if not existing:
-            admin_role = Role(name="admin", description="Administrator", is_admin=True)
-            operator_role = Role(name="operator", description="Operator", is_admin=False)
-            viewer_role = Role(name="viewer", description="Viewer", is_admin=False)
-            session.add_all([admin_role, operator_role, viewer_role])
+            import json
+            admin_perms = json.dumps(["*"])
+            engineer_perms = json.dumps([
+                "dashboard", "devices", "alarms", "telemetry",
+                "gateways", "firmware", "ia", "logs", "search",
+                "profile", "settings", "users"
+            ])
+            technician_perms = json.dumps([
+                "dashboard", "devices", "alarms", "telemetry",
+                "gateways", "logs", "search", "profile"
+            ])
+            operator_perms = json.dumps([
+                "dashboard", "alarms", "search", "profile"
+            ])
+            visitor_perms = json.dumps([
+                "dashboard", "search"
+            ])
+            admin_role = Role(name="admin", description="Administrador", is_admin=True, permissions=admin_perms)
+            engineer_role = Role(name="engineer", description="Engenheiro", is_admin=False, permissions=engineer_perms)
+            technician_role = Role(name="technician", description="Tecnico", is_admin=False, permissions=technician_perms)
+            operator_role = Role(name="operator", description="Operador", is_admin=False, permissions=operator_perms)
+            visitor_role = Role(name="visitor", description="Visitante", is_admin=False, permissions=visitor_perms)
+            session.add_all([admin_role, engineer_role, technician_role, operator_role, visitor_role])
             await session.commit()
 
         existing_admin = await session.execute(

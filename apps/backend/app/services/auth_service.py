@@ -2,9 +2,11 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+import json
 
 from app.database.session import get_session
 from app.models.user import User
+from app.models.role import Role
 from app.models.organization import Organization
 from app.models.member import Member
 from app.repositories.user_repository import UserRepository
@@ -15,6 +17,33 @@ from app.utils.auth import (
     create_refresh_token,
     decode_token,
 )
+
+
+async def build_user_response(user: User, session: AsyncSession) -> dict:
+    role_name = None
+    permissions: list[str] = []
+    if user.role_id:
+        role = await session.get(Role, user.role_id)
+        if role:
+            role_name = role.name
+            if role.permissions:
+                try:
+                    permissions = json.loads(role.permissions)
+                except (json.JSONDecodeError, TypeError):
+                    permissions = []
+    return {
+        "id": user.id,
+        "uuid": user.uuid,
+        "username": user.username,
+        "email": user.email,
+        "display_name": user.display_name,
+        "role_id": user.role_id,
+        "role_name": role_name,
+        "permissions": permissions,
+        "current_organization_id": user.current_organization_id,
+        "active": user.active,
+        "created_at": user.created_at,
+    }
 
 
 class AuthService:
@@ -54,11 +83,17 @@ class AuthService:
         if existing_email:
             raise HTTPException(status_code=409, detail="Email already registered")
 
+        visitor_role = await self._session.execute(
+            select(Role).where(Role.name == "visitor")
+        )
+        role = visitor_role.scalars().first()
+
         user = User(
             username=username,
             email=email,
             password_hash=hash_password(password),
             display_name=display_name or username,
+            role_id=role.id if role else None,
             active=True,
         )
         user = await self._repository.create(user)

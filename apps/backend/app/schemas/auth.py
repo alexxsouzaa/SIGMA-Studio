@@ -31,6 +31,10 @@ class PreferencesRequest(BaseModel):
     preferences: dict = Field(default_factory=dict)
 
 
+class RefreshRequest(BaseModel):
+    refresh_token: str = Field(..., min_length=1)
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
@@ -44,6 +48,8 @@ class UserResponse(BaseModel):
     email: str
     display_name: str | None
     role_id: int | None
+    role_name: str | None = None
+    permissions: list[str] = []
     current_organization_id: int | None
     active: bool
     created_at: datetime

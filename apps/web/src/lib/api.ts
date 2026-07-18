@@ -11,7 +11,7 @@ import type {
 
 const API_BASE = '/api/v1'
 
-async function request<T>(
+export async function request<T>(
   endpoint: string,
   options: RequestInit = {},
 ): Promise<ApiResponse<T>> {

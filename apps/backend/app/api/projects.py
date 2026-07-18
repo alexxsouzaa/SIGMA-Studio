@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends
+﻿from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_session
 from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse
 from app.schemas.common import StandardResponse
 from app.services.project_service import ProjectService
+from app.services.auth_service import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -19,6 +21,7 @@ async def list_projects(
     skip: int = 0,
     limit: int = 100,
     service: ProjectService = Depends(get_project_service),
+    _user: User = Depends(get_current_user),
 ):
     projects, total = await service.list_projects(site_id, skip=skip, limit=limit)
     return StandardResponse(
@@ -32,6 +35,7 @@ async def get_project(
     site_id: int,
     project_id: int,
     service: ProjectService = Depends(get_project_service),
+    _user: User = Depends(get_current_user),
 ):
     project = await service.get_project(site_id, project_id)
     return StandardResponse(
@@ -45,6 +49,7 @@ async def create_project(
     site_id: int,
     data: ProjectCreate,
     service: ProjectService = Depends(get_project_service),
+    _user: User = Depends(get_current_user),
 ):
     project = await service.create_project(site_id, data)
     return StandardResponse(
@@ -59,9 +64,11 @@ async def update_project(
     project_id: int,
     data: ProjectUpdate,
     service: ProjectService = Depends(get_project_service),
+    _user: User = Depends(get_current_user),
 ):
     project = await service.update_project(site_id, project_id, data)
     return StandardResponse(
         data=ProjectResponse.model_validate(project),
         message="Project updated",
     )
+

@@ -8,13 +8,14 @@ from app.schemas.auth import (
     UpdateProfileRequest,
     ChangePasswordRequest,
     PreferencesRequest,
+    RefreshRequest,
     TokenResponse,
     UserResponse,
     LoginResponse,
 )
 from app.schemas.organization import OrganizationResponse
 from app.schemas.common import StandardResponse
-from app.services.auth_service import AuthService, get_current_user
+from app.services.auth_service import AuthService, get_current_user, build_user_response
 from app.models.user import User
 
 router = APIRouter()
@@ -24,12 +25,13 @@ router = APIRouter()
 async def register(data: RegisterRequest, session: AsyncSession = Depends(get_session)):
     service = AuthService(session)
     result = await service.register(data.username, data.email, data.password, data.display_name)
+    user_data = await build_user_response(result["user"], session)
     return StandardResponse(
         data=LoginResponse(
             access_token=result["access_token"],
             refresh_token=result["refresh_token"],
             token_type=result["token_type"],
-            user=UserResponse.model_validate(result["user"]),
+            user=UserResponse(**user_data),
             organizations=[],
         ),
         message="Registration successful",
@@ -40,12 +42,13 @@ async def register(data: RegisterRequest, session: AsyncSession = Depends(get_se
 async def login(data: LoginRequest, session: AsyncSession = Depends(get_session)):
     service = AuthService(session)
     result = await service.authenticate(data.username, data.password)
+    user_data = await build_user_response(result["user"], session)
     return StandardResponse(
         data=LoginResponse(
             access_token=result["access_token"],
             refresh_token=result["refresh_token"],
             token_type=result["token_type"],
-            user=UserResponse.model_validate(result["user"]),
+            user=UserResponse(**user_data),
             organizations=[
                 OrganizationResponse.model_validate(o) for o in result["organizations"]
             ],
@@ -55,9 +58,9 @@ async def login(data: LoginRequest, session: AsyncSession = Depends(get_session)
 
 
 @router.post("/refresh")
-async def refresh(refresh_token: str, session: AsyncSession = Depends(get_session)):
+async def refresh(data: RefreshRequest, session: AsyncSession = Depends(get_session)):
     service = AuthService(session)
-    tokens = await service.refresh_token(refresh_token)
+    tokens = await service.refresh_token(data.refresh_token)
     return StandardResponse(
         data=TokenResponse(**tokens),
         message="Token refreshed",
@@ -65,9 +68,10 @@ async def refresh(refresh_token: str, session: AsyncSession = Depends(get_sessio
 
 
 @router.get("/me")
-async def get_me(user=Depends(get_current_user)):
+async def get_me(user=Depends(get_current_user), session: AsyncSession = Depends(get_session)):
+    user_data = await build_user_response(user, session)
     return StandardResponse(
-        data=UserResponse.model_validate(user),
+        data=UserResponse(**user_data),
         message="User retrieved",
     )
 
@@ -80,8 +84,9 @@ async def update_me(
 ):
     service = AuthService(session)
     updated = await service.update_profile(user.id, data.display_name, data.email)
+    user_data = await build_user_response(updated, session)
     return StandardResponse(
-        data=UserResponse.model_validate(updated),
+        data=UserResponse(**user_data),
         message="Profile updated",
     )
 

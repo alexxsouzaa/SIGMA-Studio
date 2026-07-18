@@ -4,8 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from app.repositories.device_repository import DeviceRepository
 from app.services.device_service import DeviceService
+from app.services.auth_service import get_current_user
 from app.schemas.device import DeviceCreate, DeviceUpdate, DeviceResponse
 from app.schemas.common import StandardResponse, PaginationMeta
+from app.models.user import User
 
 router = APIRouter()
 
@@ -20,6 +22,7 @@ async def list_devices(
     skip: int = 0,
     limit: int = 100,
     service: DeviceService = Depends(get_device_service),
+    _user: User = Depends(get_current_user),
 ):
     devices, total = await service.list_devices(skip=skip, limit=limit)
     return StandardResponse(
@@ -33,6 +36,7 @@ async def list_devices(
 async def get_device(
     device_id: int,
     service: DeviceService = Depends(get_device_service),
+    _user: User = Depends(get_current_user),
 ):
     device = await service.get_device(device_id)
     if not device:
@@ -47,6 +51,7 @@ async def get_device(
 async def create_device(
     data: DeviceCreate,
     service: DeviceService = Depends(get_device_service),
+    _user: User = Depends(get_current_user),
 ):
     device = await service.create_device(data)
     return StandardResponse(
@@ -60,6 +65,7 @@ async def update_device(
     device_id: int,
     data: DeviceUpdate,
     service: DeviceService = Depends(get_device_service),
+    _user: User = Depends(get_current_user),
 ):
     device = await service.update_device(device_id, data)
     if not device:
@@ -74,6 +80,7 @@ async def update_device(
 async def delete_device(
     device_id: int,
     service: DeviceService = Depends(get_device_service),
+    _user: User = Depends(get_current_user),
 ):
     deleted = await service.delete_device(device_id)
     if not deleted:
