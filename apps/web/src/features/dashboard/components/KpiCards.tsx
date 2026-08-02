@@ -1,6 +1,6 @@
 import { Cpu, BellRing, Radio, ShieldCheck, TrendingUp, TrendingDown } from 'lucide-react'
 import { useApi } from '@/lib/hooks'
-import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
+import { ErrorState } from '@/components/shared/StatusStates'
 
 interface Summary {
   total_devices: number; active_devices: number; inactive_devices: number
@@ -23,7 +23,7 @@ export function KpiCards() {
         { label: 'Alarmes Ativos', value: data.active_alerts.toLocaleString('pt-BR'), icon: BellRing, iconClass: 'danger', trend: 'down', trendLabel: `-${data.active_alerts}`, footer: `${data.critical_alerts} críticos, ${data.active_alerts - data.critical_alerts} altos`, barPct: data.total_alerts > 0 ? (data.active_alerts / data.total_alerts) * 100 : 0, barColor: 'var(--danger)' },
         { label: 'Mensagens/min', value: '48.2K', icon: Radio, iconClass: 'info', trend: 'up', trendLabel: '+3.1%', footer: 'MQTT + OPC-UA', barPct: 72, barColor: 'var(--info)' },
         { label: 'Uptime Geral', value: `${uptime}%`, icon: ShieldCheck, iconClass: 'success', trend: 'up', trendLabel: `+${uptime}%`, footer: 'últimos 30 dias', barPct: uptime, barColor: 'var(--success)' },
-      ].map((card, i) => {
+      ].map((card) => {
         const Icon = card.icon
         const TrendIcon = card.trend === 'up' ? TrendingUp : TrendingDown
         return (

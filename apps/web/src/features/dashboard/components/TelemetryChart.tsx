@@ -15,8 +15,7 @@ function normalize(data: number[], min: number, max: number) {
 }
 
 function drawChart(canvas: HTMLCanvasElement) {
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return
+  const ctx = canvas.getContext('2d')!
   const dpr = window.devicePixelRatio || 1
   const rect = canvas.parentElement!.getBoundingClientRect()
   canvas.width = rect.width * dpr
