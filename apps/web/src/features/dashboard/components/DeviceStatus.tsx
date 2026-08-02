@@ -1,8 +1,10 @@
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Cpu } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useDevices, LoadingSpinner, ErrorState, EmptyState } from '@/lib/hooks'
 
 export function DeviceStatus() {
   const { data: devices, isLoading, error, refetch } = useDevices()
+  const navigate = useNavigate()
 
   return (
     <div className="widget">
@@ -11,7 +13,7 @@ export function DeviceStatus() {
           <CpuIcon />Status dos Dispositivos
         </div>
         <div className="widget-actions">
-          <button className="widget-action-btn" aria-label="Ver todos">
+          <button className="widget-action-btn" aria-label="Ver todos" onClick={() => navigate('/app/devices')}>
             <ExternalLink />
           </button>
         </div>
@@ -28,19 +30,17 @@ export function DeviceStatus() {
           <EmptyState title="Nenhum dispositivo encontrado" />
         )}
         {!isLoading && !error && devices && devices.length > 0 && (
-          <div className="device-grid">
-            {devices.slice(0, 6).map((d) => (
-              <div key={d.serial_number} className="device-card">
-                <span className={`device-card-indicator ${d.active ? 'online' : 'offline'}`} />
-                <div className="device-card-info">
-                  <div className="device-card-name">{d.name}</div>
-                  <div className="device-card-meta">{d.serial_number}</div>
+          <div className="gateway-list">
+            {devices.slice(0, 4).map((d) => (
+              <div key={d.serial_number} className="gateway-item">
+                <div className="gateway-item-icon"><Cpu /></div>
+                <div className="gateway-item-info">
+                  <div className="gateway-item-name">{d.name}</div>
+                  <div className="gateway-item-protocol">{d.serial_number}</div>
                 </div>
-                <div
-                  className="device-card-value"
-                  style={{ color: d.active ? 'var(--success)' : 'var(--danger)' }}
-                >
-                  {d.firmware_version ?? '---'}
+                <div className={`gateway-item-status ${d.active ? 'online' : 'offline'}`}>
+                  <span className="gateway-item-status-dot" />
+                  {d.active ? 'Online' : 'Offline'}
                 </div>
               </div>
             ))}

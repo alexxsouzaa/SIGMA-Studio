@@ -1,9 +1,16 @@
-import { ExternalLink } from 'lucide-react'
-import { EmptyState } from '@/lib/hooks'
+import { ExternalLink, Wifi, Cable, Radio, Bluetooth } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
-// TODO: connect to GET /api/v1/gateways when endpoint exists
+const gateways = [
+  { name: 'GW-Principal', protocol: 'MQTT Broker', status: 'online' as const, icon: Wifi },
+  { name: 'GW-Modbus-01', protocol: 'Modbus TCP', status: 'online' as const, icon: Cable },
+  { name: 'GW-OPC-UA-01', protocol: 'OPC-UA', status: 'degraded' as const, icon: Radio },
+  { name: 'GW-BLE-ZoneA', protocol: 'BLE 5.0', status: 'online' as const, icon: Bluetooth },
+]
 
 export function GatewayStatus() {
+  const navigate = useNavigate()
+
   return (
     <div className="widget">
       <div className="widget-header">
@@ -11,16 +18,30 @@ export function GatewayStatus() {
           <RouterIcon />Gateways
         </div>
         <div className="widget-actions">
-          <button className="widget-action-btn" aria-label="Ver todos">
+          <button className="widget-action-btn" aria-label="Ver todos" onClick={() => navigate('/app/gateways')}>
             <ExternalLink />
           </button>
         </div>
       </div>
       <div className="widget-body">
-        <EmptyState
-          title="Nenhum gateway configurado"
-          description="Endpoint de gateways sera conectado em breve"
-        />
+        <div className="gateway-list">
+          {gateways.map((gw) => {
+            const Icon = gw.icon
+            return (
+              <div key={gw.name} className="gateway-item">
+                <div className="gateway-item-icon"><Icon /></div>
+                <div className="gateway-item-info">
+                  <div className="gateway-item-name">{gw.name}</div>
+                  <div className="gateway-item-protocol">{gw.protocol}</div>
+                </div>
+                <div className={`gateway-item-status ${gw.status}`}>
+                  <span className="gateway-item-status-dot" />
+                  {gw.status === 'online' ? 'Online' : gw.status === 'degraded' ? 'Degradado' : 'Offline'}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )

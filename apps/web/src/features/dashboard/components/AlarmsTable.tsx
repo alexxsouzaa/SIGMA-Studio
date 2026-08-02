@@ -1,5 +1,8 @@
-import { Filter, Download, ExternalLink, Check, BellRing } from 'lucide-react'
+import { useState } from 'react'
+import { Filter, Download, ExternalLink, Check, BellRing, Loader } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 import { useApi } from '@/lib/hooks'
+import { request } from '@/lib/api'
 import { LoadingSpinner, ErrorState, EmptyState } from '@/components/shared/StatusStates'
 
 interface Alert {
@@ -20,11 +23,47 @@ const SEV_MAP: Record<string, { label: string; className: string }> = {
   info: { label: 'Baixo', className: 'low' },
 }
 
+function downloadCSV(alerts: Alert[]) {
+  const headers = ['Severidade', 'Dispositivo', 'Descricao', 'Valor', 'Horario']
+  const rows = alerts.map((a) => {
+    const sev = SEV_MAP[a.level] ?? SEV_MAP.info
+    return [
+      sev.label,
+      `DEV-${String(a.device_id).padStart(3, '0')}`,
+      a.alarm_type,
+      a.value != null ? `${a.value}` : '---',
+      new Date(a.created_at).toLocaleString('pt-BR'),
+    ].join(',')
+  })
+  const csv = [headers.join(','), ...rows].join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `alarmes-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function AlarmsTable() {
   const { data: alerts, isLoading, error, refetch } = useApi<Alert[]>('/alerts/?limit=5')
+  const [acknowledging, setAcknowledging] = useState<number | null>(null)
+  const navigate = useNavigate()
+
+  async function handleAcknowledge(alertId: number) {
+    setAcknowledging(alertId)
+    try {
+      await request(`/alerts/${alertId}/acknowledge`, { method: 'POST' })
+      refetch()
+    } catch {
+      // silently fail — user can retry
+    } finally {
+      setAcknowledging(null)
+    }
+  }
 
   return (
-    <div className="widget" style={{ gridColumn: 'span 2' }}>
+    <div className="widget">
       <div className="widget-header">
         <div className="widget-title">
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -33,9 +72,15 @@ export function AlarmsTable() {
           </span>
         </div>
         <div className="widget-actions">
-          <button className="widget-action-btn" aria-label="Filtrar"><Filter /></button>
-          <button className="widget-action-btn" aria-label="Download"><Download /></button>
-          <button className="widget-action-btn" aria-label="Ver todos"><ExternalLink /></button>
+          <button className="widget-action-btn" aria-label="Filtrar" onClick={() => navigate('/app/alarms')}>
+            <Filter />
+          </button>
+          <button className="widget-action-btn" aria-label="Download" onClick={() => alerts && downloadCSV(alerts)}>
+            <Download />
+          </button>
+          <button className="widget-action-btn" aria-label="Ver todos" onClick={() => navigate('/app/alarms')}>
+            <ExternalLink />
+          </button>
         </div>
       </div>
       <div className="widget-body widget-body-flush">
@@ -59,6 +104,7 @@ export function AlarmsTable() {
             <tbody>
               {alerts.map((a) => {
                 const sev = SEV_MAP[a.level] ?? SEV_MAP.info
+                const isAcknowledging = acknowledging === a.id
                 return (
                   <tr key={a.id}>
                     <td>
@@ -79,9 +125,18 @@ export function AlarmsTable() {
                     <td>
                       <div className="alarm-actions">
                         {!a.acknowledged && (
-                          <button className="alarm-action-btn" title="Confirmar"><Check /></button>
+                          <button
+                            className="alarm-action-btn"
+                            title="Confirmar"
+                            disabled={isAcknowledging}
+                            onClick={() => handleAcknowledge(a.id)}
+                          >
+                            {isAcknowledging ? <Loader size={13} style={{ animation: 'spin 1s linear infinite' }} /> : <Check />}
+                          </button>
                         )}
-                        <button className="alarm-action-btn" title="Detalhes"><ExternalLink /></button>
+                        <button className="alarm-action-btn" title="Detalhes" onClick={() => navigate('/app/alarms')}>
+                          <ExternalLink />
+                        </button>
                       </div>
                     </td>
                   </tr>

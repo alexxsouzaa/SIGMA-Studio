@@ -1,9 +1,33 @@
 import { Settings } from 'lucide-react'
-import { EmptyState } from '@/lib/hooks'
+import { useNavigate } from 'react-router-dom'
 
-// TODO: connect to GET /api/v1/ai/insights when endpoint exists
+const insights = [
+  {
+    badge: 'Previsão',
+    time: 'há 8min',
+    text: 'Temperatura do PLC-07 deve atingir ',
+    metric: '85°C',
+    suffix: ' nas próximas 2h. Recomendação: reduzir carga na Linha 3 ou ativar resfriamento auxiliar.',
+  },
+  {
+    badge: 'Anomalia',
+    time: 'há 23min',
+    text: 'Padrão anômalo detectado no Sensor-T21. Oscilação de ',
+    metric: '±4,2°C',
+    suffix: ' em 15min — fora do comportamento histórico de 97,3%.',
+  },
+  {
+    badge: 'Otimização',
+    time: 'há 1h',
+    text: 'Consumo energético da Zona B ',
+    metric: '12% acima',
+    suffix: ' da média. Possível causa: RTU-Festo em modo contínuo ao invés de intermitente.',
+  },
+]
 
 export function AiInsights() {
+  const navigate = useNavigate()
+
   return (
     <div className="widget">
       <div className="widget-header">
@@ -12,16 +36,27 @@ export function AiInsights() {
         </div>
         <div className="widget-subtitle">TinyML · Edge inference</div>
         <div className="widget-actions">
-          <button className="widget-action-btn" aria-label="Configurar">
+          <button className="widget-action-btn" aria-label="Configurar" onClick={() => navigate('/app/ia')}>
             <Settings />
           </button>
         </div>
       </div>
       <div className="widget-body">
-        <EmptyState
-          title="Nenhum insight disponivel"
-          description="Modelos de IA em treinamento"
-        />
+        <div className="ai-insight-list">
+          {insights.map((insight, i) => (
+            <div key={i} className="ai-insight-item">
+              <div className="ai-insight-header">
+                <span className="ai-insight-badge">{insight.badge}</span>
+                <span className="ai-insight-time">{insight.time}</span>
+              </div>
+              <div className="ai-insight-text">
+                {insight.text}
+                <span className="ai-insight-metric">{insight.metric}</span>
+                {insight.suffix}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   )
