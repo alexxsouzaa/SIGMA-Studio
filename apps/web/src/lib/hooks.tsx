@@ -8,33 +8,37 @@ interface UseApiState<T> {
   error: string | null
 }
 
-export function useApi<T>(endpoint: string | null) {
+export function useApi<T>(endpoint: string | null, options?: { refreshInterval?: number }) {
   const [state, setState] = useState<UseApiState<T>>({
     data: null,
     isLoading: !!endpoint,
     error: null,
   })
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (silent = false) => {
     if (!endpoint) {
       setState({ data: null, isLoading: false, error: null })
       return
     }
-    setState((prev) => ({ ...prev, isLoading: true, error: null }))
+    if (!silent) setState((prev) => ({ ...prev, isLoading: true, error: null }))
     try {
       const json = await request<T>(endpoint)
       setState({ data: json.data ?? null, isLoading: false, error: null })
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao carregar dados'
-      setState({ data: null, isLoading: false, error: message })
+      setState((prev) => (silent ? { ...prev, error: null } : { data: null, isLoading: false, error: message }))
     }
   }, [endpoint])
 
   useEffect(() => {
     fetchData()
-  }, [fetchData])
+    const interval = options?.refreshInterval
+    if (!interval) return
+    const timer = setInterval(() => fetchData(true), interval)
+    return () => clearInterval(timer)
+  }, [fetchData, options?.refreshInterval])
 
-  return { ...state, refetch: fetchData }
+  return { ...state, refetch: () => fetchData() }
 }
 
 export function useDevices() {

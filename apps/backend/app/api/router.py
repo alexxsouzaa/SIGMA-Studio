@@ -9,6 +9,7 @@ from app.api.alerts import router as alerts_router
 from app.api.logs import router as logs_router
 from app.api.dashboard import router as dashboard_router
 from app.api.users import router as users_router
+from app.api.websocket import router as websocket_router
 
 router = APIRouter()
 
@@ -29,6 +30,9 @@ router.include_router(
     prefix="/organizations/{org_id}/sites/{site_id}/projects",
     tags=["projects"],
 )
+
+
+router.include_router(websocket_router, tags=["websocket"])
 
 
 @router.get("/health")

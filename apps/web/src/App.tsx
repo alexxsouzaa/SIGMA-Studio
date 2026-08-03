@@ -7,6 +7,8 @@ import { Sidebar, Topbar } from '@/features/dashboard/components/layout/AppShell
 import { useAuthStore } from '@/stores/authStore'
 import { hasPermission } from '@/lib/permissions'
 import { LoadingSpinner } from '@/components/shared/StatusStates'
+import { Toaster } from '@/components/shared/Toaster'
+import { useAlertToasts } from '@/lib/useAlertToasts'
 import NotFoundPage from '@/features/errors/pages/NotFoundPage'
 
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })))
@@ -46,6 +48,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
+  useAlertToasts()
   return (
     <div className="app-shell">
       <Sidebar mobileOpen={mobileOpen} />
@@ -55,6 +58,7 @@ function AppLayout() {
           <Outlet />
         </Suspense>
       </main>
+      <Toaster />
     </div>
   )
 }

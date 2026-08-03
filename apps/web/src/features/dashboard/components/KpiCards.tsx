@@ -8,7 +8,7 @@ interface Summary {
 }
 
 export function KpiCards() {
-  const { data, isLoading, error, refetch } = useApi<Summary>('/dashboard/summary')
+  const { data, isLoading, error, refetch } = useApi<Summary>('/dashboard/summary', { refreshInterval: 30000 })
   if (isLoading) return <div className="kpi-grid">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="kpi-card"><div className="skeleton" style={{ height: 60 }} /></div>)}</div>
   if (error) return <ErrorState message={error} onRetry={refetch} />
   if (!data) return null

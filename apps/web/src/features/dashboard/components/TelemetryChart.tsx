@@ -6,15 +6,17 @@ import { useThemeStore } from '@/stores/themeStore'
 const ranges = ['24h', '7d', '30d'] as const
 type Range = (typeof ranges)[number]
 
-const tempData = [68, 69, 71, 72, 74, 75, 74, 73, 72, 73, 74, 76, 78, 79, 78, 77, 76, 77, 78, 79, 80, 81, 80, 79, 78, 77, 76, 75, 76, 77, 78, 79, 80, 81, 82, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70]
-const pressData = [6.1, 6.0, 6.2, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9]
-const humidData = [45, 46, 47, 48, 49, 50, 51, 50, 49, 48, 47, 46, 45, 44, 45, 46, 47, 48, 49, 50, 51, 52, 51, 50, 49, 48, 47, 46, 45, 44, 45, 46, 47, 48, 49, 50, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40]
+const MAX_POINTS = 48
+
+const initialTemp = [68, 69, 71, 72, 74, 75, 74, 73, 72, 73, 74, 76, 78, 79, 78, 77, 76, 77, 78, 79, 80, 81, 80, 79, 78, 77, 76, 75, 76, 77, 78, 79, 80, 81, 82, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70]
+const initialPress = [6.1, 6.0, 6.2, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9]
+const initialHumid = [45, 46, 47, 48, 49, 50, 51, 50, 49, 48, 47, 46, 45, 44, 45, 46, 47, 48, 49, 50, 51, 52, 51, 50, 49, 48, 47, 46, 45, 44, 45, 46, 47, 48, 49, 50, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40]
 
 function normalize(data: number[], min: number, max: number) {
   return data.map(v => (v - min) / (max - min))
 }
 
-function drawChart(canvas: HTMLCanvasElement) {
+function drawChart(canvas: HTMLCanvasElement, temp: number[], press: number[], humid: number[]) {
   const ctx = canvas.getContext('2d')!
   const dpr = window.devicePixelRatio || 1
   const rect = canvas.parentElement!.getBoundingClientRect()
@@ -38,9 +40,9 @@ function drawChart(canvas: HTMLCanvasElement) {
   const successColor = style.getPropertyValue('--success').trim()
   const chartFill = style.getPropertyValue('--chart-fill').trim()
 
-  const tempNorm = normalize(tempData, 60, 85)
-  const pressNorm = normalize(pressData, 5.5, 6.5)
-  const humidNorm = normalize(humidData, 35, 55)
+  const tempNorm = normalize(temp, 60, 85)
+  const pressNorm = normalize(press, 5.5, 6.5)
+  const humidNorm = normalize(humid, 35, 55)
 
   ctx.strokeStyle = gridColor
   ctx.lineWidth = 1
@@ -108,34 +110,95 @@ function drawChart(canvas: HTMLCanvasElement) {
   ctx.globalAlpha = 1
 }
 
+interface TelemetryPoint {
+  temp: number
+  press: number
+  humid: number
+}
+
 export function TelemetryChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [activeRange, setActiveRange] = useState<Range>('24h')
+  const [temp, setTemp] = useState<number[]>(initialTemp)
+  const [press, setPress] = useState<number[]>(initialPress)
+  const [humid, setHumid] = useState<number[]>(initialHumid)
+  const [live, setLive] = useState(false)
   const { theme } = useThemeStore()
   const navigate = useNavigate()
 
   useEffect(() => {
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const url = `${proto}//${window.location.host}${import.meta.env.BASE_URL}api/v1/ws/telemetry`
+    let ws: WebSocket | null = null
+    let retry: ReturnType<typeof setTimeout> | undefined
+
+    function connect() {
+      ws = new WebSocket(url)
+      ws.onopen = () => setLive(true)
+      ws.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data)
+          if (msg.type !== 'telemetry') return
+          const d = msg.data as TelemetryPoint
+          setTemp((prev) => [...prev, d.temp].slice(-MAX_POINTS))
+          setPress((prev) => [...prev, d.press].slice(-MAX_POINTS))
+          setHumid((prev) => [...prev, d.humid].slice(-MAX_POINTS))
+        } catch { /* ignore malformed frames */ }
+      }
+      ws.onclose = () => {
+        setLive(false)
+        retry = setTimeout(connect, 3000)
+      }
+      ws.onerror = () => ws?.close()
+    }
+
+    connect()
+    return () => {
+      if (retry) clearTimeout(retry)
+      ws?.close()
+    }
+  }, [])
+
+  useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    drawChart(canvas)
-  }, [activeRange, theme])
+    drawChart(canvas, temp, press, humid)
+  }, [temp, press, humid, activeRange, theme])
 
   useEffect(() => {
     const onResize = () => {
       const canvas = canvasRef.current
       if (!canvas) return
-      drawChart(canvas)
+      drawChart(canvas, temp, press, humid)
     }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
-  }, [activeRange, theme])
+  }, [temp, press, humid, activeRange, theme])
 
   return (
     <div className="widget">
       <div className="widget-header">
         <div>
           <div className="widget-title"><Activity />Telemetria — Últimas 24h</div>
-          <div className="widget-subtitle">Sensor de temperatura · Linha 3 · PLC-07</div>
+          <div className="widget-subtitle">
+            Sensor de temperatura · Linha 3 · PLC-07
+            <span
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 5,
+                marginLeft: 10, fontSize: 10, fontWeight: 600, textTransform: 'uppercase',
+                color: live ? 'var(--success)' : 'var(--fg-muted)', letterSpacing: '0.05em',
+              }}
+            >
+              <span
+                style={{
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: 'currentColor',
+                  animation: live ? 'pulse-dot 1.5s ease-in-out infinite' : 'none',
+                }}
+              />
+              {live ? 'Ao vivo' : 'Conectando…'}
+            </span>
+          </div>
         </div>
         <div className="widget-actions">
           <div className="telemetry-chart-tabs">

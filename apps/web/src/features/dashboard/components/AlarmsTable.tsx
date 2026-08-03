@@ -46,7 +46,7 @@ function downloadCSV(alerts: Alert[]) {
 }
 
 export function AlarmsTable() {
-  const { data: alerts, isLoading, error, refetch } = useApi<Alert[]>('/alerts/?limit=5')
+  const { data: alerts, isLoading, error, refetch } = useApi<Alert[]>('/alerts/?limit=5', { refreshInterval: 30000 })
   const [acknowledging, setAcknowledging] = useState<number | null>(null)
   const navigate = useNavigate()
 
