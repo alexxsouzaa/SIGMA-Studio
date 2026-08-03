@@ -7,7 +7,7 @@ import { APP_VERSION } from '@/version'
 export default function NotFoundPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { theme, toggle } = useThemeStore()
+  const { toggle } = useThemeStore()
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
   const revealTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
@@ -63,8 +63,8 @@ export default function NotFoundPage() {
   if (!mounted) return null
 
   return (
-    <>
-      <a href="#main-content" className="skip-link">Pular para conteudo principal</a>
+    <div className="error-page">
+      <a href="#main-content" className="skip-link">Pular para conteúdo principal</a>
 
       <header className="error-header">
         <div className="error-brand">
@@ -74,7 +74,8 @@ export default function NotFoundPage() {
         </div>
         <div style={{ flex: 1 }} />
         <button className="error-theme-btn" onClick={toggle} aria-label="Alternar tema">
-          {theme === 'dark' ? <Moon /> : <Sun />}
+          <Moon className="theme-icon-dark" />
+          <Sun className="theme-icon-light" />
         </button>
       </header>
 
@@ -84,12 +85,12 @@ export default function NotFoundPage() {
         <div className="error-code r" role="img" aria-label="Erro 404">
           4<span className="error-code-accent">0</span>4
         </div>
-        <h1 className="error-title r">Pagina nao encontrada</h1>
-        <p className="error-desc r">O endereco solicitado nao existe, foi movido ou esta temporariamente indisponivel.</p>
+        <h1 className="error-title r">Página não encontrada</h1>
+        <p className="error-desc r">O endereço solicitado não existe, foi movido ou está temporariamente indisponível.</p>
 
         <div className="error-path r">
           <span className="error-path-text">GET {location.pathname || '/'} · 404</span>
-          <button className={`error-path-copy${copied ? ' copied' : ''}`} onClick={handleCopy} aria-label="Copiar endereco">
+          <button className={`error-path-copy${copied ? ' copied' : ''}`} onClick={handleCopy} aria-label="Copiar endereço">
             {copied ? <Check /> : <Copy />}
           </button>
         </div>
@@ -108,6 +109,6 @@ export default function NotFoundPage() {
           <Link to="/app/search">Busca</Link>
         </div>
       </footer>
-    </>
+    </div>
   )
 }
