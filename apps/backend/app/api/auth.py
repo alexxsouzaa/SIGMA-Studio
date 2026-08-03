@@ -178,5 +178,8 @@ async def google_callback(
     frontend_origin = settings.frontend_url.rstrip("/") or (
         settings.cors_origins[0].rstrip("/") if settings.cors_origins else ""
     )
-    base_path = getattr(settings, "frontend_base_path", "") or ""
-    return RedirectResponse(url=f"{frontend_origin}{base_path}/google/callback?{params}")
+    base_path = (getattr(settings, "frontend_base_path", "") or "").rstrip("/")
+    callback_path = "google-callback.html"
+    return RedirectResponse(
+        url=f"{frontend_origin}{base_path}/{callback_path}?{params}"
+    )
