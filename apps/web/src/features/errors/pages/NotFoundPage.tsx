@@ -14,6 +14,10 @@ export default function NotFoundPage() {
 
   useEffect(() => {
     setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
     const elements = document.querySelectorAll<HTMLElement>('.r')
     if (!elements.length) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -30,7 +34,7 @@ export default function NotFoundPage() {
       }
     }, 80)
     return () => clearInterval(revealTimer.current)
-  }, [])
+  }, [mounted])
 
   function handleCopy() {
     const url = window.location.href
