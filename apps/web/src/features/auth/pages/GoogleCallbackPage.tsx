@@ -20,8 +20,10 @@ export function GoogleCallbackPage() {
 
     localStorage.setItem('access_token', access)
     localStorage.setItem('refresh_token', refresh)
-    loginWithTokens()
-    navigate('/app', { replace: true })
+    ;(async () => {
+      const ok = await loginWithTokens()
+      navigate(ok ? '/app' : '/login', { replace: true })
+    })()
   }, [params, navigate, loginWithTokens])
 
   return (
