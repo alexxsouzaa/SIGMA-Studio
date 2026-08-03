@@ -2,6 +2,7 @@ import { useEffect, useState, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { RegisterPage } from '@/features/auth/pages/RegisterPage'
+import { GoogleCallbackPage } from '@/features/auth/pages/GoogleCallbackPage'
 import LandingPage from '@/features/landing/pages/LandingPage'
 import { Sidebar, Topbar } from '@/features/dashboard/components/layout/AppShell'
 import { useAuthStore } from '@/stores/authStore'
@@ -89,6 +90,14 @@ export default function App() {
           element={
             <PublicRoute>
               <RegisterPage />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/google/callback"
+          element={
+            <PublicRoute>
+              <GoogleCallbackPage />
             </PublicRoute>
           }
         />

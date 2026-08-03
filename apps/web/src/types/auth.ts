@@ -9,6 +9,8 @@ export interface User {
   permissions: string[]
   current_organization_id: number
   active: boolean
+  avatar_url: string | null
+  google_id: string | null
   created_at: string
 }
 

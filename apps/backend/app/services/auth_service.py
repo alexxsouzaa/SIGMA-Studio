@@ -42,6 +42,9 @@ async def build_user_response(user: User, session: AsyncSession) -> dict:
         "permissions": permissions,
         "current_organization_id": user.current_organization_id,
         "active": user.active,
+        "avatar_url": user.avatar_url,
+        "google_id": user.google_id,
+        "last_login": user.last_login,
         "created_at": user.created_at,
     }
 
@@ -52,11 +55,16 @@ class AuthService:
         self._repository = UserRepository(session)
 
     async def authenticate(self, username: str, password: str) -> dict:
+        from datetime import datetime, timezone
+
         user = await self._repository.get_by_username(username)
         if not user or not verify_password(password, user.password_hash):
             raise HTTPException(status_code=401, detail="Invalid credentials")
         if not user.active:
             raise HTTPException(status_code=403, detail="User is inactive")
+
+        user.last_login = datetime.now(timezone.utc)
+        await self._session.commit()
 
         result = await self._session.execute(
             select(Organization).join(Member).where(

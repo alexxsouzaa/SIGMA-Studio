@@ -48,7 +48,31 @@ async def startup():
         try:
             await conn.run_sync(
                 lambda sync_conn: sync_conn.exec_driver_sql(
-                    "ALTER TABLE roles ADD COLUMN permissions TEXT"
+                    "ALTER TABLE users ADD COLUMN preferences TEXT"
+                )
+            )
+        except Exception:
+            pass
+        try:
+            await conn.run_sync(
+                lambda sync_conn: sync_conn.exec_driver_sql(
+                    "ALTER TABLE users ADD COLUMN last_login DATETIME"
+                )
+            )
+        except Exception:
+            pass
+        try:
+            await conn.run_sync(
+                lambda sync_conn: sync_conn.exec_driver_sql(
+                    "ALTER TABLE users ADD COLUMN google_id VARCHAR(50)"
+                )
+            )
+        except Exception:
+            pass
+        try:
+            await conn.run_sync(
+                lambda sync_conn: sync_conn.exec_driver_sql(
+                    "ALTER TABLE users ADD COLUMN avatar_url VARCHAR(500)"
                 )
             )
         except Exception:

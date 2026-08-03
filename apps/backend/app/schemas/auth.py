@@ -52,6 +52,9 @@ class UserResponse(BaseModel):
     permissions: list[str] = []
     current_organization_id: int | None
     active: bool
+    avatar_url: str | None = None
+    google_id: str | None = None
+    last_login: datetime | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

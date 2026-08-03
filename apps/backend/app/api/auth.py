@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from urllib.parse import urlencode
 
 from app.database.session import get_session
 from app.schemas.auth import (
@@ -16,6 +18,14 @@ from app.schemas.auth import (
 from app.schemas.organization import OrganizationResponse
 from app.schemas.common import StandardResponse
 from app.services.auth_service import AuthService, get_current_user, build_user_response
+from app.services.google_auth_service import (
+    GoogleAuthService,
+    build_authorization_url,
+    exchange_code,
+    fetch_userinfo,
+    is_google_configured,
+)
+from app.config.settings import settings
 from app.models.user import User
 
 router = APIRouter()
@@ -126,3 +136,47 @@ async def update_preferences(
 @router.post("/logout")
 async def logout():
     return StandardResponse(message="Logout successful")
+
+
+@router.get("/google/login")
+async def google_login():
+    if not is_google_configured():
+        raise HTTPException(
+            status_code=503,
+            detail="Login com Google nao configurado no servidor",
+        )
+    state = "sigma-studio"
+    return RedirectResponse(url=build_authorization_url(state))
+
+
+@router.get("/google/callback")
+async def google_callback(
+    code: str,
+    state: str | None = None,
+    session: AsyncSession = Depends(get_session),
+):
+    if not is_google_configured():
+        raise HTTPException(status_code=503, detail="Google OAuth nao configurado")
+
+    tokens = await exchange_code(code)
+    profile = await fetch_userinfo(tokens["access_token"])
+
+    service = GoogleAuthService(session)
+    user = await service.get_or_create_user(profile)
+    payload = await service.login_payload(user)
+
+    user_data = await build_user_response(user, session)
+    params = urlencode(
+        {
+            "access_token": payload["access_token"],
+            "refresh_token": payload["refresh_token"],
+            "token_type": payload["token_type"],
+            "user": user_data["display_name"] or "",
+            "avatar": user_data.get("avatar_url") or "",
+        }
+    )
+    frontend_origin = (
+        settings.cors_origins[0].rstrip("/") if settings.cors_origins else ""
+    )
+    base_path = getattr(settings, "frontend_base_path", "") or ""
+    return RedirectResponse(url=f"{frontend_origin}{base_path}/google/callback?{params}")

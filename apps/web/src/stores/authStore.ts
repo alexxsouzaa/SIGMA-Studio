@@ -11,6 +11,7 @@ interface AuthState {
   register: (data: RegisterRequest) => Promise<boolean>
   logout: () => Promise<void>
   checkAuth: () => Promise<void>
+  loginWithTokens: () => Promise<boolean>
   clearError: () => void
   updateProfile: (data: UpdateProfileRequest) => Promise<boolean>
   changePassword: (data: ChangePasswordRequest) => Promise<boolean>
@@ -77,6 +78,21 @@ export const useAuthStore = create<AuthState>((set) => ({
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
       set({ user: null, isAuthenticated: false, isLoading: false })
+    }
+  },
+
+  loginWithTokens: async () => {
+    set({ isLoading: true, error: null })
+    try {
+      const res = await getMe()
+      set({ user: res.data, isAuthenticated: true, isLoading: false, error: null })
+      return true
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao conectar ao servidor'
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      set({ user: null, isAuthenticated: false, isLoading: false, error: message })
+      return false
     }
   },
 

@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 60
     jwt_refresh_expire_days: int = 7
 
+    google_client_id: str = ""
+    google_client_secret: str = ""
+    google_redirect_uri: str = "http://localhost:8000/api/v1/auth/google/callback"
+    google_scope: str = "openid email profile"
+    frontend_base_path: str = ""
+
     model_config = {"env_prefix": "SIGMA_", "env_file": ".env"}
 
 

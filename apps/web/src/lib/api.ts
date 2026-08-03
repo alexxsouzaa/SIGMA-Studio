@@ -55,6 +55,10 @@ export async function login(data: LoginRequest): Promise<ApiResponse<LoginRespon
   return res
 }
 
+export function getGoogleLoginUrl() {
+  return `${API_BASE}/auth/google/login`
+}
+
 export async function register(data: RegisterRequest): Promise<ApiResponse<RegisterResponse>> {
   const res = await request<RegisterResponse>('/auth/register', {
     method: 'POST',

@@ -130,7 +130,16 @@ export function Sidebar({ mobileOpen = false }: { mobileOpen?: boolean }) {
 
       <div className="sidebar-footer">
         <Link to="/app/profile" className="sidebar-user">
-          <div className="sidebar-user-avatar">{initials}</div>
+          {user?.avatar_url ? (
+            <img
+              src={user.avatar_url}
+              alt={displayName}
+              className="sidebar-user-avatar"
+              style={{ width: 32, height: 32, borderRadius: 'var(--radius-md)', objectFit: 'cover', border: '1px solid var(--border)' }}
+            />
+          ) : (
+            <div className="sidebar-user-avatar">{initials}</div>
+          )}
           <div className="sidebar-user-info">
             <div className="sidebar-user-name">{displayName}</div>
             <div className="sidebar-user-role">{roleLabel}</div>

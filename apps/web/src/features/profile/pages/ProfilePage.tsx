@@ -95,12 +95,22 @@ export default function ProfilePage() {
       <div className="widget" style={{ padding: 24 }}>
         <div style={{ display: "flex", gap: 20, alignItems: "flex-start", flexWrap: "wrap" }}>
           <div style={{ position: "relative" }}>
-            <div style={{ width: 80, height: 80, borderRadius: "var(--radius-xl)", background: "var(--surface-hover)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 600, color: "var(--fg-secondary)" }}>
-              {initials}
-            </div>
-            <button style={{ position: "absolute", bottom: -2, right: -2, width: 28, height: 28, borderRadius: "50%", background: "var(--fg)", color: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid var(--bg)" }}>
-              <Camera size={14} />
-            </button>
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.display_name ?? user.username}
+                style={{ width: 80, height: 80, borderRadius: "var(--radius-xl)", objectFit: "cover", border: "1px solid var(--border)" }}
+              />
+            ) : (
+              <div style={{ width: 80, height: 80, borderRadius: "var(--radius-xl)", background: "var(--surface-hover)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, fontWeight: 600, color: "var(--fg-secondary)" }}>
+                {initials}
+              </div>
+            )}
+            {!user?.google_id && (
+              <button style={{ position: "absolute", bottom: -2, right: -2, width: 28, height: 28, borderRadius: "50%", background: "var(--fg)", color: "var(--bg)", display: "flex", alignItems: "center", justifyContent: "center", border: "2px solid var(--bg)" }}>
+                <Camera size={14} />
+              </button>
+            )}
           </div>
           <div style={{ flex: 1 }}>
             <h1 style={{ fontSize: 20, fontWeight: 600, marginBottom: 2 }}>
