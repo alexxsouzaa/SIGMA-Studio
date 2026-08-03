@@ -7,6 +7,7 @@ import { Sidebar, Topbar } from '@/features/dashboard/components/layout/AppShell
 import { useAuthStore } from '@/stores/authStore'
 import { hasPermission } from '@/lib/permissions'
 import { LoadingSpinner } from '@/components/shared/StatusStates'
+import NotFoundPage from '@/features/errors/pages/NotFoundPage'
 
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })))
 const DevicesPage = lazy(() => import('@/features/devices/pages/DevicesPage'))
@@ -107,7 +108,7 @@ export default function App() {
           <Route path="/app/settings" element={<PermissionRoute permission="settings"><SettingsPage /></PermissionRoute>} />
           <Route path="/app/users" element={<PermissionRoute permission="users"><UsersPage /></PermissionRoute>} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   )

@@ -1470,3 +1470,96 @@ body.landing-page { overflow-x: hidden; overflow-y: auto; height: auto; }
   .landing-cta { padding: 72px 16px; }
   .landing-btn { padding: 12px 22px; font-size: 13px; }
 }
+
+/* ============================================
+   404 Error Page
+   ============================================ */
+.error-header {
+  display: flex; align-items: center; gap: 10px; height: var(--topbar-h);
+  padding: 0 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.error-brand { display: flex; align-items: center; gap: 10px; }
+.error-version {
+  font-size: 10px; font-family: var(--font-mono); color: var(--fg-muted);
+  background: var(--surface); border: 1px solid var(--border);
+  padding: 1px 6px; border-radius: var(--radius-sm);
+}
+.error-theme-btn {
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md); color: var(--fg-secondary);
+  transition: background var(--transition), color var(--transition);
+}
+.error-theme-btn:hover { background: var(--surface-hover); color: var(--fg); }
+.error-theme-btn svg { width: 18px; height: 18px; }
+
+.error-main {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 48px 24px; text-align: center;
+  min-height: calc(100vh - var(--topbar-h) - 53px);
+}
+.error-eyebrow {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.06em; color: var(--fg-muted); margin-bottom: 16px;
+}
+.error-code {
+  font-family: var(--font-mono); font-size: clamp(56px, 12vw, 110px);
+  font-weight: 700; line-height: 1; letter-spacing: -0.03em; color: var(--fg); margin-bottom: 16px;
+}
+.error-code-accent { color: var(--danger); }
+.error-title { font-size: 16px; font-weight: 600; color: var(--fg); margin-bottom: 6px; }
+.error-desc { font-size: 13px; color: var(--fg-muted); max-width: 360px; line-height: 1.6; margin-bottom: 24px; }
+.error-path {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 12px; color: var(--fg-muted);
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-md); padding: 4px 6px 4px 12px; margin-bottom: 24px; max-width: 100%;
+}
+.error-path-text { max-width: min(420px, 64vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.error-path-copy {
+  width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm); color: var(--fg-muted);
+  transition: background var(--transition), color var(--transition), transform 50ms ease; flex-shrink: 0;
+}
+.error-path-copy:hover { background: var(--surface-hover); color: var(--fg); }
+.error-path-copy:active { transform: scale(0.94); }
+.error-path-copy.copied { color: var(--success); }
+.error-path-copy svg { width: 13px; height: 13px; }
+.error-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.error-btn-primary {
+  display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px;
+  border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+  background: var(--fg); color: var(--bg);
+  transition: opacity var(--transition), transform 50ms ease;
+}
+.error-btn-primary:hover { opacity: 0.9; }
+.error-btn-primary:active { transform: scale(0.98); }
+.error-btn-primary svg { width: 16px; height: 16px; }
+.error-btn-ghost {
+  display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px;
+  border-radius: var(--radius-md); font-size: 13px; font-weight: 500;
+  border: 1px solid var(--border); color: var(--fg-secondary);
+  transition: all var(--transition);
+}
+.error-btn-ghost:hover { background: var(--surface-hover); color: var(--fg); border-color: var(--fg-muted); }
+.error-btn-ghost svg { width: 16px; height: 16px; }
+
+.error-footer {
+  padding: 16px 24px; border-top: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-shrink: 0; flex-wrap: wrap;
+}
+.error-footer-meta { font-size: 11px; color: var(--fg-muted); font-family: var(--font-mono); }
+.error-footer-links { display: flex; gap: 16px; }
+.error-footer-links a { font-size: 12px; color: var(--fg-secondary); transition: color var(--transition); }
+.error-footer-links a:hover { color: var(--fg); }
+
+@media (max-width: 640px) {
+  .error-main { padding: 40px 16px; }
+  .error-code { font-size: clamp(56px, 20vw, 80px); }
+  .error-path { padding: 6px 6px 6px 12px; gap: 8px; }
+  .error-path-copy { width: 40px; height: 40px; }
+  .error-path-copy svg { width: 16px; height: 16px; }
+  .error-actions { flex-direction: column; width: 100%; }
+  .error-btn-primary, .error-btn-ghost { justify-content: center; width: 100%; }
+  .error-header { padding: 0 12px; }
+}
