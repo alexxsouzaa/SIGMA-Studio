@@ -7,10 +7,10 @@ import { APP_VERSION } from '@/version'
 export default function NotFoundPage() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { theme, toggleTheme } = useThemeStore()
+  const { theme, toggle } = useThemeStore()
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const revealTimer = useRef<ReturnType<typeof setInterval>>()
+  const revealTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
 
   useEffect(() => {
     setMounted(true)
@@ -73,7 +73,7 @@ export default function NotFoundPage() {
           <span className="error-version">v{APP_VERSION}</span>
         </div>
         <div style={{ flex: 1 }} />
-        <button className="error-theme-btn" onClick={toggleTheme} aria-label="Alternar tema">
+        <button className="error-theme-btn" onClick={toggle} aria-label="Alternar tema">
           {theme === 'dark' ? <Moon /> : <Sun />}
         </button>
       </header>
