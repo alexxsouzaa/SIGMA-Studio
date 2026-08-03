@@ -8,6 +8,7 @@ export default function NotFoundPage() {
   const location = useLocation()
   const navigate = useNavigate()
   const { toggle } = useThemeStore()
+  const base = import.meta.env.BASE_URL
   const [copied, setCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
   const revealTimer = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
@@ -72,8 +73,8 @@ export default function NotFoundPage() {
 
       <header className="error-header">
         <div className="error-brand">
-          <img className="theme-logo-dark" src="/logo-light.png" alt="SIGMA Studio" style={{ height: 20 }} />
-          <img className="theme-logo-light" src="/logo-dark.png" alt="SIGMA Studio" style={{ height: 20 }} />
+          <img className="theme-logo-dark" src={`${base}logo-light.png`} alt="SIGMA Studio" style={{ height: 20 }} />
+          <img className="theme-logo-light" src={`${base}logo-dark.png`} alt="SIGMA Studio" style={{ height: 20 }} />
           <span className="error-version">v{APP_VERSION}</span>
         </div>
         <div style={{ flex: 1 }} />
