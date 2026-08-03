@@ -69,8 +69,8 @@ export function RegisterPage() {
         <div className="login-brand-grid" />
         <div className="login-brand-content">
           <div className="login-brand-logo">
-            <img className="theme-logo-dark" src="/logo-light.png" alt="SIGMA Studio" style={{ height: 33, width: 'auto' }} />
-            <img className="theme-logo-light" src="/logo-dark.png" alt="SIGMA Studio" style={{ height: 33, width: 'auto' }} />
+            <img className="theme-logo-dark" src={`${import.meta.env.BASE_URL}logo-light.png`} alt="SIGMA Studio" style={{ height: 33, width: 'auto' }} />
+            <img className="theme-logo-light" src={`${import.meta.env.BASE_URL}logo-dark.png`} alt="SIGMA Studio" style={{ height: 33, width: 'auto' }} />
           </div>
           <p className="login-brand-tagline">
             Plataforma de monitoramento industrial com IA integrada para IoT,

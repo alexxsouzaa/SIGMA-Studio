@@ -94,8 +94,8 @@ export function Sidebar({ mobileOpen = false }: { mobileOpen?: boolean }) {
   return (
     <aside className={`sidebar${mobileOpen ? ' mobile-open' : ''}`}>
       <Link to="/app" className="sidebar-brand" style={{ justifyContent: 'center', gap: 6 }}>
-        <img className="sidebar-brand-logo theme-logo-dark" src="/logo-light.png" alt="SIGMA Studio" />
-        <img className="sidebar-brand-logo theme-logo-light" src="/logo-dark.png" alt="SIGMA Studio" />
+        <img className="sidebar-brand-logo theme-logo-dark" src={`${import.meta.env.BASE_URL}logo-light.png`} alt="SIGMA Studio" />
+        <img className="sidebar-brand-logo theme-logo-light" src={`${import.meta.env.BASE_URL}logo-dark.png`} alt="SIGMA Studio" />
         <span className="sidebar-brand-version">{APP_VERSION_LABEL}</span>
       </Link>
 

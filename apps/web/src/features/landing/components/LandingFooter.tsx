@@ -10,8 +10,8 @@ export default function LandingFooter({ onScrollTo }: LandingFooterProps) {
       <div className="landing-footer-inner">
         <div className="landing-footer-col">
           <div className="landing-footer-brand">
-            <img className="theme-logo-dark" src="/logo-light.png" alt="SIGMA Studio" style={{ height: 13, width: 'auto' }} />
-            <img className="theme-logo-light" src="/logo-dark.png" alt="SIGMA Studio" style={{ height: 13, width: 'auto' }} />
+            <img className="theme-logo-dark" src={`${import.meta.env.BASE_URL}logo-light.png`} alt="SIGMA Studio" style={{ height: 13, width: 'auto' }} />
+            <img className="theme-logo-light" src={`${import.meta.env.BASE_URL}logo-dark.png`} alt="SIGMA Studio" style={{ height: 13, width: 'auto' }} />
           </div>
           <div className="landing-footer-desc">
             Plataforma de monitoramento industrial com IA para engenheiros e operadores de

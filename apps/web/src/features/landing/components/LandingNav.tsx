@@ -22,8 +22,8 @@ export default function LandingNav({ onScrollTo }: LandingNavProps) {
           className="landing-nav-brand"
           onClick={() => scrollTo('hero')}
         >
-          <img className="theme-logo-dark" src="/logo-light.png" alt="SIGMA Studio" style={{ height: 14, width: 'auto' }} />
-          <img className="theme-logo-light" src="/logo-dark.png" alt="SIGMA Studio" style={{ height: 14, width: 'auto' }} />
+          <img className="theme-logo-dark" src={`${import.meta.env.BASE_URL}logo-light.png`} alt="SIGMA Studio" style={{ height: 14, width: 'auto' }} />
+          <img className="theme-logo-light" src={`${import.meta.env.BASE_URL}logo-dark.png`} alt="SIGMA Studio" style={{ height: 14, width: 'auto' }} />
         </button>
         <div className={`landing-nav-links${menuOpen ? ' open' : ''}`}>
           <button
