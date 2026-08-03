@@ -6,11 +6,23 @@ import { GoogleCallbackPage } from '@/features/auth/pages/GoogleCallbackPage'
 import LandingPage from '@/features/landing/pages/LandingPage'
 import { Sidebar, Topbar } from '@/features/dashboard/components/layout/AppShell'
 import { useAuthStore } from '@/stores/authStore'
+import { useThemeStore } from '@/stores/themeStore'
+import { usePreferences } from '@/lib/hooks'
 import { hasPermission } from '@/lib/permissions'
 import { LoadingSpinner } from '@/components/shared/StatusStates'
 import { Toaster } from '@/components/shared/Toaster'
 import { useAlertToasts } from '@/lib/useAlertToasts'
 import NotFoundPage from '@/features/errors/pages/NotFoundPage'
+
+function useThemePrefs() {
+  const { preferences } = usePreferences()
+  const applyPrefs = useThemeStore((s) => s.applyPrefs)
+  useEffect(() => {
+    if (preferences && Object.keys(preferences).length > 0) {
+      applyPrefs(preferences)
+    }
+  }, [preferences, applyPrefs])
+}
 
 const DashboardPage = lazy(() => import('@/features/dashboard/pages/DashboardPage').then((m) => ({ default: m.DashboardPage })))
 const DevicesPage = lazy(() => import('@/features/devices/pages/DevicesPage'))
@@ -50,6 +62,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false)
   useAlertToasts()
+  useThemePrefs()
   return (
     <div className="app-shell">
       <Sidebar mobileOpen={mobileOpen} />

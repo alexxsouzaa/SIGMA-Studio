@@ -1,17 +1,12 @@
 import { useState } from 'react'
-import { BellRing, Download, X, Eye, AlertTriangle, Info, ShieldAlert } from 'lucide-react'
+import { BellRing, Download, X, AlertTriangle, Info, ChevronLeft, ChevronRight, BellOff, AlertOctagon, FileText } from 'lucide-react'
 import { useApi } from '@/lib/hooks'
-import { LoadingSpinner, ErrorState, EmptyState } from '@/components/shared/StatusStates'
+import { exportCSV, exportPDF } from '@/lib/export'
+import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
 
 interface Alert {
-  id: number
-  device_id: number
-  alarm_type: string
-  level: string
-  value: number | null
-  threshold: number | null
-  acknowledged: boolean
-  created_at: string
+  id: number; device_id: number; alarm_type: string; level: string
+  value: number | null; threshold: number | null; acknowledged: boolean; created_at: string
 }
 
 const FILTERS = [
@@ -21,16 +16,25 @@ const FILTERS = [
   { label: 'Info', value: 'info', color: 'var(--info)' },
 ]
 
-const SEV_MAP: Record<string, { label: string; className: string }> = {
-  critical: { label: 'Critico', className: 'critical' },
-  warning: { label: 'Alerta', className: 'high' },
-  info: { label: 'Informativo', className: 'medium' },
+const SEV_ICONS: Record<string, { icon: typeof AlertOctagon; color: string; bg: string }> = {
+  critical: { icon: AlertOctagon, color: 'var(--danger)', bg: 'var(--danger-muted)' },
+  warning: { icon: AlertTriangle, color: 'var(--warning)', bg: 'var(--warning-muted)' },
+  info: { icon: Info, color: 'var(--info)', bg: 'var(--info-muted)' },
+}
+
+function statusLabel(a: Alert) {
+  if (!a.acknowledged) return 'Ativo'
+  return 'Confirmado'
+}
+
+function statusClass(a: Alert) {
+  if (!a.acknowledged) return 'active'
+  return 'acked'
 }
 
 export default function AlarmsPage() {
   const [filter, setFilter] = useState<string | undefined>(undefined)
   const [selectedAlarm, setSelectedAlarm] = useState<Alert | null>(null)
-
   const query = filter ? `/alerts/?limit=50&level=${filter}` : '/alerts/?limit=50'
   const { data: alerts, isLoading, error, refetch } = useApi<Alert[]>(query)
 
@@ -39,132 +43,181 @@ export default function AlarmsPage() {
   const warningCount = alerts?.filter((a) => a.level === 'warning' && !a.acknowledged).length ?? 0
   const infoCount = alerts?.filter((a) => a.level === 'info' && !a.acknowledged).length ?? 0
 
-  const stats = [
-    { label: 'Total', value: filtered.length, icon: BellRing, className: 'accent' },
-    { label: 'Criticos', value: criticalCount, icon: ShieldAlert, className: 'danger' },
-    { label: 'Alertas', value: warningCount, icon: AlertTriangle, className: 'warning' },
-    { label: 'Informativos', value: infoCount, icon: Info, className: 'info' },
-  ]
+  function handleExportCSV() {
+    const headers = ['Severidade', 'Dispositivo', 'Descricao', 'Valor', 'Limite', 'Status', 'Horario']
+    const rows = filtered.map((a) => [
+      a.level,
+      `DEV-${String(a.device_id).padStart(3, '0')}`,
+      a.alarm_type,
+      a.value,
+      a.threshold,
+      statusLabel(a),
+      new Date(a.created_at).toLocaleString('pt-BR'),
+    ])
+    exportCSV(`alarmes-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
+  }
+
+  function handleExportPDF() {
+    const rows = filtered
+      .map((a) => `<tr><td>${a.level}</td><td>DEV-${String(a.device_id).padStart(3, '0')}</td><td>${a.alarm_type}</td><td>${a.value ?? '—'}</td><td>${new Date(a.created_at).toLocaleString('pt-BR')}</td></tr>`)
+      .join('')
+    exportPDF(
+      'Relatório de Alarmes',
+      `<table><thead><tr><th>Severidade</th><th>Dispositivo</th><th>Descrição</th><th>Valor</th><th>Horário</th></tr></thead><tbody>${rows}</tbody></table>`,
+    )
+  }
 
   return (
-    <>
-      <div className="kpi-grid">
-        {stats.map((s) => (
-          <div className="kpi-card" key={s.label}>
-            <div className="kpi-card-header">
-              <span className="kpi-card-label">{s.label}</span>
-              <div className={`kpi-card-icon ${s.className}`}><s.icon /></div>
-            </div>
-            <div className="kpi-card-value">{s.value}</div>
-          </div>
-        ))}
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, gap: 20 }}>
+      <div className="alarm-stats">
+        <div className="alarm-stat">
+          <div className="alarm-stat-icon total"><BellRing /></div>
+          <div><div className="alarm-stat-value">{filtered.length}</div><div className="alarm-stat-label">Total de alarmes</div></div>
+        </div>
+        <div className="alarm-stat">
+          <div className="alarm-stat-icon critical"><AlertOctagon /></div>
+          <div><div className="alarm-stat-value">{criticalCount}</div><div className="alarm-stat-label">Críticos</div></div>
+        </div>
+        <div className="alarm-stat">
+          <div className="alarm-stat-icon warning"><AlertTriangle /></div>
+          <div><div className="alarm-stat-value">{warningCount}</div><div className="alarm-stat-label">Alertas</div></div>
+        </div>
+        <div className="alarm-stat">
+          <div className="alarm-stat-icon info"><Info /></div>
+          <div><div className="alarm-stat-value">{infoCount}</div><div className="alarm-stat-label">Informativos</div></div>
+        </div>
       </div>
 
-      <div className="widget">
-        <div className="widget-header">
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {FILTERS.map((f) => {
-              const isActive = filter === f.value
-              return (
-                <button
-                  key={f.label}
-                  className={`filter-chip${isActive ? ' active' : ''}`}
-                  onClick={() => setFilter(isActive ? undefined : f.value)}
-                >
-                  {isActive && <span className="filter-chip-dot" style={{ background: f.color }} />}
-                  {f.label}
-                </button>
-              )
-            })}
-          </div>
-          <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-            <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto' }}>
-              <Download /> Exportar
-            </button>
-          </div>
+      <div className="alarm-toolbar">
+        <div className="alarm-filters">
+          {FILTERS.map((f) => {
+            const isActive = filter === f.value
+            const count = f.value ? (alerts ?? []).filter((a) => a.level === f.value).length : (alerts ?? []).length
+            return (
+              <button
+                key={f.label}
+                className={`filter-chip${isActive ? ' active' : ''}`}
+                data-filter="severity"
+                data-value={f.value ?? 'all'}
+                aria-pressed={isActive}
+                onClick={() => setFilter(isActive ? undefined : f.value)}
+              >
+                {isActive && <span className="filter-chip-dot" style={{ background: f.color }} />}
+                {f.label}
+                {count > 0 && <span className="filter-chip-count">{count}</span>}
+              </button>
+            )
+          })}
         </div>
-        <div className="widget-body" style={{ padding: 0 }}>
-          {isLoading && <LoadingSpinner />}
-          {error && <ErrorState message={error} onRetry={refetch} />}
-          {!isLoading && !error && filtered.length === 0 && (
-            <EmptyState title="Nenhum alarme encontrado" icon={<BellRing />} />
-          )}
-          {!isLoading && !error && filtered.length > 0 && (
-            <table className="alarms-table" style={{ width: '100%' }}>
-              <thead>
-                <tr>
-                  <th>Severidade</th>
-                  <th>Alarme</th>
-                  <th>Dispositivo</th>
-                  <th>Valor</th>
-                  <th>Horario</th>
-                  <th>Status</th>
-                  <th>Acoes</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((a) => {
-                  const sev = SEV_MAP[a.level] ?? SEV_MAP.info
-                  return (
-                    <tr key={a.id} onClick={() => setSelectedAlarm(a)} style={{ cursor: 'pointer' }}>
-                      <td><span className={`alarm-severity ${sev.className}`}><span className="alarm-severity-dot" />{sev.label}</span></td>
-                      <td style={{ maxWidth: 280 }}>
-                        <div style={{ fontWeight: 600, fontSize: 13, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.alarm_type}</div>
-                        <div style={{ fontSize: 11, color: 'var(--fg-muted)' }}>Limite: {a.threshold ?? '-'}</div>
-                      </td>
-                      <td className="alarm-device">DEV-{String(a.device_id).padStart(3, '0')}</td>
-                      <td className="alarm-device">{a.value != null ? a.value : '---'}</td>
-                      <td className="alarm-time">{new Date(a.created_at).toLocaleTimeString('pt-BR')}</td>
-                      <td>{a.acknowledged ? 'Reconhecido' : 'Ativo'}</td>
-                      <td>
-                        <div className="alarm-actions">
-                          <button className="alarm-action-btn" title="Detalhes"><Eye /></button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          )}
+        <div className="alarm-actions">
+          <button className="btn-ghost" onClick={handleExportCSV}><Download /> CSV</button>
+          <button className="btn-ghost" onClick={handleExportPDF}><FileText /> PDF</button>
+          <button className="btn-danger-outline"><BellOff /> Silenciar todos</button>
+        </div>
+      </div>
+
+      {isLoading && <LoadingSpinner />}
+      {error && <ErrorState message={error} onRetry={refetch} />}
+
+      {!isLoading && !error && filtered.length === 0 && (
+        <div className="empty-state">
+          <div className="empty-state-icon"><BellRing /></div>
+          <div className="empty-state-title">Nenhum alarme encontrado</div>
+          <div className="empty-state-desc">Tente ajustar os filtros ou o termo de busca.</div>
+        </div>
+      )}
+
+      {!isLoading && !error && filtered.length > 0 && (
+        <div className="alarm-list">
+          {filtered.map((a) => {
+            const sev = SEV_ICONS[a.level] ?? SEV_ICONS.info
+            const SevIcon = sev.icon
+            const isUnread = !a.acknowledged
+            return (
+              <div
+                key={a.id}
+                className={`alarm-row${isUnread ? ' unread' : ''}`}
+                onClick={() => setSelectedAlarm(a)}
+                tabIndex={0}
+                role="listitem"
+                aria-label={`Alarme: ${a.alarm_type}`}
+              >
+                <div className={`alarm-severity-icon ${a.level}`}><SevIcon /></div>
+                <div className="alarm-main">
+                  <div className="alarm-title">{a.alarm_type}</div>
+                  <div className="alarm-desc">{a.threshold ? `Limite: ${a.threshold}` : ''}</div>
+                </div>
+                <div className="alarm-device">DEV-{String(a.device_id).padStart(3, '0')}</div>
+                <div className="alarm-time">{new Date(a.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
+                <div className={`alarm-status-badge ${statusClass(a)}`}>{statusLabel(a)}</div>
+                <button className="alarm-ack-btn" disabled={a.acknowledged} onClick={(e) => { e.stopPropagation() }} aria-label={`Confirmar alarme`}>
+                  {a.acknowledged ? 'Confirmado' : 'Confirmar'}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      <div className="alarm-pagination">
+        <span className="alarm-pagination-info">{filtered.length} alarme{(filtered.length !== 1 ? 's' : '')} no total</span>
+        <div className="alarm-pagination-btns">
+          <button className="alarm-pagination-btn" disabled aria-label="Página anterior"><ChevronLeft /></button>
+          <button className="alarm-pagination-btn active">1</button>
+          <button className="alarm-pagination-btn" aria-label="Próxima página"><ChevronRight /></button>
         </div>
       </div>
 
       {selectedAlarm && (
         <>
-          <div className="detail-overlay" onClick={() => setSelectedAlarm(null)} />
-          <div className="detail-panel open" style={{ zIndex: 51 }}>
+          <div className={`detail-overlay${selectedAlarm ? ' open' : ''}`} onClick={() => setSelectedAlarm(null)} />
+          <div className={`detail-panel${selectedAlarm ? ' open' : ''}`} role="dialog" aria-label="Detalhes do alarme" aria-modal="true">
             <div className="detail-header">
-              <h3>{selectedAlarm.alarm_type}</h3>
-              <button onClick={() => setSelectedAlarm(null)}><X /></button>
+              <span className="detail-header-title">{selectedAlarm.alarm_type}</span>
+              <button className="detail-close" onClick={() => setSelectedAlarm(null)} aria-label="Fechar detalhes"><X /></button>
             </div>
             <div className="detail-body">
               <div className="detail-section">
-                <div className="detail-section-title">Informacoes do Alarme</div>
-                <div className="detail-info-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div className="detail-section-title">Informações do Alarme</div>
+                <div className="detail-info-grid">
                   {[
                     ['ID', `ALM-${String(selectedAlarm.id).padStart(3, '0')}`],
-                    ['Severidade', SEV_MAP[selectedAlarm.level]?.label ?? selectedAlarm.level],
+                    ['Severidade', selectedAlarm.level === 'critical' ? 'Crítico' : selectedAlarm.level === 'warning' ? 'Alerta' : 'Info'],
                     ['Dispositivo', `DEV-${String(selectedAlarm.device_id).padStart(3, '0')}`],
                     ['Valor atual', selectedAlarm.value != null ? String(selectedAlarm.value) : '---'],
                     ['Limite', selectedAlarm.threshold != null ? String(selectedAlarm.threshold) : '---'],
-                    ['Status', selectedAlarm.acknowledged ? 'Reconhecido' : 'Ativo'],
+                    ['Status', statusLabel(selectedAlarm)],
                     ['Data/Hora', new Date(selectedAlarm.created_at).toLocaleString('pt-BR')],
                   ].map(([label, value]) => (
                     <div key={label} className="detail-info-item">
-                      <div style={{ fontSize: 11, color: 'var(--fg-muted)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>{label}</div>
-                      <div style={{ fontSize: 13, fontWeight: 500 }}>{value}</div>
+                      <span className="detail-info-label">{label}</span>
+                      <span className="detail-info-value">{value}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="detail-actions">
-                <button className="widget-action-btn" style={{ flex: 1, padding: '8px', width: 'auto' }} onClick={() => setSelectedAlarm(null)}>Fechar</button>
+              <div className="detail-divider" />
+              <div className="detail-section">
+                <div className="detail-section-title">Histórico</div>
+                <div className="alarm-timeline">
+                  {[
+                    { time: new Date(selectedAlarm.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), text: 'Alarme gerado', type: selectedAlarm.level },
+                    ...(selectedAlarm.acknowledged ? [{ time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }), text: 'Confirmado', type: 'resolved' as const }] : []),
+                  ].map((t, i) => (
+                    <div key={i} className={`alarm-timeline-item ${t.type}`}>
+                      <div className="alarm-timeline-time">{t.time}</div>
+                      <div>{t.text}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
+            </div>
+            <div className="detail-actions">
+              <button className="btn-detail-close" onClick={() => setSelectedAlarm(null)}><X /> Fechar</button>
             </div>
           </div>
         </>
       )}
-    </>
+    </div>
   )
 }

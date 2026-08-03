@@ -21,8 +21,33 @@ import {
 } from 'lucide-react'
 import { useThemeStore } from '@/stores/themeStore'
 import { useAuthStore } from '@/stores/authStore'
+import { useLiveAlerts } from '@/lib/liveAlerts'
 import { APP_VERSION_LABEL } from '@/version'
 import { hasPermission, getRoleLabel } from '@/lib/permissions'
+
+const SEV_LABEL: Record<string, string> = {
+  critical: 'Crítico',
+  error: 'Erro',
+  warning: 'Alto',
+  info: 'Info',
+  low: 'Baixo',
+}
+
+const SEV_COLOR: Record<string, string> = {
+  critical: 'var(--danger)',
+  error: 'var(--danger)',
+  warning: 'var(--warning)',
+  info: 'var(--info)',
+  low: 'var(--success)',
+}
+
+function formatTime(iso: string) {
+  try {
+    return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  } catch {
+    return ''
+  }
+}
 
 const navSections = [
   {
@@ -158,6 +183,7 @@ export function Topbar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; set
   const location = useLocation()
   const navigate = useNavigate()
   const { theme, toggle: toggleTheme } = useThemeStore()
+  const liveAlerts = useLiveAlerts()
   const title = titleMap[location.pathname] ?? 'SIGMA Studio'
   const [notifOpen, setNotifOpen] = useState(false)
   const notifPanelRef = useRef<HTMLDivElement>(null)
@@ -226,15 +252,38 @@ export function Topbar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; set
             onClick={(e) => { e.stopPropagation(); setNotifOpen(!notifOpen) }}
           >
             <Bell />
+            {liveAlerts.length > 0 && <span className="topbar-btn-badge" />}
           </button>
           <div ref={notifPanelRef} className={`notif-panel${notifOpen ? ' open' : ''}`} role="menu" aria-label="Notificações">
             <div className="notif-panel-header">
               <span className="notif-panel-title">Notificações</span>
+              {liveAlerts.length > 0 && <span style={{ fontSize: 11, color: 'var(--fg-muted)' }}>{liveAlerts.length} ativas</span>}
             </div>
             <div className="notif-list">
-              <div style={{ padding: '32px 16px', textAlign: 'center', fontSize: 13, color: 'var(--fg-muted)' }}>
-                Nenhuma notificação
-              </div>
+              {liveAlerts.length === 0 ? (
+                <div style={{ padding: '32px 16px', textAlign: 'center', fontSize: 13, color: 'var(--fg-muted)' }}>
+                  Nenhuma notificação
+                </div>
+              ) : (
+                liveAlerts.slice(0, 8).map((a) => {
+                  const label = SEV_LABEL[a.level] ?? a.level
+                  const color = SEV_COLOR[a.level] ?? 'var(--info)'
+                  return (
+                    <button
+                      key={a.id}
+                      className="notif-item"
+                      onClick={() => { setNotifOpen(false); navigate('/app/alarms') }}
+                    >
+                      <span className="notif-item-dot" style={{ background: color }} />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--fg)' }}>{label}: DEV-{String(a.device_id).padStart(3, '0')}</div>
+                        <div style={{ fontSize: 11, color: 'var(--fg-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.alarm_type}</div>
+                      </div>
+                      <span style={{ fontSize: 10, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)' }}>{formatTime(a.created_at)}</span>
+                    </button>
+                  )
+                })
+              )}
             </div>
           </div>
         </div>

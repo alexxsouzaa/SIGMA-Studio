@@ -3,6 +3,7 @@ import { Filter, Download, ExternalLink, Check, BellRing, Loader } from 'lucide-
 import { useNavigate } from 'react-router-dom'
 import { useApi } from '@/lib/hooks'
 import { request } from '@/lib/api'
+import { exportCSV } from '@/lib/export'
 import { LoadingSpinner, ErrorState, EmptyState } from '@/components/shared/StatusStates'
 
 interface Alert {
@@ -23,26 +24,20 @@ const SEV_MAP: Record<string, { label: string; className: string }> = {
   info: { label: 'Baixo', className: 'low' },
 }
 
-function downloadCSV(alerts: Alert[]) {
-  const headers = ['Severidade', 'Dispositivo', 'Descricao', 'Valor', 'Horario']
+function handleExport(alerts: Alert[]) {
+  const headers = ['Severidade', 'Dispositivo', 'Descricao', 'Valor', 'Limite', 'Horario']
   const rows = alerts.map((a) => {
     const sev = SEV_MAP[a.level] ?? SEV_MAP.info
     return [
       sev.label,
       `DEV-${String(a.device_id).padStart(3, '0')}`,
       a.alarm_type,
-      a.value != null ? `${a.value}` : '---',
+      a.value,
+      a.threshold,
       new Date(a.created_at).toLocaleString('pt-BR'),
-    ].join(',')
+    ]
   })
-  const csv = [headers.join(','), ...rows].join('\n')
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `alarmes-${new Date().toISOString().slice(0, 10)}.csv`
-  a.click()
-  URL.revokeObjectURL(url)
+  exportCSV(`alarmes-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
 }
 
 export function AlarmsTable() {
@@ -75,7 +70,7 @@ export function AlarmsTable() {
           <button className="widget-action-btn" aria-label="Filtrar" onClick={() => navigate('/app/alarms')}>
             <Filter />
           </button>
-          <button className="widget-action-btn" aria-label="Download" onClick={() => alerts && downloadCSV(alerts)}>
+          <button className="widget-action-btn" aria-label="Download" onClick={() => alerts && handleExport(alerts)}>
             <Download />
           </button>
           <button className="widget-action-btn" aria-label="Ver todos" onClick={() => navigate('/app/alarms')}>

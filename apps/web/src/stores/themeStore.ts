@@ -6,6 +6,7 @@ interface ThemeState {
   theme: Theme
   toggle: () => void
   setTheme: (theme: Theme) => void
+  applyPrefs: (prefs: Record<string, unknown>) => void
 }
 
 function getInitialTheme(): Theme {
@@ -36,5 +37,12 @@ export const useThemeStore = create<ThemeState>((set) => ({
   setTheme: (theme: Theme) => {
     applyTheme(theme)
     set({ theme })
+  },
+  applyPrefs: (prefs: Record<string, unknown>) => {
+    if (typeof prefs.darkTheme === 'boolean') {
+      const next = prefs.darkTheme ? 'dark' : 'light'
+      applyTheme(next)
+      set({ theme: next })
+    }
   },
 }))
