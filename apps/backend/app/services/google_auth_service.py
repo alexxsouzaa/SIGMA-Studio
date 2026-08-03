@@ -53,7 +53,14 @@ async def exchange_code(code: str) -> dict:
             },
         )
     if resp.status_code != 200:
-        raise HTTPException(status_code=400, detail="Falha ao trocar codigo do Google")
+        try:
+            detail = resp.json().get("error_description") or resp.json().get("error")
+        except Exception:
+            detail = resp.text[:200]
+        raise HTTPException(
+            status_code=400,
+            detail=f"Falha ao trocar codigo do Google: {detail}",
+        )
     return resp.json()
 
 
