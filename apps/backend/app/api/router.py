@@ -10,6 +10,7 @@ from app.api.logs import router as logs_router
 from app.api.dashboard import router as dashboard_router
 from app.api.users import router as users_router
 from app.api.websocket import router as websocket_router
+from app.api.search import router as search_router
 
 router = APIRouter()
 
@@ -19,6 +20,7 @@ router.include_router(alerts_router, prefix="/alerts", tags=["alerts"])
 router.include_router(logs_router, prefix="/logs", tags=["logs"])
 router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
 router.include_router(users_router, prefix="/users", tags=["users"])
+router.include_router(search_router, prefix="/search", tags=["search"])
 router.include_router(organizations_router, prefix="/organizations", tags=["organizations"])
 router.include_router(
     sites_router,

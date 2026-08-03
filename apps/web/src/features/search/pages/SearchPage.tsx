@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search } from 'lucide-react'
+import { Search, Cpu, BellRing } from 'lucide-react'
+import { useApi } from '@/lib/hooks'
+import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
 
 interface ResultItem {
   id: string
@@ -10,20 +12,24 @@ interface ResultItem {
   categoryLabel: string
   tags: string[]
   metaInfo: string
-  icon: string
   time?: string
 }
 
-// TODO: connect to GET /api/v1/search when endpoint exists
-const ALL_RESULTS: ResultItem[] = []
+const CATEGORY_LABELS: Record<string, string> = {
+  devices: 'Dispositivos',
+  alarms: 'Alarmes',
+  gateways: 'Gateways',
+  logs: 'Logs',
+  ia: 'IA',
+}
 
 const CATEGORY_FILTERS = [
-  { label: 'Todos', value: 'all', count: 0 },
-  { label: 'Dispositivos', value: 'devices', count: 0 },
-  { label: 'Alarmes', value: 'alarms', count: 0 },
-  { label: 'Gateways', value: 'gateways', count: 0 },
-  { label: 'Logs', value: 'logs', count: 0 },
-  { label: 'IA', value: 'ia', count: 0 },
+  { label: 'Todos', value: 'all' },
+  { label: 'Dispositivos', value: 'devices' },
+  { label: 'Alarmes', value: 'alarms' },
+  { label: 'Gateways', value: 'gateways' },
+  { label: 'Logs', value: 'logs' },
+  { label: 'IA', value: 'ia' },
 ]
 
 function highlightText(text: string, query: string) {
@@ -39,26 +45,30 @@ export default function SearchPage() {
   const [searchParams] = useSearchParams()
   const query = searchParams.get('q') ?? ''
   const [filter, setFilter] = useState('all')
+  const [debouncedQuery, setDebouncedQuery] = useState(query)
 
-  const results = useMemo(() => {
-    let filtered = filter === 'all' ? ALL_RESULTS : ALL_RESULTS.filter((r) => r.category === filter)
-    if (query.trim()) {
-      const q = query.toLowerCase()
-      filtered = filtered.filter((r) => r.title.toLowerCase().includes(q) || r.desc.toLowerCase().includes(q) || r.id.toLowerCase().includes(q))
-    }
-    return filtered
-  }, [query, filter])
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedQuery(query), 250)
+    return () => clearTimeout(t)
+  }, [query])
+
+  const hasQuery = debouncedQuery.trim().length > 0
+
+  const endpoint = hasQuery
+    ? `/search/?q=${encodeURIComponent(debouncedQuery.trim())}${filter !== 'all' ? `&category=${filter}` : ''}`
+    : null
+
+  const { data: results, isLoading, error, refetch } = useApi<ResultItem[]>(endpoint)
 
   const grouped = useMemo(() => {
     const groups: Record<string, ResultItem[]> = {}
-    results.forEach((r) => {
-      if (!groups[r.category]) groups[r.category] = []
-      groups[r.category].push(r)
+    ;(results ?? []).forEach((r) => {
+      const cat = r.category ?? 'other'
+      if (!groups[cat]) groups[cat] = []
+      groups[cat].push(r)
     })
     return groups
   }, [results])
-
-  const hasQuery = query.trim().length > 0
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -70,7 +80,7 @@ export default function SearchPage() {
         <p style={{ fontSize: 13, color: 'var(--fg-secondary)' }}>
           {hasQuery ? (
             <>
-              Encontrados <strong style={{ color: 'var(--fg)' }}>{results.length}</strong> resultados para &#39;<strong style={{ color: 'var(--fg)' }}>{query}</strong>&#39;
+              Encontrados <strong style={{ color: 'var(--fg)' }}>{results?.length ?? 0}</strong> resultados para &#39;<strong style={{ color: 'var(--fg)' }}>{debouncedQuery}</strong>&#39;
             </>
           ) : (
             'Digite um termo na barra de busca para pesquisar'
@@ -79,17 +89,24 @@ export default function SearchPage() {
       </div>
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-        {CATEGORY_FILTERS.map((f) => (
-          <button
-            key={f.value}
-            className={`filter-chip${filter === f.value ? ' active' : ''}`}
-            onClick={() => setFilter(f.value)}
-            style={{ borderRadius: 20 }}
-          >
-            {f.label}
-            <span className="filter-chip-count">{f.count}</span>
-          </button>
-        ))}
+        {CATEGORY_FILTERS.map((f) => {
+          const count = filter === f.value
+            ? (results?.length ?? 0)
+            : f.value === 'all'
+              ? (results?.length ?? 0)
+              : 0
+          return (
+            <button
+              key={f.value}
+              className={`filter-chip${filter === f.value ? ' active' : ''}`}
+              onClick={() => setFilter(filter === f.value ? 'all' : f.value)}
+              style={{ borderRadius: 20 }}
+            >
+              {f.label}
+              <span className="filter-chip-count">{count}</span>
+            </button>
+          )
+        })}
       </div>
 
       {!hasQuery ? (
@@ -97,7 +114,11 @@ export default function SearchPage() {
           <Search size={32} />
           <div className="empty-state-text">Digite um termo na barra de busca</div>
         </div>
-      ) : Object.entries(grouped).length === 0 ? (
+      ) : isLoading ? (
+        <LoadingSpinner />
+      ) : error ? (
+        <ErrorState message={error} onRetry={refetch} />
+      ) : Object.keys(grouped).length === 0 ? (
         <div className="empty-state" style={{ padding: 48 }}>
           <Search size={32} />
           <div className="empty-state-text">Nenhum resultado encontrado</div>
@@ -107,7 +128,7 @@ export default function SearchPage() {
           <div key={category} className="widget">
             <div className="widget-header">
               <div className="widget-title" style={{ textTransform: 'uppercase', fontSize: 11, fontWeight: 600, letterSpacing: '0.06em' }}>
-                {items[0]?.categoryLabel ?? category}
+                {CATEGORY_LABELS[category] ?? category}
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: 11, color: 'var(--fg-muted)' }}>{items.length}</span>
               </div>
             </div>
@@ -119,21 +140,21 @@ export default function SearchPage() {
                   style={{ padding: '14px 16px', cursor: 'pointer' }}
                 >
                   <div style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', background: 'var(--surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Search size={18} style={{ color: 'var(--fg-secondary)' }} />
+                    {item.category === 'devices' ? <Cpu size={18} style={{ color: 'var(--fg-secondary)' }} /> : <BellRing size={18} style={{ color: 'var(--fg-secondary)' }} />}
                   </div>
                   <div style={{ flex: 1, overflow: 'hidden' }}>
                     <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>
-                      {hasQuery ? highlightText(item.title, query) : item.title}
+                      {hasQuery ? highlightText(item.title, debouncedQuery) : item.title}
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--fg-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {hasQuery ? highlightText(item.desc, query) : item.desc}
+                      {hasQuery ? highlightText(item.desc, debouncedQuery) : item.desc}
                     </div>
                     <div style={{ display: 'flex', gap: 8, marginTop: 4, alignItems: 'center' }}>
                       {item.tags.map((tag) => (
                         <span key={tag} style={{
                           fontSize: 10, fontWeight: 500, padding: '1px 6px', borderRadius: 'var(--radius-sm)',
-                          background: tag === 'Online' ? 'var(--success-muted)' : tag === 'Crítico' ? 'var(--danger-muted)' : tag === 'Warning' ? 'var(--warning-muted)' : 'var(--surface-hover)',
-                          color: tag === 'Online' ? 'var(--success)' : tag === 'Crítico' ? 'var(--danger)' : tag === 'Warning' ? 'var(--warning)' : 'var(--fg-muted)',
+                          background: tag === 'Online' ? 'var(--success-muted)' : tag === 'Offline' ? 'var(--danger-muted)' : tag === 'Crítico' || tag === 'Erro' ? 'var(--danger-muted)' : tag === 'Alto' ? 'var(--warning-muted)' : tag === 'Baixo' ? 'var(--info-muted)' : 'var(--surface-hover)',
+                          color: tag === 'Online' ? 'var(--success)' : tag === 'Offline' ? 'var(--danger)' : tag === 'Crítico' || tag === 'Erro' ? 'var(--danger)' : tag === 'Alto' ? 'var(--warning)' : tag === 'Baixo' ? 'var(--info)' : 'var(--fg-muted)',
                         }}>
                           {tag}
                         </span>
