@@ -9,9 +9,12 @@ import { AlarmsTable } from '@/features/dashboard/components/AlarmsTable'
 import { GatewayStatus } from '@/features/dashboard/components/GatewayStatus'
 import { ProtocolDistribution } from '@/features/dashboard/components/ProtocolDistribution'
 import { AiInsights } from '@/features/dashboard/components/AiInsights'
+import { DashboardWidgetSettings } from '@/features/dashboard/components/DashboardWidgetSettings'
+import { useDashboardWidgets } from '@/features/dashboard/lib/useDashboardWidgets'
 
 export function DashboardPage() {
   const { user } = useAuthStore()
+  const { isVisible } = useDashboardWidgets()
 
   useEffect(() => {
     const elements = document.querySelectorAll<HTMLElement>('.r')
@@ -30,12 +33,12 @@ export function DashboardPage() {
       }
     }, 60)
     return () => clearInterval(timer)
-  }, [])
+  }, [isVisible])
 
   return (
     <>
       <div className="r">
-        <div className="dash-welcome">
+        <div className="dash-welcome" style={{ alignItems: 'flex-start' }}>
           <div>
             <div className="dash-welcome-text">
               Ola, {user?.display_name?.split(' ')[0] ?? 'Usuario'}
@@ -43,6 +46,7 @@ export function DashboardPage() {
             </div>
             <div className="dash-welcome-sub">Planta Principal em operacao normal. Verifique os dispositivos para mais detalhes.</div>
           </div>
+          <DashboardWidgetSettings />
         </div>
 
         <div className="dash-quick" style={{ marginTop: 12 }}>
@@ -53,24 +57,32 @@ export function DashboardPage() {
         </div>
       </div>
 
-      <div className="r">
-        <KpiCards />
-      </div>
+      {isVisible('kpis') && (
+        <div className="r">
+          <KpiCards />
+        </div>
+      )}
 
-      <div className="dashboard-grid r">
-        <TelemetryChart />
-        <DeviceStatus />
-      </div>
+      {(isVisible('telemetry') || isVisible('devices')) && (
+        <div className="dashboard-grid r">
+          {isVisible('telemetry') && <TelemetryChart />}
+          {isVisible('devices') && <DeviceStatus />}
+        </div>
+      )}
 
-      <div className="dashboard-grid-3 r">
-        <AlarmsTable />
-        <GatewayStatus />
-      </div>
+      {(isVisible('alarms') || isVisible('gateways')) && (
+        <div className="dashboard-grid-3 r">
+          {isVisible('alarms') && <AlarmsTable />}
+          {isVisible('gateways') && <GatewayStatus />}
+        </div>
+      )}
 
-      <div className="dashboard-grid r">
-        <ProtocolDistribution />
-        <AiInsights />
-      </div>
+      {(isVisible('protocols') || isVisible('ai')) && (
+        <div className="dashboard-grid r">
+          {isVisible('protocols') && <ProtocolDistribution />}
+          {isVisible('ai') && <AiInsights />}
+        </div>
+      )}
     </>
   )
 }

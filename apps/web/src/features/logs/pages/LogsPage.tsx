@@ -1,9 +1,21 @@
 import { useState } from 'react'
-import { Download, Trash2, ChevronLeft, ChevronRight, FileText } from 'lucide-react'
+import { Download, Trash2, ChevronLeft, ChevronRight, FileText, RefreshCw } from 'lucide-react'
+import { useApi } from '@/lib/hooks'
+import { exportCSV } from '@/lib/export'
+import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
 
-type Sev = 'crit' | 'err' | 'warn' | 'info' | 'deb'
+interface LogItem {
+  id: number
+  device_id: number | null
+  user_id: number | null
+  level: string
+  source: string | null
+  message: string
+  details: string | null
+  created_at: string
+}
 
-const SEV_MAP: Record<Sev, { label: string; className: string; color: string }> = {
+const SEV_MAP: Record<string, { label: string; className: string; color: string }> = {
   crit: { label: 'CRÍTICO', className: 'critical', color: 'var(--danger)' },
   err: { label: 'ERRO', className: 'high', color: 'var(--danger)' },
   warn: { label: 'AVISO', className: 'medium', color: 'var(--warning)' },
@@ -11,23 +23,44 @@ const SEV_MAP: Record<Sev, { label: string; className: string; color: string }> 
   deb: { label: 'DEBUG', className: 'low', color: 'var(--fg-muted)' },
 }
 
-// TODO: connect to GET /api/v1/logs when endpoint exists
-const ALL_LOGS: Array<{ ts: string; sev: Sev; src: string; dev: string; msg: string }> = []
-
 const FILTERS = [
-  { label: 'Todos', value: 'all', count: 0, color: 'var(--fg-secondary)' },
-  { label: 'Crítico', value: 'crit', count: 0, color: 'var(--danger)' },
-  { label: 'Erro', value: 'err', count: 0, color: 'var(--danger)' },
-  { label: 'Aviso', value: 'warn', count: 0, color: 'var(--warning)' },
-  { label: 'Info', value: 'info', count: 0, color: 'var(--info)' },
-  { label: 'Debug', value: 'deb', count: 0, color: 'var(--fg-muted)' },
+  { label: 'Todos', value: 'all', color: 'var(--fg-secondary)' },
+  { label: 'Erro', value: 'err', color: 'var(--danger)' },
+  { label: 'Aviso', value: 'warn', color: 'var(--warning)' },
+  { label: 'Info', value: 'info', color: 'var(--info)' },
 ]
 
 export default function LogsPage() {
   const [filter, setFilter] = useState('all')
+  const [page, setPage] = useState(1)
   const [autoRefresh, setAutoRefresh] = useState(true)
+  const [toast, setToast] = useState<string | null>(null)
+  const PAGE_SIZE = 50
 
-  const filtered = filter === 'all' ? ALL_LOGS : ALL_LOGS.filter((l) => l.sev === filter)
+  const levelParam = filter === 'all' ? '' : `&level=${filter}`
+  const endpoint = `/logs/?skip=${(page - 1) * PAGE_SIZE}&limit=${PAGE_SIZE}${levelParam}`
+  const { data: logs, isLoading, error, refetch } = useApi<LogItem[]>(endpoint, {
+    refreshInterval: autoRefresh ? 10000 : undefined,
+  })
+
+  function showToast(msg: string) {
+    setToast(msg)
+    setTimeout(() => setToast(null), 3000)
+  }
+
+  function handleExport() {
+    const headers = ['Horario', 'Severidade', 'Fonte', 'Dispositivo', 'Mensagem']
+    const rows = (logs ?? []).map((l) => [
+      new Date(l.created_at).toLocaleString('pt-BR'),
+      l.level,
+      l.source ?? '—',
+      l.device_id ? `DEV-${String(l.device_id).padStart(3, '0')}` : '—',
+      l.message,
+    ])
+    exportCSV(`logs-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
+  }
+
+  const items = logs ?? []
 
   return (
     <>
@@ -38,11 +71,10 @@ export default function LogsPage() {
               <button
                 key={f.value}
                 className={`filter-chip${filter === f.value ? ' active' : ''}`}
-                onClick={() => setFilter(f.value)}
+                onClick={() => { setFilter(f.value); setPage(1) }}
               >
                 {filter === f.value && <span className="filter-chip-dot" style={{ background: f.color }} />}
                 {f.label}
-                <span className="filter-chip-count">{f.count}</span>
               </button>
             ))}
           </div>
@@ -50,7 +82,6 @@ export default function LogsPage() {
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--fg-secondary)', cursor: 'pointer' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <span
-                  className={`refresh-dot${autoRefresh ? ' active' : ''}`}
                   style={{
                     width: 6, height: 6, borderRadius: '50%',
                     background: autoRefresh ? 'var(--success)' : 'var(--fg-muted)',
@@ -59,35 +90,26 @@ export default function LogsPage() {
                 />
                 Auto-refresh
               </span>
-              <button
-                onClick={() => setAutoRefresh(!autoRefresh)}
-                className="toggle"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', width: 40, height: 22,
-                  background: autoRefresh ? 'var(--fg)' : 'var(--border)',
-                  borderRadius: 11, position: 'relative', transition: 'background 150ms ease',
-                }}
-              >
-                <span
-                  style={{
-                    width: 16, height: 16, borderRadius: '50%', background: autoRefresh ? 'var(--surface)' : 'var(--bg)',
-                    position: 'absolute', left: autoRefresh ? 21 : 3, transition: 'left 150ms ease',
-                  }}
-                />
+              <button onClick={() => setAutoRefresh(!autoRefresh)} className="toggle" style={{ display: 'inline-flex', alignItems: 'center', width: 40, height: 22, background: autoRefresh ? 'var(--fg)' : 'var(--border)', borderRadius: 11, position: 'relative', transition: 'background 150ms ease' }}>
+                <span style={{ width: 16, height: 16, borderRadius: '50%', background: autoRefresh ? 'var(--surface)' : 'var(--bg)', position: 'absolute', left: autoRefresh ? 21 : 3, transition: 'left 150ms ease' }} />
               </button>
             </label>
             <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
-            <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto' }}><Download /> Exportar</button>
-            <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto', color: 'var(--danger)' }}><Trash2 /> Limpar</button>
+            <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto' }} onClick={handleExport}><Download /> Exportar</button>
+            <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto' }} onClick={() => { refetch(); showToast('Logs atualizados') }}><RefreshCw /> Atualizar</button>
+            <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto', color: 'var(--danger)' }} onClick={() => showToast('Limpeza de logs requer permissão de administrador')}><Trash2 /> Limpar</button>
           </div>
         </div>
         <div className="widget-body" style={{ padding: 0, overflowX: 'auto' }}>
-          {filtered.length === 0 ? (
+          {isLoading && <LoadingSpinner />}
+          {error && <ErrorState message={error} onRetry={refetch} />}
+          {!isLoading && !error && items.length === 0 && (
             <div className="empty-state" style={{ padding: 48 }}>
               <FileText size={32} />
               <div className="empty-state-text">Nenhum log encontrado</div>
             </div>
-          ) : (
+          )}
+          {!isLoading && !error && items.length > 0 && (
             <table className="alarms-table" style={{ width: '100%' }}>
               <thead>
                 <tr>
@@ -99,19 +121,20 @@ export default function LogsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filtered.map((l, i) => {
-                  const sev = SEV_MAP[l.sev]
+                {items.map((l) => {
+                  const sev = SEV_MAP[l.level] ?? SEV_MAP.info
+                  const isError = l.level === 'crit' || l.level === 'err'
                   return (
-                    <tr key={i} style={{ borderLeft: l.sev === 'crit' || l.sev === 'err' ? '2px solid var(--danger)' : l.sev === 'warn' ? '2px solid var(--warning)' : undefined }}>
-                      <td className="alarm-time" style={{ fontSize: 11 }}>{l.ts}</td>
+                    <tr key={l.id} style={{ borderLeft: isError ? '2px solid var(--danger)' : l.level === 'warn' ? '2px solid var(--warning)' : undefined }}>
+                      <td className="alarm-time" style={{ fontSize: 11 }}>{new Date(l.created_at).toLocaleString('pt-BR')}</td>
                       <td>
                         <span className={`alarm-severity ${sev.className}`} style={{ fontSize: 10 }}>
                           <span className="alarm-severity-dot" />{sev.label}
                         </span>
                       </td>
-                      <td style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{l.src}</td>
-                      <td className="alarm-device" style={{ fontSize: 11 }}>{l.dev}</td>
-                      <td style={{ fontSize: 12, color: 'var(--fg-secondary)', lineHeight: 1.5 }}>{l.msg}</td>
+                      <td style={{ fontSize: 12, color: 'var(--fg-muted)' }}>{l.source ?? '—'}</td>
+                      <td className="alarm-device" style={{ fontSize: 11 }}>{l.device_id ? `DEV-${String(l.device_id).padStart(3, '0')}` : '—'}</td>
+                      <td style={{ fontSize: 12, color: 'var(--fg-secondary)', lineHeight: 1.5 }}>{l.message}</td>
                     </tr>
                   )
                 })}
@@ -123,15 +146,16 @@ export default function LogsPage() {
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 12, color: 'var(--fg-muted)', fontFamily: 'var(--font-mono)' }}>
-          Mostrando {filtered.length} de {ALL_LOGS.length} logs
+          Página {page} · {items.length} logs
         </span>
         <div style={{ display: 'flex', gap: 4 }}>
-          <button className="widget-action-btn" style={{ width: 'auto', padding: '0 8px', minWidth: 32 }}><ChevronLeft /></button>
-          <button className="widget-action-btn" style={{ width: 'auto', padding: '0 8px', minWidth: 32, background: 'var(--surface-hover)' }}>1</button>
-          <button className="widget-action-btn" style={{ width: 'auto', padding: '0 8px', minWidth: 32 }}>2</button>
-          <button className="widget-action-btn" style={{ width: 'auto', padding: '0 8px', minWidth: 32 }}><ChevronRight /></button>
+          <button className="widget-action-btn" style={{ width: 'auto', padding: '0 8px', minWidth: 32 }} onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1}><ChevronLeft /></button>
+          <button className="widget-action-btn" style={{ width: 'auto', padding: '0 8px', minWidth: 32, background: 'var(--surface-hover)' }}>{page}</button>
+          <button className="widget-action-btn" style={{ width: 'auto', padding: '0 8px', minWidth: 32 }} onClick={() => setPage((p) => p + 1)}><ChevronRight /></button>
         </div>
       </div>
+
+      {toast && <div className="toast" style={{ position: 'fixed', bottom: 24, right: 24, background: 'var(--fg)', color: 'var(--bg)', padding: '10px 18px', borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 500, boxShadow: 'var(--shadow-md)', zIndex: 200 }}>{toast}</div>}
     </>
   )
 }

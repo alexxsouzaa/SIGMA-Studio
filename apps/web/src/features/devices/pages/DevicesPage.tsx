@@ -189,6 +189,14 @@ export default function DevicesPage() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [selectedDevice])
 
+  const { data: deviceAlerts, refetch: refetchDeviceAlerts } = useApi<Alert[]>(
+    selectedDevice ? `/alerts/?limit=8&device_id=${selectedDevice.id}` : null,
+  )
+
+  useEffect(() => {
+    if (selectedDevice) refetchDeviceAlerts()
+  }, [selectedDevice, refetchDeviceAlerts])
+
   if (isLoading) return <LoadingSpinner />
   if (error) return <ErrorState message={error} onRetry={refetch} />
 
@@ -434,6 +442,27 @@ export default function DevicesPage() {
                     </svg>
                   </div>
                 </div>
+              </div>
+              <div className="detail-divider" />
+              <div className="detail-section">
+                <div className="detail-section-title">Histórico de Alarmes</div>
+                {deviceAlerts && deviceAlerts.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {deviceAlerts.map((a) => (
+                      <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)' }}>
+                        <span className={`alarm-severity ${a.level === 'critical' ? 'critical' : a.level === 'warning' ? 'medium' : 'low'}`}>
+                          <span className="alarm-severity-dot" />{a.level}
+                        </span>
+                        <span style={{ flex: 1, fontSize: 12, color: 'var(--fg-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a.alarm_type}</span>
+                        <span style={{ fontSize: 11, fontFamily: 'var(--font-mono)', color: 'var(--fg-muted)' }}>
+                          {new Date(a.created_at).toLocaleString('pt-BR')}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 12, color: 'var(--fg-muted)', padding: '8px 0' }}>Nenhum alarme registrado para este dispositivo.</div>
+                )}
               </div>
               <div className="detail-divider" />
               <div className="detail-section">

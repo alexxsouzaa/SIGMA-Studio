@@ -84,6 +84,7 @@ async def startup():
     from app.models.member import Member
     from app.models.gateway import Gateway
     from app.models.firmware import Firmware
+    from app.models.ai_model import AIModel
 
     async with async_session() as session:
         existing = await session.get(Role, 1)

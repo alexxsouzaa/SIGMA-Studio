@@ -16,11 +16,14 @@ async def list_alerts(
     skip: int = 0,
     limit: int = 100,
     level: str | None = None,
+    device_id: int | None = None,
     session: AsyncSession = Depends(get_session),
     _user: User = Depends(get_current_user),
 ):
     service = AlertService(session)
-    alerts, total = await service.list_alerts(skip=skip, limit=limit, level=level)
+    alerts, total = await service.list_alerts(
+        skip=skip, limit=limit, level=level, device_id=device_id
+    )
     return StandardResponse(
         data=[AlertResponse.model_validate(a) for a in alerts],
         message="Alerts retrieved",

@@ -22,6 +22,7 @@ import {
 import { useThemeStore } from '@/stores/themeStore'
 import { useAuthStore } from '@/stores/authStore'
 import { useLiveAlerts } from '@/lib/liveAlerts'
+import { useApi } from '@/lib/hooks'
 import { APP_VERSION_LABEL } from '@/version'
 import { hasPermission, getRoleLabel } from '@/lib/permissions'
 
@@ -47,6 +48,14 @@ function formatTime(iso: string) {
   } catch {
     return ''
   }
+}
+
+interface Organization {
+  id: number
+  uuid: string
+  name: string
+  slug: string
+  active: boolean
 }
 
 const navSections = [
@@ -184,6 +193,8 @@ export function Topbar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; set
   const navigate = useNavigate()
   const { theme, toggle: toggleTheme } = useThemeStore()
   const liveAlerts = useLiveAlerts()
+  const { data: orgs } = useApi<Organization[]>('/organizations/')
+  const [activeOrgId, setActiveOrgId] = useState<number>(() => Number(localStorage.getItem('active_org_id') ?? 0))
   const title = titleMap[location.pathname] ?? 'SIGMA Studio'
   const [notifOpen, setNotifOpen] = useState(false)
   const notifPanelRef = useRef<HTMLDivElement>(null)
@@ -226,6 +237,27 @@ export function Topbar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; set
           <Menu />
         </button>
         <span className="topbar-title">{title}</span>
+
+        {orgs && orgs.length > 0 && (
+          <select
+            aria-label="Organização"
+            value={activeOrgId || ''}
+            onChange={(e) => {
+              const id = Number(e.target.value)
+              setActiveOrgId(id)
+              localStorage.setItem('active_org_id', String(id))
+            }}
+            style={{
+              height: 32, background: 'var(--surface)', border: '1px solid var(--border)',
+              borderRadius: 'var(--radius-md)', fontSize: 12, color: 'var(--fg-secondary)',
+              padding: '0 8px', maxWidth: 180, cursor: 'pointer',
+            }}
+          >
+            {(orgs ?? []).filter((o) => o.active).map((o) => (
+              <option key={o.id} value={o.id}>{o.name}</option>
+            ))}
+          </select>
+        )}
 
         <div className="topbar-search">
           <Search />

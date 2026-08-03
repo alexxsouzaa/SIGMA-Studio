@@ -10,7 +10,11 @@ class AlertService:
         self._session = session
 
     async def list_alerts(
-        self, skip: int = 0, limit: int = 100, level: str | None = None
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        level: str | None = None,
+        device_id: int | None = None,
     ) -> tuple[list[Alert], int]:
         query = select(Alert)
         count_query = select(func.count(Alert.id))
@@ -18,6 +22,9 @@ class AlertService:
         if level:
             query = query.where(Alert.level == level)
             count_query = count_query.where(Alert.level == level)
+        if device_id:
+            query = query.where(Alert.device_id == device_id)
+            count_query = count_query.where(Alert.device_id == device_id)
 
         query = query.order_by(Alert.created_at.desc()).offset(skip).limit(limit)
         result = await self._session.execute(query)
