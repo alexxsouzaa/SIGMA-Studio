@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     google_redirect_uri: str = "http://localhost:8000/api/v1/auth/google/callback"
     google_scope: str = "openid email profile"
     frontend_base_path: str = ""
+    frontend_url: str = "http://localhost:5173"
 
     model_config = {"env_prefix": "SIGMA_", "env_file": ".env"}
 

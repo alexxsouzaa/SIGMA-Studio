@@ -175,7 +175,7 @@ async def google_callback(
             "avatar": user_data.get("avatar_url") or "",
         }
     )
-    frontend_origin = (
+    frontend_origin = settings.frontend_url.rstrip("/") or (
         settings.cors_origins[0].rstrip("/") if settings.cors_origins else ""
     )
     base_path = getattr(settings, "frontend_base_path", "") or ""
