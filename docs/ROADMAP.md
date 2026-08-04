@@ -34,7 +34,7 @@ Conectar todos os widgets do dashboard a dados reais da API.
 - [x] MQTT manager conectado ao startup (`app/main.py`) → `messages_per_minute` real no `/dashboard/summary`
 - [x] `get_message_rate()` usado no endpoint de summary
 - [x] Sincronizar versão (VERSION / package.json / pyproject.toml)
-- [ ] Commit Conventional + tag (aguarda consentimento do usuário)
+- [x] Commit Conventional + tag `v0.9.0`
 
 ### Decisão: `ALTER TABLE` ad-hoc em `app/main.py`
 Os blocos `ALTER TABLE` no startup foram **mantidos**: são idempotentes (guardados por `try/except`) e garantem compatibilidade de bancos existentes. A migração completa via Alembic fica como trabalho futuro no backend.
