@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { BellRing, Download, X, AlertTriangle, Info, ChevronLeft, ChevronRight, BellOff, AlertOctagon, FileText } from 'lucide-react'
 import { useApi } from '@/lib/hooks'
+import { request } from '@/lib/api'
+import { pushToast } from '@/lib/toastStore'
 import { exportCSV, exportPDF } from '@/lib/export'
 import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
 
@@ -35,8 +37,36 @@ function statusClass(a: Alert) {
 export default function AlarmsPage() {
   const [filter, setFilter] = useState<string | undefined>(undefined)
   const [selectedAlarm, setSelectedAlarm] = useState<Alert | null>(null)
+  const [pendingId, setPendingId] = useState<number | null>(null)
+  const [silencing, setSilencing] = useState(false)
   const query = filter ? `/alerts/?limit=50&level=${filter}` : '/alerts/?limit=50'
   const { data: alerts, isLoading, error, refetch } = useApi<Alert[]>(query)
+
+  async function handleAcknowledge(alertId: number) {
+    setPendingId(alertId)
+    try {
+      await request(`/alerts/${alertId}/acknowledge`, { method: 'POST' })
+      pushToast('Alarme confirmado', 'Alarme marcado como confirmado.', 'success')
+      refetch()
+    } catch (err) {
+      pushToast('Erro ao confirmar alarme', err instanceof Error ? err.message : 'Tente novamente', 'error')
+    } finally {
+      setPendingId(null)
+    }
+  }
+
+  async function handleSilenceAll() {
+    setSilencing(true)
+    try {
+      await request('/alerts/acknowledge-all', { method: 'POST' })
+      pushToast('Alarmes silenciados', 'Todos os alarmes ativos foram confirmados.', 'success')
+      refetch()
+    } catch (err) {
+      pushToast('Erro ao silenciar alarmes', err instanceof Error ? err.message : 'Tente novamente', 'error')
+    } finally {
+      setSilencing(false)
+    }
+  }
 
   const filtered = alerts ?? []
   const criticalCount = alerts?.filter((a) => a.level === 'critical' && !a.acknowledged).length ?? 0
@@ -112,7 +142,7 @@ export default function AlarmsPage() {
         <div className="alarm-actions">
           <button className="btn-ghost" onClick={handleExportCSV}><Download /> CSV</button>
           <button className="btn-ghost" onClick={handleExportPDF}><FileText /> PDF</button>
-          <button className="btn-danger-outline"><BellOff /> Silenciar todos</button>
+          <button className="btn-danger-outline" onClick={handleSilenceAll} disabled={silencing}><BellOff /> {silencing ? 'Silenciando...' : 'Silenciar todos'}</button>
         </div>
       </div>
 
@@ -150,8 +180,8 @@ export default function AlarmsPage() {
                 <div className="alarm-device">DEV-{String(a.device_id).padStart(3, '0')}</div>
                 <div className="alarm-time">{new Date(a.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</div>
                 <div className={`alarm-status-badge ${statusClass(a)}`}>{statusLabel(a)}</div>
-                <button className="alarm-ack-btn" disabled={a.acknowledged} onClick={(e) => { e.stopPropagation() }} aria-label={`Confirmar alarme`}>
-                  {a.acknowledged ? 'Confirmado' : 'Confirmar'}
+                <button className="alarm-ack-btn" disabled={a.acknowledged || pendingId === a.id} onClick={(e) => { e.stopPropagation(); handleAcknowledge(a.id) }} aria-label={`Confirmar alarme ${a.alarm_type}`}>
+                  {a.acknowledged ? 'Confirmado' : pendingId === a.id ? 'Confirmando...' : 'Confirmar'}
                 </button>
               </div>
             )

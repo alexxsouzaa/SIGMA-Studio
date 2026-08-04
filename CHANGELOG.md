@@ -8,6 +8,30 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Unreleased]
 
+### Added
+- `POST /alerts/acknowledge-all`: confirma todos os alarmes ativos de uma vez (`AlertService.acknowledge_all`).
+- `POST /users/{user_id}/reset-password`: gera e retorna senha temporária real (admin), sem simular envio de e-mail.
+- `DELETE /logs/`: limpa todos os logs (somente admin) via `LogService.clear_logs`.
+- `app/api/deps.py`: dependência compartilhada `require_admin` (movida de `users.py`).
+- `AlarmsPage`: botões Confirmar e Silenciar todos conectados à API com estados de carregamento.
+- `DevicesPage`: modal de Adicionar/Editar (POST/PUT em `/devices/`) e Remover com confirmação (DELETE).
+- `FirmwarePage`: painel de Detalhes com dados reais de status do firmware.
+- `LogsPage`: Limpar conectado à API com confirmação em dois passos.
+- `UsersPage`: Redefinir senha conectado à API (exibe a senha temporária gerada).
+- Testes backend: `acknowledge_all` e `clear_logs` — 4 testes novos (17 no total).
+
+### Fixed
+- Botões mortos do frontend removidos ou tornados honestos (sem ações simuladas):
+  - `DevicesPage` Importar e Reiniciar: desabilitados com tooltip (sem endpoint no backend).
+  - `FirmwarePage` OTA: desabilitado com tooltip (sem endpoint de atualização).
+  - `LandingCTA` "Agendar demonstração": agora abre o cliente de e-mail (`mailto:`) com assunto pré-preenchido.
+- `main.py`: versão da API lida do arquivo raiz `VERSION` (antes `settings.app_name`).
+- `users.py`: `require_admin` aceita apenas admin ou role com permissão `"*"`.
+- `SettingsPage`: aba "Segurança" (`activeTab === "seguranca"`) passou a renderizar; erro real de preferências exibido.
+- `.gitignore` reescrito (env, `.pytest_cache`, logs, `.env.*` com exceção de `.env.example`).
+- `seed_devices.py`: import morto removido; confirmação interativa antes de re-semear.
+- Documentação: stack real (Zustand) e contagem de modelos corrigidas no README/ARCHITECTURE.
+
 ## [0.9.0] — RealData
 
 ### Added

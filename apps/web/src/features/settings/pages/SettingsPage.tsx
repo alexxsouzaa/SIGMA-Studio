@@ -202,7 +202,7 @@ export default function SettingsPage() {
           </section>
         )}
 
-        {activeTab === "Segurança" && (
+        {activeTab === "seguranca" && (
           <section>
             <h2 style={{ fontSize: 16, fontWeight: 600, paddingBottom: 10, borderBottom: "1px solid var(--border)", marginBottom: 16 }}>Autenticação</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -309,7 +309,7 @@ export default function SettingsPage() {
         )}
 
         {error && (
-          <div style={{ color: "var(--danger)", fontSize: 13 }}>Erro ao carregar Configurações. Tente novamente.</div>
+          <div style={{ color: "var(--danger)", fontSize: 13 }}>{error}</div>
         )}
 
         {saveError && (

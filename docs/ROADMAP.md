@@ -11,7 +11,7 @@ Conectar todos os widgets do dashboard a dados reais da API.
 - [x] Service: `get_protocols()`, `get_gateway_summary()`, `get_ai_insights()`
 - [x] Endpoints `GET /dashboard/protocols`, `/gateways`, `/ai-insights`
 - [x] Widgets do frontend consumindo a API (`KpiCards`, `GatewayStatus`, `ProtocolDistribution`, `AiInsights`)
-- [ ] Conectar MQTT manager ao startup (`app/main.py`) → msgs/min real
+- [x] Conectar MQTT manager ao startup (`app/main.py`) → msgs/min real
 
 ## Fase 2 — Documentação ✅ (em curso)
 
@@ -38,6 +38,15 @@ Conectar todos os widgets do dashboard a dados reais da API.
 
 ### Decisão: `ALTER TABLE` ad-hoc em `app/main.py`
 Os blocos `ALTER TABLE` no startup foram **mantidos**: são idempotentes (guardados por `try/except`) e garantem compatibilidade de bancos existentes. A migração completa via Alembic fica como trabalho futuro no backend.
+
+## Fase 5 — Auditoria & correções (Lote A + B) ✅
+
+Correções de segurança/estrutura e eliminação de botões mortos no frontend.
+
+- [x] **Lote A — Limpeza segura**: `.gitignore` reescrito; `_API_VERSION` lido do `VERSION` raiz; `require_admin` restrito a admin/`"*"`; `SettingsPage` com aba Segurança renderizando; `seed_devices.py` com confirmação interativa; `.env.example`; `npm prune` (0 extraneous); docs corrigidos.
+- [x] **Lote B — Botões mortos**: AlarmsPage (confirmar/silenciar), DevicesPage (adicionar/editar/remover via modal; importar/reiniciar desabilitados), FirmwarePage (OTA desabilitado, detalhes reais), UsersPage (redefinição de senha real), LogsPage (limpar via API), LandingCTA (mailto).
+- [x] Endpoints novos: `POST /alerts/acknowledge-all`, `POST /users/{id}/reset-password`, `DELETE /logs/`.
+- [x] Testes: backend 17 (4 novos), frontend 19.
 
 ## Além do roadmap
 

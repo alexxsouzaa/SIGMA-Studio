@@ -35,7 +35,7 @@ A plataforma é **web-first**: o frontend é uma SPA React que conversa com a AP
 | **API** | `app/api/` | Endpoints REST + validação de rota. Prefijo `/api/v1`. |
 | **Service** | `app/services/` | Regras de negócio. Única camada autorizada a orquestrar repositórios. |
 | **Repository** | `app/repositories/` | Acesso a dados (SQLAlchemy async). |
-| **Model** | `app/models/` | Mapeamento objeto-relacional (10 tabelas). |
+| **Model** | `app/models/` | Mapeamento objeto-relacional (14 modelos). |
 | **Schema** | `app/schemas/` | Contratos Pydantic de entrada/saída. |
 | **Analytics** | `app/analytics/` | Cálculos e processamento de sinais. Nunca executado na UI. |
 | **AI** | `app/ai/` | Modelos TinyML e inferência de manutenção preditiva. |
@@ -78,7 +78,7 @@ O `mqtt/manager` mantém um contador de mensagens exposto via `get_message_rate(
 
 ### Stack
 
-Vite 8 · React 19 · TypeScript 6 · Tailwind CSS 4 · Zustand 5 · TanStack Query 5 · React Hook Form + Zod · Recharts 3 · react-router-dom 7 · lucide-react · oxlint
+Vite 8 · React 19 · TypeScript 6 · Tailwind CSS 4 · Zustand 5 · React Hook Form + Zod · react-router-dom 7 · lucide-react · oxlint
 
 ### Organização feature-based
 
@@ -107,7 +107,7 @@ Features: `auth`, `dashboard`, `devices`, `alarms`, `telemetry`, `gateways`, `fi
 
 ### Banco
 
-SQLite via SQLAlchemy 2 async (`aiosqlite`). Migrations gerenciadas por Alembic (`apps/backend/alembic`). Tabelas: users, roles, organizations, members, devices, gateways, firmware, ai_models, alarmes, telemetry (10 tabelas).
+SQLite via SQLAlchemy 2 async (`aiosqlite`). Migrations gerenciadas por Alembic (`apps/backend/alembic`). 14 modelos SQLAlchemy registrados (users, roles, organizations, members, devices, gateways, firmware, ai_models, alarmes, amostras, logs e outros).
 
 ### API
 

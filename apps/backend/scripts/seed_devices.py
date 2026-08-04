@@ -11,7 +11,7 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, func
 
-from app.database.session import engine, async_session
+from app.database.session import async_session
 from app.models.organization import Organization
 from app.models.device import Device
 from app.models.sample import Sample
@@ -57,11 +57,15 @@ async def seed():
     async with async_session() as session:
         existing_count = await session.scalar(select(func.count(Device.id)))
         if existing_count and existing_count > 0:
-            print(f"Banco ja possui {existing_count} dispositivos. Deseja recriar? (s/N)")
-            # Auto-skip if DB already has data
-            print("Para recriar, delete o banco e execute novamente.")
+            answer = input(f"Banco ja possui {existing_count} dispositivos. Recriar? (s/N): ").strip().lower()
+            if answer != "s":
+                print("Abortado.")
+                return
 
         org = await session.scalar(select(Organization).where(Organization.slug == "default"))
+        if not org:
+            print("Organizacao 'default' nao encontrada. Execute o backend primeiro (cria a org no startup).")
+            return
 
         print("Criando dispositivos...")
         device_map = {}

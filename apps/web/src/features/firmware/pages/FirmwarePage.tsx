@@ -25,6 +25,7 @@ export default function FirmwarePage() {
   const { data: firmwares, refetch: refetchFw } = useApi<Firmware[]>('/firmware/')
   const [filter, setFilter] = useState('all')
   const [panelOpen, setPanelOpen] = useState(false)
+  const [details, setDetails] = useState<DeviceFirmwareStatus | null>(null)
   const [saving, setSaving] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [version, setVersion] = useState('')
@@ -153,9 +154,9 @@ export default function FirmwarePage() {
                       <td>
                         <div className="alarm-actions">
                           {d.status === 'outdated' && (
-                            <button className="alarm-action-btn" onClick={() => showToast(`Atualização OTA iniciada para ${d.name}`)} title="Atualizar" style={{ color: 'var(--info)' }}><Upload /></button>
+                            <button className="alarm-action-btn" disabled title="Atualizacao OTA ainda nao disponivel na API" style={{ color: 'var(--info)', opacity: 0.4, cursor: 'not-allowed' }}><Upload /></button>
                           )}
-                          <button className="alarm-action-btn" onClick={() => showToast(`Detalhes de ${d.name}`)} title="Detalhes"><HardDrive /></button>
+                          <button className="alarm-action-btn" onClick={() => setDetails(d)} title="Detalhes"><HardDrive /></button>
                         </div>
                       </td>
                     </tr>
@@ -202,6 +203,41 @@ export default function FirmwarePage() {
             </div>
           </div>
         </div>
+      )}
+
+      {details && (
+        <>
+          <div className="detail-overlay" onClick={() => setDetails(null)} />
+          <div className="detail-panel open" style={{ zIndex: 51, width: 480 }}>
+            <div className="detail-header">
+              <h3>{details.name}</h3>
+              <button onClick={() => setDetails(null)} aria-label="Fechar"><X /></button>
+            </div>
+            <div className="detail-body">
+              <div className="detail-section">
+                <div className="detail-section-title">Informacoes do firmware</div>
+                <div className="detail-info-grid">
+                  {[
+                    ['Dispositivo', `DEV-${String(details.device_id).padStart(3, '0')}`, true],
+                    ['Versao atual', details.current, true],
+                    ['Versao mais recente', details.latest, true],
+                    ['Status', STATUS_MAP[details.status]?.label ?? details.status, false],
+                    ['Ultima atualizacao', details.date ?? '---', false],
+                    ['Progresso', `${details.progress}%`, false],
+                  ].map(([label, value, mono]) => (
+                    <div key={label as string} className="detail-info-item">
+                      <span className="detail-info-label">{label as string}</span>
+                      <span className={`detail-info-value${mono ? ' mono' : ''}`}>{value as string}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="detail-actions">
+              <button className="btn-detail-close" onClick={() => setDetails(null)}><X /> Fechar</button>
+            </div>
+          </div>
+        </>
       )}
 
       {toast && <div className="toast" style={{ position: 'fixed', bottom: 24, right: 24, background: 'var(--fg)', color: 'var(--bg)', padding: '10px 18px', borderRadius: 'var(--radius-md)', fontSize: 13, fontWeight: 500, boxShadow: 'var(--shadow-md)', zIndex: 200 }}><Check size={16} /> {toast}</div>}

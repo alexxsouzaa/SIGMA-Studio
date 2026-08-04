@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.deps import require_admin
 from app.database.session import get_session
 from app.schemas.log import LogResponse
 from app.schemas.common import StandardResponse
@@ -24,4 +25,17 @@ async def list_logs(
     return StandardResponse(
         data=[LogResponse.model_validate(l) for l in logs],
         message="Logs retrieved",
+    )
+
+
+@router.delete("/")
+async def clear_logs(
+    session: AsyncSession = Depends(get_session),
+    _admin: User = Depends(require_admin),
+):
+    service = LogService(session)
+    deleted = await service.clear_logs()
+    return StandardResponse(
+        data={"deleted": deleted},
+        message="Logs cleared",
     )

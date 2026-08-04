@@ -85,6 +85,19 @@ export default function UsersPage() {
     try { await request(`/users/${editingUser.id}`, { method: 'DELETE' }); showToast('Usuario excluido com sucesso'); closePanel(); refetch() } catch (err) { showToast(err instanceof Error ? err.message : 'Erro ao excluir usuario') } finally { setSaving(false) }
   }
 
+  async function handleResetPassword() {
+    if (!editingUser) return
+    setSaving(true)
+    try {
+      const res = await request<{ temporary_password: string }>(`/users/${editingUser.id}/reset-password`, { method: 'POST' })
+      showToast(`Senha temporaria: ${res.data.temporary_password}`)
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Erro ao redefinir senha')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   if (isLoading) return <LoadingSpinner />
   if (error) return <ErrorState message={error} onRetry={refetch} />
 
@@ -162,7 +175,7 @@ export default function UsersPage() {
               <button className="widget-action-btn" onClick={handleSave} disabled={saving} style={{ padding: '8px 18px', width: '100%', justifyContent: 'center', background: 'var(--fg)', color: 'var(--bg)' }}>{saving ? 'Salvando...' : <><Check size={16} /> Salvar alteracoes</>}</button>
               {panelMode === 'edit' && !confirmDelete && <button className="widget-action-btn" onClick={() => setConfirmDelete(true)} style={{ padding: '8px 18px', width: '100%', justifyContent: 'center', color: 'var(--danger)', border: '1px solid var(--danger)', borderRadius: 'var(--radius-md)' }}>Excluir usuario</button>}
               {panelMode === 'edit' && confirmDelete && <div style={{ display: 'flex', gap: 8 }}><button className="widget-action-btn" onClick={handleDelete} disabled={saving} style={{ flex: 1, padding: '8px', justifyContent: 'center', background: 'var(--danger)', color: 'var(--bg)', borderRadius: 'var(--radius-md)' }}>{saving ? 'Excluindo...' : 'Confirmar exclusao'}</button><button className="widget-action-btn" onClick={() => setConfirmDelete(false)} style={{ flex: 1, padding: '8px', justifyContent: 'center', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)' }}>Cancelar</button></div>}
-              {panelMode === 'edit' && <button className="widget-action-btn" onClick={() => showToast('Link de redefinicao enviado por email')} style={{ padding: '8px 18px', width: '100%', justifyContent: 'center', color: 'var(--danger)', border: '1px solid var(--danger)', borderRadius: 'var(--radius-md)' }}><KeyRound size={16} /> Redefinir senha</button>}
+              {panelMode === 'edit' && <button className="widget-action-btn" onClick={handleResetPassword} disabled={saving} style={{ padding: '8px 18px', width: '100%', justifyContent: 'center', color: 'var(--danger)', border: '1px solid var(--danger)', borderRadius: 'var(--radius-md)' }}><KeyRound size={16} /> {saving ? 'Redefinindo...' : 'Redefinir senha'}</button>}
             </div>
           </div>
         </>

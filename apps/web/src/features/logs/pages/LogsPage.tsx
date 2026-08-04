@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Download, Trash2, ChevronLeft, ChevronRight, FileText, RefreshCw } from 'lucide-react'
 import { useApi } from '@/lib/hooks'
+import { request } from '@/lib/api'
 import { exportCSV } from '@/lib/export'
 import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
 
@@ -35,6 +36,8 @@ export default function LogsPage() {
   const [page, setPage] = useState(1)
   const [autoRefresh, setAutoRefresh] = useState(true)
   const [toast, setToast] = useState<string | null>(null)
+  const [confirmClear, setConfirmClear] = useState(false)
+  const [clearing, setClearing] = useState(false)
   const PAGE_SIZE = 50
 
   const levelParam = filter === 'all' ? '' : `&level=${filter}`
@@ -58,6 +61,21 @@ export default function LogsPage() {
       l.message,
     ])
     exportCSV(`logs-${new Date().toISOString().slice(0, 10)}.csv`, headers, rows)
+  }
+
+  async function handleClear() {
+    setClearing(true)
+    try {
+      const res = await request<{ deleted: number }>('/logs/', { method: 'DELETE' })
+      showToast(`${res.data.deleted} log(s) removido(s)`)
+      setConfirmClear(false)
+      refetch()
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Erro ao limpar logs')
+      setConfirmClear(false)
+    } finally {
+      setClearing(false)
+    }
   }
 
   const items = logs ?? []
@@ -97,7 +115,14 @@ export default function LogsPage() {
             <div style={{ width: 1, height: 24, background: 'var(--border)' }} />
             <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto' }} onClick={handleExport}><Download /> Exportar</button>
             <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto' }} onClick={() => { refetch(); showToast('Logs atualizados') }}><RefreshCw /> Atualizar</button>
-            <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto', color: 'var(--danger)' }} onClick={() => showToast('Limpeza de logs requer permissão de administrador')}><Trash2 /> Limpar</button>
+            {confirmClear ? (
+              <>
+                <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto', color: 'var(--danger)' }} onClick={handleClear} disabled={clearing}>{clearing ? 'Limpando...' : 'Confirmar'}</button>
+                <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto' }} onClick={() => setConfirmClear(false)} disabled={clearing}>Cancelar</button>
+              </>
+            ) : (
+              <button className="widget-action-btn" style={{ padding: '0 12px', width: 'auto', color: 'var(--danger)' }} onClick={() => setConfirmClear(true)}><Trash2 /> Limpar</button>
+            )}
           </div>
         </div>
         <div className="widget-body" style={{ padding: 0, overflowX: 'auto' }}>

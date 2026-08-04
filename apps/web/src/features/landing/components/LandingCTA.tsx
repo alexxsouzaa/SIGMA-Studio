@@ -15,10 +15,13 @@ export default function LandingCTA() {
           <Rocket />
           Iniciar teste gratuito
         </Link>
-        <button type="button" className="landing-btn landing-btn-secondary">
+        <a
+          className="landing-btn landing-btn-secondary"
+          href="mailto:contato@sigma.io?subject=Agendar%20demonstra%C3%A7%C3%A3o%20do%20SIGMA%20Studio&body=Ol%C3%A1,%20gostaria%20de%20agendar%20uma%20demonstra%C3%A7%C3%A3o%20do%20SIGMA%20Studio."
+        >
           <Calendar />
           Agendar demonstra&ccedil;&atilde;o
-        </button>
+        </a>
       </div>
       <Link to="/app" className="landing-btn-ghost">
         <LayoutDashboard />

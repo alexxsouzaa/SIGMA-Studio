@@ -1,7 +1,10 @@
 import { useState, useMemo, useEffect } from 'react'
-import { Plus, Upload, LayoutGrid, List, X, RotateCcw, Trash2, ChevronLeft, ChevronRight, Cpu, CheckCircle2, XCircle, AlertTriangle, Thermometer, Router, Pencil, HardDrive, Zap, Search, SearchX } from 'lucide-react'
+import { Plus, Upload, LayoutGrid, List, X, RotateCcw, Trash2, ChevronLeft, ChevronRight, Cpu, CheckCircle2, XCircle, AlertTriangle, Thermometer, Router, Pencil, HardDrive, Zap, Search, SearchX, Check } from 'lucide-react'
 import { useApi } from '@/lib/hooks'
+import { request } from '@/lib/api'
+import { pushToast } from '@/lib/toastStore'
 import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
+import { useAuthStore } from '@/stores/authStore'
 import type { Device } from '@/types/device'
 
 interface Alert {
@@ -69,6 +72,7 @@ function statusLabel(s: string) {
 }
 
 export default function DevicesPage() {
+  const { user } = useAuthStore()
   const { data: devices, isLoading, error, refetch } = useApi<Device[]>('/devices/?limit=500')
   const { data: alerts } = useApi<Alert[]>('/alerts/?limit=500')
 
@@ -77,6 +81,11 @@ export default function DevicesPage() {
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [formMode, setFormMode] = useState<'create' | 'edit' | null>(null)
+  const [editingDevice, setEditingDevice] = useState<Device | null>(null)
+  const [form, setForm] = useState({ name: '', serial_number: '', location: '', firmware_version: '1.0.0' })
+  const [saving, setSaving] = useState(false)
+  const [confirmRemoval, setConfirmRemoval] = useState(false)
 
   const alertDeviceIds = useMemo(() => {
     if (!alerts) return new Set<number>()
@@ -189,6 +198,84 @@ export default function DevicesPage() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [selectedDevice])
 
+  function openCreate() {
+    setEditingDevice(null)
+    setForm({ name: '', serial_number: '', location: '', firmware_version: '1.0.0' })
+    setConfirmRemoval(false)
+    setFormMode('create')
+  }
+
+  function openEdit(device: Device) {
+    setEditingDevice(device)
+    setForm({
+      name: device.name,
+      serial_number: device.serial_number,
+      location: device.location ?? '',
+      firmware_version: device.firmware_version,
+    })
+    setConfirmRemoval(false)
+    setFormMode('edit')
+    setSelectedDevice(null)
+  }
+
+  function closeForm() {
+    setFormMode(null)
+    setEditingDevice(null)
+    setConfirmRemoval(false)
+  }
+
+  async function handleSubmit() {
+    setSaving(true)
+    try {
+      if (formMode === 'create') {
+        const orgId = user?.current_organization_id ?? devices?.[0]?.organization_id ?? 1
+        await request('/devices/', {
+          method: 'POST',
+          body: JSON.stringify({
+            organization_id: orgId,
+            name: form.name.trim(),
+            serial_number: form.serial_number.trim(),
+            location: form.location.trim() || null,
+            firmware_version: form.firmware_version.trim() || '1.0.0',
+          }),
+        })
+        pushToast('Dispositivo adicionado', `${form.name} foi criado com sucesso.`, 'success')
+      } else if (formMode === 'edit' && editingDevice) {
+        await request(`/devices/${editingDevice.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name: form.name.trim(),
+            location: form.location.trim() || null,
+            firmware_version: form.firmware_version.trim() || '1.0.0',
+          }),
+        })
+        pushToast('Dispositivo atualizado', 'Alteracoes salvas com sucesso.', 'success')
+      }
+      closeForm()
+      refetch()
+    } catch (err) {
+      pushToast('Erro ao salvar dispositivo', err instanceof Error ? err.message : 'Tente novamente', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  async function handleDelete() {
+    if (!selectedDevice) return
+    setSaving(true)
+    try {
+      await request(`/devices/${selectedDevice.id}`, { method: 'DELETE' })
+      pushToast('Dispositivo removido', `${selectedDevice.name} foi excluido.`, 'success')
+      setSelectedDevice(null)
+      setConfirmRemoval(false)
+      refetch()
+    } catch (err) {
+      pushToast('Erro ao remover dispositivo', err instanceof Error ? err.message : 'Tente novamente', 'error')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const { data: deviceAlerts, refetch: refetchDeviceAlerts } = useApi<Alert[]>(
     selectedDevice ? `/alerts/?limit=8&device_id=${selectedDevice.id}` : null,
   )
@@ -252,8 +339,8 @@ export default function DevicesPage() {
             <button className={`view-toggle-btn${viewMode === 'grid' ? ' active' : ''}`} onClick={() => setViewMode('grid')} aria-label="Visualizacao em grade"><LayoutGrid /></button>
             <button className={`view-toggle-btn${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')} aria-label="Visualizacao em lista"><List /></button>
           </div>
-          <button className="btn-ghost"><Upload /> Importar</button>
-          <button className="btn-primary"><Plus /> Adicionar</button>
+          <button className="btn-ghost" disabled title="Importacao em lote estara disponivel em breve"><Upload /> Importar</button>
+          <button className="btn-primary" onClick={openCreate}><Plus /> Adicionar</button>
         </div>
       </div>
 
@@ -483,11 +570,68 @@ export default function DevicesPage() {
               </div>
             </div>
             <div className="detail-actions">
-              <button className="btn-ghost"><Pencil /> Editar</button>
-              <button className="btn-primary"><RotateCcw /> Reiniciar</button>
-              <button className="btn-danger"><Trash2 /> Remover</button>
+              {confirmRemoval ? (
+                <>
+                  <button className="btn-danger" onClick={handleDelete} disabled={saving}>{saving ? 'Removendo...' : 'Confirmar remocao'}</button>
+                  <button className="btn-ghost" onClick={() => setConfirmRemoval(false)} disabled={saving}>Cancelar</button>
+                </>
+              ) : (
+                <>
+                  <button className="btn-ghost" onClick={() => openEdit(selectedDevice)}><Pencil /> Editar</button>
+                  <button className="btn-primary" disabled title="Reinicio remoto ainda nao disponivel"><RotateCcw /> Reiniciar</button>
+                  <button className="btn-danger" onClick={() => setConfirmRemoval(true)}><Trash2 /> Remover</button>
+                </>
+              )}
             </div>
           </aside>
+        </>
+      )}
+
+      {formMode !== null && (
+        <>
+          <div className="detail-overlay" onClick={closeForm} />
+          <div className="detail-panel open" style={{ zIndex: 51, width: 480 }}>
+            <div className="detail-header">
+              <h3>{formMode === 'create' ? 'Adicionar dispositivo' : 'Editar dispositivo'}</h3>
+              <button onClick={closeForm} aria-label="Fechar"><X /></button>
+            </div>
+            <div className="detail-body">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <label className="login-label" htmlFor="dev-name">Nome *</label>
+                  <div className="login-input-wrap">
+                    <input id="dev-name" className="login-input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Ex.: Sensor de temperatura T-01" />
+                  </div>
+                </div>
+                <div>
+                  <label className="login-label" htmlFor="dev-serial">Numero de serie *</label>
+                  <div className="login-input-wrap">
+                    <input id="dev-serial" className="login-input" value={form.serial_number} onChange={(e) => setForm({ ...form, serial_number: e.target.value })} placeholder="Ex.: SN-2026-0001" disabled={formMode === 'edit'} />
+                  </div>
+                </div>
+                <div>
+                  <label className="login-label" htmlFor="dev-location">Localizacao</label>
+                  <div className="login-input-wrap">
+                    <input id="dev-location" className="login-input" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Ex.: Linha 1 / Torre B" />
+                  </div>
+                </div>
+                <div>
+                  <label className="login-label" htmlFor="dev-fw">Versao de firmware</label>
+                  <div className="login-input-wrap">
+                    <input id="dev-fw" className="login-input" value={form.firmware_version} onChange={(e) => setForm({ ...form, firmware_version: e.target.value })} placeholder="1.0.0" />
+                  </div>
+                </div>
+                <button
+                  className="widget-action-btn"
+                  onClick={handleSubmit}
+                  disabled={saving || !form.name.trim() || (formMode === 'create' && !form.serial_number.trim())}
+                  style={{ padding: '8px 18px', width: '100%', justifyContent: 'center', background: 'var(--fg)', color: 'var(--bg)' }}
+                >
+                  {saving ? 'Salvando...' : <><Check size={16} /> {formMode === 'create' ? 'Adicionar dispositivo' : 'Salvar alteracoes'}</>}
+                </button>
+              </div>
+            </div>
+          </div>
         </>
       )}
     </>

@@ -12,7 +12,7 @@ A plataforma SIGMA monitora ativos industriais em tempo real: conecta gateways p
 
 | Camada | Tecnologia |
 |---|---|
-| **Frontend** | Vite 8 · React 19 · TypeScript 6 · react-router-dom 7 · Tailwind CSS 4 · Zustand 5 · TanStack Query 5 · RHF + Zod · Recharts 3 |
+| **Frontend** | Vite 8 · React 19 · TypeScript 6 · react-router-dom 7 · Tailwind CSS 4 · Zustand 5 · RHF + Zod · lucide-react |
 | **Backend** | Python ≥3.13 · FastAPI · SQLAlchemy 2 · Alembic · Paho MQTT · PySerial |
 | **Banco** | SQLite (aiosqlite) via SQLAlchemy async |
 | **Auth** | JWT (python-jose) · bcrypt · OAuth2 Google · RBAC |
@@ -26,7 +26,7 @@ SIGMA-Studio/
 ├── apps/
 │   ├── backend/          # FastAPI (API REST + WebSocket + MQTT + Analytics + IA)
 │   └── web/              # SIGMA Studio (SPA React)
-├── .agents/skills/       # Skills de engenharia para agentes de IA
+├── .opencode/            # Configuração e skills dos agentes (não versionado)
 ├── AGENTS.md             # Regras obrigatórias do framework SEF
 ├── VERSION               # Versão + codename do projeto
 ├── package.json          # Workspace raiz (gerencia apps/web)
@@ -38,7 +38,7 @@ SIGMA-Studio/
 ```
 app/
 ├── api/          # Endpoints REST (dashboard, devices, alarms, gateways, auth, users...)
-├── models/       # Modelos SQLAlchemy (10 tabelas)
+├── models/       # Modelos SQLAlchemy (14 modelos)
 ├── schemas/      # Schemas Pydantic (validação + contratos de API)
 ├── services/     # Camada de serviço (regras de negócio — nunca acessar DB na UI)
 ├── repositories/ # Acesso a dados

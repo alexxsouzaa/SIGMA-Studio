@@ -30,6 +30,19 @@ async def list_alerts(
     )
 
 
+@router.post("/acknowledge-all")
+async def acknowledge_all_alerts(
+    session: AsyncSession = Depends(get_session),
+    _user: User = Depends(get_current_user),
+):
+    service = AlertService(session)
+    count = await service.acknowledge_all()
+    return StandardResponse(
+        data={"acknowledged": count},
+        message=f"{count} alerts acknowledged",
+    )
+
+
 @router.post("/{alert_id}/acknowledge")
 async def acknowledge_alert(
     alert_id: int,

@@ -37,3 +37,9 @@ class LogService:
         await self._session.commit()
         await self._session.refresh(log)
         return log
+
+    async def clear_logs(self) -> int:
+        total = await self._session.scalar(func.count(Log.id)) or 0
+        await self._session.execute(Log.__table__.delete())
+        await self._session.commit()
+        return total

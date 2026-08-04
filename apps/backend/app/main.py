@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -11,9 +13,12 @@ from sqlalchemy import select
 
 from app.utils.auth import hash_password
 
+_PROJECT_ROOT = Path(__file__).resolve().parents[3]
+_API_VERSION = _PROJECT_ROOT.joinpath("VERSION").read_text(encoding="utf-8").strip()
+
 app = FastAPI(
     title="SIGMA Studio API",
-    version=settings.app_name,
+    version=_API_VERSION,
     description="Industrial Condition Monitoring Platform",
 )
 

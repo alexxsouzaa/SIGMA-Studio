@@ -2,9 +2,11 @@
 __pycache__/
 *.py[cod]
 *.egg-info/
-dist/
 .venv/
 *.db
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Node
 node_modules/
@@ -20,15 +22,17 @@ Thumbs.db
 
 # Env
 .env
-*.env.local
+.env.*
+!.env.example
 
 # Agent / AI
 .opencode/
 .agents/
+skills-lock.json
 
 # Build outputs
 apps/backend/dist/
 apps/web/dist/
 
-# Egg info
-*.egg-info/
+# Logs
+*.log

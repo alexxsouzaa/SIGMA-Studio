@@ -1,7 +1,10 @@
+import secrets
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.deps import require_admin
 from app.database.session import get_session
 from app.models.user import User
 from app.models.role import Role
@@ -30,24 +33,6 @@ class UpdateUserRequest(BaseModel):
     display_name: str | None = Field(None, max_length=100)
     email: str | None = Field(None, min_length=5, max_length=255)
     active: bool | None = None
-
-
-async def require_admin(user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session)):
-    if not user.role_id:
-        raise HTTPException(status_code=403, detail="Admin access required")
-    role = await session.get(Role, user.role_id)
-    if not role:
-        raise HTTPException(status_code=403, detail="Admin access required")
-    import json
-    perms = []
-    if role.permissions:
-        try:
-            perms = json.loads(role.permissions)
-        except (json.JSONDecodeError, TypeError):
-            pass
-    if "*" not in perms and "users" not in perms:
-        raise HTTPException(status_code=403, detail="Admin access required")
-    return user
 
 
 @router.get("/")
@@ -165,3 +150,23 @@ async def list_roles(
     roles = list(result.scalars().all())
     data = [{"id": r.id, "name": r.name, "description": r.description} for r in roles]
     return StandardResponse(data=data, message="Roles retrieved")
+
+
+@router.post("/{user_id}/reset-password")
+async def reset_user_password(
+    user_id: int,
+    session: AsyncSession = Depends(get_session),
+    admin: User = Depends(require_admin),
+):
+    if user_id == admin.id:
+        raise HTTPException(status_code=400, detail="Voce nao pode redefinir sua propria senha")
+    user = await session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    temporary_password = secrets.token_urlsafe(9)
+    user.password_hash = hash_password(temporary_password)
+    await session.commit()
+    return StandardResponse(
+        data={"temporary_password": temporary_password},
+        message="Senha temporaria gerada. Envie ao usuario e solicite a troca no proximo login.",
+    )

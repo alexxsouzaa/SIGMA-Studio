@@ -41,3 +41,16 @@ class AlertService:
         await self._session.commit()
         await self._session.refresh(alert)
         return alert
+
+    async def acknowledge_all(self) -> int:
+        query = (
+            select(Alert)
+            .where(Alert.acknowledged == False)
+        )
+        result = await self._session.execute(query)
+        alerts = list(result.scalars().all())
+        for alert in alerts:
+            alert.acknowledged = True
+        if alerts:
+            await self._session.commit()
+        return len(alerts)
