@@ -11,6 +11,7 @@ class MqttManager:
         self._topic_prefix = topic_prefix
         self._client = mqtt.Client()
         self._callbacks: dict[str, list[Callable]] = {}
+        self._message_count: int = 0
 
     def on_message(self, topic: str, callback: Callable):
         self._callbacks.setdefault(topic, []).append(callback)
@@ -28,13 +29,20 @@ class MqttManager:
 
     async def disconnect(self):
         self._client.loop_stop()
-        self._client.disconnect()
+        if self._client.is_connected():
+            self._client.disconnect()
 
     async def publish(self, topic: str, payload: dict):
         full_topic = f"{self._topic_prefix}/{topic}"
         self._client.publish(full_topic, json.dumps(payload))
 
+    def get_message_rate(self) -> int:
+        count = self._message_count
+        self._message_count = 0
+        return count
+
     def _handle_message(self, _client, _userdata, msg):
+        self._message_count += 1
         topic = msg.topic
         if topic in self._callbacks:
             for cb in self._callbacks[topic]:

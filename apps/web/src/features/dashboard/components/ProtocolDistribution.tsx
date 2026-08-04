@@ -1,37 +1,67 @@
-const protocols = [
-  { name: 'MQTT', desc: 'Broker HiveMQ', value: 612, pct: 45.7, color: 'var(--accent)' },
-  { name: 'OPC-UA', desc: 'Servidores industriais', value: 298, pct: 22.2, color: 'var(--info)' },
-  { name: 'Modbus TCP', desc: 'PLCs legacy', value: 224, pct: 16.7, color: 'var(--success)' },
-  { name: 'BLE', desc: 'Sensores campo', value: 141, pct: 10.5, color: 'var(--warning)' },
-  { name: 'Wi-Fi', desc: 'HMI / painéis', value: 65, pct: 4.9, color: 'var(--fg-muted)' },
-]
+import { useApi } from '@/lib/hooks'
+import { LoadingSpinner, EmptyState } from '@/components/shared/StatusStates'
+
+interface ProtocolItem {
+  name: string
+  device_count: number
+  gateway_count: number
+  pct: number
+}
+
+const PROTOCOL_COLORS: Record<string, string> = {
+  MQTT: 'var(--accent)',
+  'OPC-UA': 'var(--info)',
+  'Modbus TCP': 'var(--success)',
+  BLE: 'var(--warning)',
+  'Wi-Fi': 'var(--fg-muted)',
+}
+
+const PROTOCOL_DESCS: Record<string, string> = {
+  MQTT: 'Broker HiveMQ',
+  'OPC-UA': 'Servidores industriais',
+  'Modbus TCP': 'PLCs legacy',
+  BLE: 'Sensores campo',
+  'Wi-Fi': 'HMI / painéis',
+}
 
 export function ProtocolDistribution() {
+  const { data: protocols, isLoading, error } = useApi<ProtocolItem[]>('/dashboard/protocols')
+  const totalDevices = protocols?.reduce((sum, p) => sum + p.device_count, 0) ?? 0
+
   return (
     <div className="widget">
       <div className="widget-header">
         <div className="widget-title">
           <RadioIcon />Distribuição de Protocolos
         </div>
-        <div className="widget-subtitle">1.340 dispositivos conectados</div>
+        <div className="widget-subtitle">{totalDevices.toLocaleString('pt-BR')} dispositivos conectados</div>
       </div>
       <div className="widget-body">
-        <div className="protocol-bars">
-          {protocols.map((p) => (
-            <div key={p.name} className="protocol-bar-item">
-              <div className="protocol-bar-header">
-                <span className="protocol-bar-name">
-                  <code>{p.name}</code>
-                  <span>· {p.desc}</span>
-                </span>
-                <span className="protocol-bar-value">{p.value} ({p.pct}%)</span>
+        {isLoading && <LoadingSpinner />}
+        {error && <div className="empty-state-text">Erro ao carregar protocolos</div>}
+        {!isLoading && !error && (!protocols || protocols.length === 0) && (
+          <EmptyState title="Nenhum protocolo configurado" />
+        )}
+        {!isLoading && !error && protocols && protocols.length > 0 && (
+          <div className="protocol-bars">
+            {protocols.map((p) => (
+              <div key={p.name} className="protocol-bar-item">
+                <div className="protocol-bar-header">
+                  <span className="protocol-bar-name">
+                    <code>{p.name}</code>
+                    <span> · {PROTOCOL_DESCS[p.name] ?? p.name}</span>
+                  </span>
+                  <span className="protocol-bar-value">
+                    {p.device_count.toLocaleString('pt-BR')} ({p.pct}%)
+                  </span>
+                </div>
+                <div className="protocol-bar-track">
+                  <div className="protocol-bar-fill" style={{ width: `${p.pct}%`, background: PROTOCOL_COLORS[p.name] ?? 'var(--fg-muted)' }} />
+                </div>
               </div>
-              <div className="protocol-bar-track">
-                <div className="protocol-bar-fill" style={{ width: `${p.pct}%`, background: p.color }} />
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

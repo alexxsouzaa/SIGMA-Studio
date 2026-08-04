@@ -1,10 +1,12 @@
 export function Toggle({ checked, onChange }: { checked: boolean; onChange?: () => void }) {
   return (
     <button
+      role="switch"
+      aria-checked={checked}
       onClick={onChange}
       style={{
         width: 40, height: 22,
-        background: checked ? 'var(--fg)' : 'var(--border)',
+        background: checked ? 'var(--accent)' : 'var(--border)',
         borderRadius: 11, position: 'relative', flexShrink: 0,
       }}
     >
@@ -12,7 +14,7 @@ export function Toggle({ checked, onChange }: { checked: boolean; onChange?: () 
         style={{
           position: 'absolute', left: checked ? 21 : 3, top: 3,
           width: 16, height: 16, borderRadius: '50%',
-          background: checked ? 'var(--surface)' : 'var(--bg)',
+          background: checked ? 'var(--accent-fg)' : 'var(--bg)',
           transition: 'left 150ms ease',
         }}
       />

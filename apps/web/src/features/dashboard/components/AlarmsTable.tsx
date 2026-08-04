@@ -5,6 +5,7 @@ import { useApi } from '@/lib/hooks'
 import { request } from '@/lib/api'
 import { exportCSV } from '@/lib/export'
 import { LoadingSpinner, ErrorState, EmptyState } from '@/components/shared/StatusStates'
+import { pushToast } from '@/lib/toastStore'
 
 interface Alert {
   id: number
@@ -51,7 +52,7 @@ export function AlarmsTable() {
       await request(`/alerts/${alertId}/acknowledge`, { method: 'POST' })
       refetch()
     } catch {
-      // silently fail — user can retry
+      pushToast('Erro ao confirmar alarme', 'Tente novamente', 'error')
     } finally {
       setAcknowledging(null)
     }

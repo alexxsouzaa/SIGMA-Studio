@@ -1,15 +1,38 @@
 import { ExternalLink, Wifi, Cable, Radio, Bluetooth } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useApi } from '@/lib/hooks'
+import { LoadingSpinner, EmptyState } from '@/components/shared/StatusStates'
 
-const gateways = [
-  { name: 'GW-Principal', protocol: 'MQTT Broker', status: 'online' as const, icon: Wifi },
-  { name: 'GW-Modbus-01', protocol: 'Modbus TCP', status: 'online' as const, icon: Cable },
-  { name: 'GW-OPC-UA-01', protocol: 'OPC-UA', status: 'degraded' as const, icon: Radio },
-  { name: 'GW-BLE-ZoneA', protocol: 'BLE 5.0', status: 'online' as const, icon: Bluetooth },
-]
+interface GatewayItem {
+  name: string
+  protocol: string
+  status: string
+}
+
+const PROTOCOL_ICONS: Record<string, typeof Wifi> = {
+  MQTT: Wifi,
+  'Modbus TCP': Cable,
+  'OPC-UA': Radio,
+  'BLE 5.0': Bluetooth,
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  online: 'Online',
+  warning: 'Degradado',
+  degraded: 'Degradado',
+  offline: 'Offline',
+}
+
+const STATUS_CLASS: Record<string, string> = {
+  online: 'online',
+  warning: 'degraded',
+  degraded: 'degraded',
+  offline: 'offline',
+}
 
 export function GatewayStatus() {
   const navigate = useNavigate()
+  const { data: gateways, isLoading, error } = useApi<GatewayItem[]>('/dashboard/gateways')
 
   return (
     <div className="widget">
@@ -24,24 +47,31 @@ export function GatewayStatus() {
         </div>
       </div>
       <div className="widget-body">
-        <div className="gateway-list">
-          {gateways.map((gw) => {
-            const Icon = gw.icon
-            return (
-              <div key={gw.name} className="gateway-item">
-                <div className="gateway-item-icon"><Icon /></div>
-                <div className="gateway-item-info">
-                  <div className="gateway-item-name">{gw.name}</div>
-                  <div className="gateway-item-protocol">{gw.protocol}</div>
+        {isLoading && <LoadingSpinner />}
+        {error && <div className="empty-state-text">Erro ao carregar gateways</div>}
+        {!isLoading && !error && (!gateways || gateways.length === 0) && (
+          <EmptyState title="Nenhum gateway configurado" />
+        )}
+        {!isLoading && !error && gateways && gateways.length > 0 && (
+          <div className="gateway-list">
+            {gateways.map((gw) => {
+              const Icon = PROTOCOL_ICONS[gw.protocol] ?? Wifi
+              return (
+                <div key={gw.name} className="gateway-item">
+                  <div className="gateway-item-icon"><Icon /></div>
+                  <div className="gateway-item-info">
+                    <div className="gateway-item-name">{gw.name}</div>
+                    <div className="gateway-item-protocol">{gw.protocol}</div>
+                  </div>
+                  <div className={`gateway-item-status ${STATUS_CLASS[gw.status] ?? 'offline'}`}>
+                    <span className="gateway-item-status-dot" />
+                    {STATUS_LABELS[gw.status] ?? gw.status}
+                  </div>
                 </div>
-                <div className={`gateway-item-status ${gw.status}`}>
-                  <span className="gateway-item-status-dot" />
-                  {gw.status === 'online' ? 'Online' : gw.status === 'degraded' ? 'Degradado' : 'Offline'}
-                </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

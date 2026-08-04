@@ -4,6 +4,7 @@ import { useApi } from '@/lib/hooks'
 import { request } from '@/lib/api'
 import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
 import type { Gateway, GatewayUpdate } from '@/types/gateway'
+import { useAuthStore } from '@/stores/authStore'
 
 const FILTERS = [
   { label: 'Todos', value: 'all' },
@@ -26,6 +27,7 @@ const STATUS_MAP: Record<string, { label: string; color: string }> = {
 }
 
 export default function GatewaysPage() {
+  const { user } = useAuthStore()
   const { data: gateways, isLoading, error, refetch } = useApi<Gateway[]>('/gateways/')
   const [filter, setFilter] = useState('all')
   const [panelMode, setPanelMode] = useState<'create' | 'edit' | null>(null)
@@ -75,7 +77,7 @@ export default function GatewaysPage() {
         protocol: form.protocol,
         endpoint: form.endpoint.trim() || null,
         status: form.status,
-        organization_id: 1,
+        organization_id: user?.current_organization_id ?? 1,
       }
       if (panelMode === 'create') {
         await request<Gateway>('/gateways/', { method: 'POST', body: JSON.stringify(payload) })

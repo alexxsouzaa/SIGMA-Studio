@@ -24,7 +24,8 @@ export default function TelemetryPage() {
 
   useEffect(() => {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const url = `${proto}//${window.location.host}/api/v1/ws/telemetry`
+    const base = import.meta.env.BASE_URL || '/'
+    const url = `${proto}//${window.location.host}${base}api/v1/ws/telemetry`
     let retry: ReturnType<typeof setTimeout> | undefined
 
     function connect() {

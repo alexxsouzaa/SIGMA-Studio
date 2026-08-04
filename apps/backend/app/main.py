@@ -6,6 +6,7 @@ from app.config.settings import settings
 from app.api.router import router
 from app.database.session import engine, async_session, Base
 from app.websocket.manager import websocket_manager
+from app.mqtt.manager import MqttManager
 from sqlalchemy import select
 
 from app.utils.auth import hash_password
@@ -14,6 +15,12 @@ app = FastAPI(
     title="SIGMA Studio API",
     version=settings.app_name,
     description="Industrial Condition Monitoring Platform",
+)
+
+app.state.mqtt_manager = MqttManager(
+    broker=settings.mqtt_broker,
+    port=settings.mqtt_port,
+    topic_prefix=settings.mqtt_topic_prefix,
 )
 
 
@@ -43,6 +50,7 @@ app.include_router(router, prefix="/api/v1")
 
 @app.on_event("startup")
 async def startup():
+    await app.state.mqtt_manager.connect()
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         try:
@@ -151,5 +159,6 @@ async def startup():
 
 @app.on_event("shutdown")
 async def shutdown():
+    await app.state.mqtt_manager.disconnect()
     await engine.dispose()
     await websocket_manager.disconnect_all()

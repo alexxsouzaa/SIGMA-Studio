@@ -1,32 +1,26 @@
 import { Settings } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { useApi } from '@/lib/hooks'
+import { LoadingSpinner, EmptyState } from '@/components/shared/StatusStates'
 
-const insights = [
-  {
-    badge: 'Previsão',
-    time: 'há 8min',
-    text: 'Temperatura do PLC-07 deve atingir ',
-    metric: '85°C',
-    suffix: ' nas próximas 2h. Recomendação: reduzir carga na Linha 3 ou ativar resfriamento auxiliar.',
-  },
-  {
-    badge: 'Anomalia',
-    time: 'há 23min',
-    text: 'Padrão anômalo detectado no Sensor-T21. Oscilação de ',
-    metric: '±4,2°C',
-    suffix: ' em 15min — fora do comportamento histórico de 97,3%.',
-  },
-  {
-    badge: 'Otimização',
-    time: 'há 1h',
-    text: 'Consumo energético da Zona B ',
-    metric: '12% acima',
-    suffix: ' da média. Possível causa: RTU-Festo em modo contínuo ao invés de intermitente.',
-  },
-]
+interface AiModelItem {
+  name: string
+  type: string
+  status: string
+  accuracy: number
+  description: string | null
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  production: 'Produção',
+  staging: 'Staging',
+  training: 'Treinamento',
+  development: 'Desenvolvimento',
+}
 
 export function AiInsights() {
   const navigate = useNavigate()
+  const { data: models, isLoading, error } = useApi<AiModelItem[]>('/dashboard/ai-insights')
 
   return (
     <div className="widget">
@@ -42,21 +36,31 @@ export function AiInsights() {
         </div>
       </div>
       <div className="widget-body">
-        <div className="ai-insight-list">
-          {insights.map((insight, i) => (
-            <div key={i} className="ai-insight-item">
-              <div className="ai-insight-header">
-                <span className="ai-insight-badge">{insight.badge}</span>
-                <span className="ai-insight-time">{insight.time}</span>
-              </div>
-              <div className="ai-insight-text">
-                {insight.text}
-                <span className="ai-insight-metric">{insight.metric}</span>
-                {insight.suffix}
-              </div>
-            </div>
-          ))}
-        </div>
+        {isLoading && <LoadingSpinner />}
+        {error && <div className="empty-state-text">Erro ao carregar insights</div>}
+        {!isLoading && !error && (!models || models.length === 0) && (
+          <EmptyState title="Nenhum modelo treinado" description="Treine um modelo TinyML para ver insights." />
+        )}
+        {!isLoading && !error && models && models.length > 0 && (
+          <div className="ai-insight-list">
+            {models.map((m) => {
+              const badge = STATUS_LABELS[m.status] ?? m.status
+              const accuracy = m.accuracy != null ? `${(m.accuracy * 100).toFixed(1)}%` : '—'
+              return (
+                <div key={m.name} className="ai-insight-item">
+                  <div className="ai-insight-header">
+                    <span className="ai-insight-badge">{badge}</span>
+                    <span className="ai-insight-time">{m.type}</span>
+                  </div>
+                  <div className="ai-insight-text">
+                    {m.description ?? `Modelo ${m.type} ativo`}
+                    <span className="ai-insight-metric"> {accuracy}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
       </div>
     </div>
   )

@@ -261,7 +261,7 @@ export function LoginPage() {
 
             <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--fg-secondary)' }}>
               Não tem uma conta?{' '}
-              <Link to="/register" style={{ color: 'var(--fg)', fontWeight: 600 }}>
+              <Link to="/register" style={{ color: 'var(--accent)', fontWeight: 600 }}>
                 Criar conta
               </Link>
             </p>
