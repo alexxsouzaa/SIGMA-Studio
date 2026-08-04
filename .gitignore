@@ -24,6 +24,7 @@ Thumbs.db
 
 # Agent / AI
 .opencode/
+.agents/
 
 # Build outputs
 apps/backend/dist/
