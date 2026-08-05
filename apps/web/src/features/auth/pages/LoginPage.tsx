@@ -118,7 +118,7 @@ export function LoginPage() {
       <div className="login-form-panel">
         <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', gap: 8 }}>
           <Link
-            to="/"
+            to="/area-cliente"
             style={{
               width: 36, height: 36, borderRadius: 'var(--radius-md)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -126,7 +126,7 @@ export function LoginPage() {
             }}
             onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--surface-hover)'; e.currentTarget.style.color = 'var(--fg)' }}
             onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--fg-muted)' }}
-            aria-label="Voltar para pagina inicial"
+            aria-label="Voltar para a area do cliente"
           >
             <ArrowLeft size={18} />
           </Link>

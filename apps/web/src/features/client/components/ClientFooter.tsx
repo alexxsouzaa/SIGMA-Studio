@@ -1,10 +1,6 @@
 import { Link } from 'react-router-dom'
 
-interface LandingFooterProps {
-  onScrollTo: (id: string) => void
-}
-
-export default function LandingFooter({ onScrollTo }: LandingFooterProps) {
+export default function ClientFooter() {
   return (
     <footer className="landing-footer">
       <div className="landing-footer-inner">
@@ -14,48 +10,44 @@ export default function LandingFooter({ onScrollTo }: LandingFooterProps) {
             <img className="theme-logo-light" src={`${import.meta.env.BASE_URL}logo-dark.png`} alt="SIGMA Studio" style={{ height: 13, width: 'auto' }} />
           </div>
           <div className="landing-footer-desc">
-            Plataforma de monitoramento industrial com IA para engenheiros e operadores de
-            planta.
+            Plataforma de monitoramento industrial com IA para engenheiros e
+            operadores de planta.
           </div>
         </div>
         <div className="landing-footer-col">
           <div className="landing-footer-heading">Produto</div>
-          <button
-            type="button"
-            className="landing-footer-link"
-            onClick={() => onScrollTo('solucao')}
-          >
-            Solu&ccedil;&atilde;o
-          </button>
-          <button
-            type="button"
-            className="landing-footer-link"
-            onClick={() => onScrollTo('planos')}
-          >
-            Planos
-          </button>
           <Link to="/app" className="landing-footer-link">
             Dashboard
+          </Link>
+          <Link to="/app/telemetry" className="landing-footer-link">
+            Telemetria
+          </Link>
+          <Link to="/app/alarms" className="landing-footer-link">
+            Alarmes
+          </Link>
+          <Link to="/app/ia" className="landing-footer-link">
+            IA
+          </Link>
+        </div>
+        <div className="landing-footer-col">
+          <div className="landing-footer-heading">Acesso</div>
+          <Link to="/login" className="landing-footer-link">
+            Entrar
+          </Link>
+          <Link to="/register" className="landing-footer-link">
+            Criar conta
           </Link>
           <Link to="/area-cliente" className="landing-footer-link">
             &Aacute;rea do cliente
           </Link>
-          <span className="landing-footer-link-static">Dispositivos</span>
-        </div>
-        <div className="landing-footer-col">
-          <div className="landing-footer-heading">Empresa</div>
-          <span className="landing-footer-link-static">Sobre</span>
-          <span className="landing-footer-link-static">Blog</span>
-          <span className="landing-footer-link-static">Contato</span>
-          <span className="landing-footer-link-static">Carreiras</span>
         </div>
         <div className="landing-footer-col">
           <div className="landing-footer-heading">Suporte</div>
           <Link to="/app" className="landing-footer-link">
             Documenta&ccedil;&atilde;o
           </Link>
-          <span className="landing-footer-link-static">API</span>
-          <span className="landing-footer-link-static">Status</span>
+          <span className="landing-footer-link-static">Central de ajuda</span>
+          <span className="landing-footer-link-static">Status da plataforma</span>
           <span className="landing-footer-link-static">Privacidade</span>
         </div>
       </div>

@@ -47,6 +47,9 @@ export default function LandingNav({ onScrollTo }: LandingNavProps) {
           >
             Contato
           </button>
+          <Link to="/area-cliente" className="landing-nav-link">
+            &Aacute;rea do cliente
+          </Link>
           <Link to="/app" className="landing-nav-cta">
             Testar gr&aacute;tis
           </Link>

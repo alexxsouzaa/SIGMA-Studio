@@ -2,7 +2,7 @@
 
 > **SIGMA Engineering Framework (SEF)** — Plataforma web de monitoramento de condição industrial (Condition Monitoring).
 
-![Version](https://img.shields.io/badge/version-0.9.1-FortifiedCore?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.10.0-ClientPortal?style=flat-square)
 
 A plataforma SIGMA monitora ativos industriais em tempo real: conecta gateways por múltiplos protocolos (MQTT, OPC-UA, Modbus TCP, BLE), processa telemetria, dispara alarmes, e executa inferência TinyML na borda para manutenção preditiva.
 
@@ -12,7 +12,7 @@ A plataforma SIGMA monitora ativos industriais em tempo real: conecta gateways p
 
 | Camada | Tecnologia |
 |---|---|
-| **Frontend** | Vite 8 · React 19 · TypeScript 6 · react-router-dom 7 · Tailwind CSS 4 · Zustand 5 · RHF + Zod · lucide-react |
+| **Frontend** | Vite 8 · React 19 · TypeScript 6 · react-router-dom 7 · Zustand 5 · RHF + Zod · lucide-react · CSS custom (design system próprio) |
 | **Backend** | Python ≥3.13 · FastAPI · SQLAlchemy 2 · Alembic · Paho MQTT · PySerial |
 | **Banco** | SQLite (aiosqlite) via SQLAlchemy async |
 | **Auth** | JWT (python-jose) · bcrypt · OAuth2 Google · RBAC |
@@ -59,7 +59,7 @@ src/
 ├── components/shared/   # UI compartilhada (StatusStates, modais, toasts...)
 ├── features/            # Feature-based: auth, dashboard, devices, alarms,
 │                        #   telemetry, gateways, firmware, ia, logs, search,
-│                        #   users, profile, settings, landing, errors
+│                        #   users, profile, settings, landing, client, errors
 ├── lib/                 # hooks (useApi), API client, toastStore
 ├── stores/              # Zustand (auth, theme...)
 └── types/               # Tipos compartilhados
@@ -86,7 +86,7 @@ uvicorn app.main:app --reload --port 8000
 ```
 
 - Docs interativas: `http://localhost:8000/docs`
-- Usuário padrão: `admin` / `admin123` (criado no startup)
+- Usuário padrão: `admin` — senha definida via `SIGMA_ADMIN_PASSWORD` no `.env` do backend (sem senha pública)
 
 ### Frontend
 
@@ -126,6 +126,7 @@ O frontend aponta para a API relativa via `import.meta.env.BASE_URL`. Para servi
 - **Usuários & RBAC** — roles (admin, engineer, technician, operator, visitor) com permissões por feature
 - **Multi-tenant** — organizações com isolamento de dados
 - **Auth** — JWT + Google OAuth2
+- **Área do cliente** — portal de acesso (`/area-cliente`) com login e criação de conta para clientes existentes
 - **Busca global** — pesquisa em dispositivos, alarmes, gateways e usuários
 - **Tema** — claro/escuro persistente
 

@@ -4,6 +4,7 @@ import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { RegisterPage } from '@/features/auth/pages/RegisterPage'
 import { GoogleCallbackPage } from '@/features/auth/pages/GoogleCallbackPage'
 import LandingPage from '@/features/landing/pages/LandingPage'
+import ClientAreaPage from '@/features/client/pages/ClientAreaPage'
 import { Sidebar, Topbar } from '@/features/dashboard/components/layout/AppShell'
 import { useAuthStore } from '@/stores/authStore'
 import { useThemeStore } from '@/stores/themeStore'
@@ -88,6 +89,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/area-cliente" element={<ClientAreaPage />} />
         <Route
           path="/login"
           element={

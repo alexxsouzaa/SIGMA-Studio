@@ -8,6 +8,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Unreleased]
 
+## [0.10.0] — ClientPortal
+
+### Added
+- **Área do Cliente** — nova página pública `/area-cliente`, separada da landing de vendas:
+  - Hero "Bem-vindo à Área do Cliente" com dois cards de acesso: **Já sou cliente** (→ `/login` + "Continuar com Google") e **Novo cliente** (→ `/register`).
+  - Se o usuário já estiver autenticado, mostra banner "Você já está conectado" com atalho "Ir para o painel" (`/app`).
+  - Seções "O que você acessa" (telemetria, alarmes, dispositivos, IA) e "Precisa de ajuda?" (documentação, suporte, status).
+  - `ClientNav` e `ClientFooter` próprios da área do cliente, seguindo o design system (CSS `client-*` em `src/index.css`, classe `body.client-page` para scroll).
+- Link "Área do cliente" na `LandingNav` e no rodapé da landing; seta de voltar do `LoginPage` aponta para `/area-cliente`.
+
+### Changed
+- Documentação: stack do frontend corrigida (CSS custom no lugar de Tailwind), senha padrão do admin via `SIGMA_ADMIN_PASSWORD`, feature `client` e rota pública adicionadas ao README/ARCHITECTURE.
+
 ## [0.9.1] — FortifiedCore
 
 ### Security

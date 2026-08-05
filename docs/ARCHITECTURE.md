@@ -78,7 +78,7 @@ O `mqtt/manager` mantém um contador de mensagens exposto via `get_message_rate(
 
 ### Stack
 
-Vite 8 · React 19 · TypeScript 6 · Tailwind CSS 4 · Zustand 5 · React Hook Form + Zod · react-router-dom 7 · lucide-react · oxlint
+Vite 8 · React 19 · TypeScript 6 · Zustand 5 · React Hook Form + Zod · react-router-dom 7 · lucide-react · CSS custom (design system próprio) · oxlint
 
 ### Organização feature-based
 
@@ -91,7 +91,9 @@ src/
 └── types/
 ```
 
-Features: `auth`, `dashboard`, `devices`, `alarms`, `telemetry`, `gateways`, `firmware`, `ia`, `logs`, `search`, `users`, `profile`, `settings`, `landing`, `errors`.
+Features: `auth`, `dashboard`, `devices`, `alarms`, `telemetry`, `gateways`, `firmware`, `ia`, `logs`, `search`, `users`, `profile`, `settings`, `landing`, `client`, `errors`.
+
+Páginas públicas: `/` (landing de vendas), `/area-cliente` (portal de acesso com login/criação de conta), `/login`, `/register`, `/google/callback`.
 
 ### Padrões
 
