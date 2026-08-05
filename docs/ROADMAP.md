@@ -59,6 +59,19 @@ Endurecimento de segurança e eliminação dos últimos dados fabricados (curvas
 - [x] **Frontend honesto**: `TelemetryPage`, `TelemetryChart` (dashboard) e painel de detalhes do dispositivo consomem o WS com token e mostram empty states; curva sintética removida; exportar CSV real; `liveAlerts.ts` sem reconexão em `4401`.
 - [x] Testes: backend 21 (4 novos de `RealtimeService`), frontend 19, build e lint limpos.
 
+## Fase 7 — Ingestão de telemetria real ✅
+
+Eliminação dos últimos dados fabricados e abertura do pipeline para dados reais.
+
+- [x] Removido `apps/backend/scripts/seed_devices.py` (sem mais dados de demonstração)
+- [x] Banco local limpo: devices/samples/alerts/logs do seed apagados; auth preservada (users, roles, organizations, members)
+- [x] `POST /api/v1/telemetry` — ingestão HTTP autenticada (permissão `telemetry` + escopo multi-tenant), 201/403/404
+- [x] `MqttManager` com wildcard de tópicos (`+`/`#`) e dispatch assíncrono de callbacks
+- [x] Handler MQTT `sigma/+/telemetry` registrado no startup (`app/mqtt/telemetry_handler.py`)
+- [x] `TelemetryService` persistindo `samples` (resolução por serial ou device_id, escopo por organização)
+- [x] Label fabricado "PLC-07" removido do `TelemetryChart`
+- [x] Testes: service, schema, matching de tópicos e endpoint HTTP (58 no total)
+
 ## Além do roadmap
 
 - Docker + deploy

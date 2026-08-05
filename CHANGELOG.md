@@ -8,6 +8,19 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Unreleased]
 
+## [0.11.0] — TelemetryIngest
+
+### Added
+- **Pipeline de ingestão de telemetria real** — os dados do banco deixam de ser fabricados e passam a chegar por dois caminhos:
+  - **HTTP** — novo `POST /api/v1/telemetry` (contrato `TelemetrySampleCreate` em `app/schemas/telemetry.py`), protegido por `require_permission("telemetry")` + `org_scope`; retorna `201` com a amostra persistida, `403` sem permissão/escopo e `404` para dispositivo inexistente.
+  - **MQTT** — `MqttManager` agora aceita wildcards de tópico (`+` e `#`) e despacha callbacks assíncronos via `asyncio.run_coroutine_threadsafe`; o startup registra o handler `sigma/+/telemetry` (`app/mqtt/telemetry_handler.py`), que mapeia aliases de campo (`temp`, `vib_x`, `rms_g`, `timestamp`) e persiste a amostra.
+- **`TelemetryService`** (`app/services/telemetry_service.py`): resolução de dispositivo por `serial_number` **ou** `device_id`, com filtro opcional de escopo multi-tenant (`organization_ids`); `ingest_for_device` grava na tabela `samples`.
+- **Testes**: `tests/test_telemetry_ingest.py` (service + schema + matching de tópicos) e casos HTTP em `tests/test_security_rbac.py` (401/403/404/201). **58 no total.**
+
+### Changed
+- `apps/backend/scripts/seed_devices.py` **removido** — não existem mais dados de demonstração; o banco local foi limpo (devices/samples/alerts/logs do seed), preservando auth (users, roles, organizations, members).
+- Frontend: label fabricado "Sensor de temperatura · Linha 3 · PLC-07" removido do `TelemetryChart`.
+
 ## [0.10.1] — LoginFix
 
 ### Fixed

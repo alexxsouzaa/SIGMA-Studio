@@ -209,6 +209,46 @@ async def test_login_rate_limited(client, seed_db):
     assert statuses[-1] == 429
 
 
+async def test_telemetry_ingest_requires_auth(client):
+    response = await client.post(
+        "/api/v1/telemetry", json={"serial_number": "SN-A1", "temperature": 30}
+    )
+    assert response.status_code == 401
+
+
+async def test_telemetry_ingest_requires_permission(client, seed_db):
+    token = seed_db["engineer_token"]
+    response = await client.post(
+        "/api/v1/telemetry",
+        headers=_auth(token),
+        json={"serial_number": "SN-A1", "temperature": 30},
+    )
+    assert response.status_code == 403
+
+
+async def test_telemetry_ingest_persists_sample(client, seed_db):
+    token = seed_db["admin_token"]
+    response = await client.post(
+        "/api/v1/telemetry",
+        headers=_auth(token),
+        json={"serial_number": "SN-A1", "temperature": 71.5, "rms": 0.42},
+    )
+    assert response.status_code == 201
+    data = response.json()["data"]
+    assert data["temperature"] == 71.5
+    assert data["rms"] == 0.42
+
+
+async def test_telemetry_ingest_unknown_device(client, seed_db):
+    token = seed_db["admin_token"]
+    response = await client.post(
+        "/api/v1/telemetry",
+        headers=_auth(token),
+        json={"serial_number": "SN-UNKNOWN", "temperature": 30},
+    )
+    assert response.status_code == 404
+
+
 async def _foreign_device_id(org_b_id: int) -> int:
     async with _TestSession() as s:
         result = await s.execute(

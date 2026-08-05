@@ -51,8 +51,6 @@ app.state.mqtt_manager = MqttManager(
     port=settings.mqtt_port,
     topic_prefix=settings.mqtt_topic_prefix,
 )
-
-
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     return JSONResponse(
@@ -80,6 +78,11 @@ app.include_router(router, prefix="/api/v1")
 @app.on_event("startup")
 async def startup():
     await app.state.mqtt_manager.connect()
+    from app.mqtt.telemetry_handler import ingest_mqtt_telemetry
+
+    app.state.mqtt_manager.on_message(
+        f"{settings.mqtt_topic_prefix}/+/telemetry", ingest_mqtt_telemetry
+    )
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         try:

@@ -29,8 +29,9 @@ Entregar uma plataforma web de monitoramento de condição industrial (Condition
 - [x] Tema claro/escuro persistente
 
 ### P1 — Alta (próxima release)
-- [ ] Mensagens/min reais (ligar MQTT manager ao startup do app)
-- [ ] Conjunto de testes automatizados (backend + frontend)
+- [x] Mensagens/min reais (MQTT manager ligado ao startup)
+- [x] Ingestão de telemetria real (HTTP `POST /api/v1/telemetry` + MQTT `sigma/+/telemetry`)
+- [x] Conjunto de testes automatizados (backend + frontend)
 - [ ] CI com build, lint e testes
 
 ### P2 — Média

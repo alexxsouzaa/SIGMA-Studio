@@ -179,7 +179,7 @@ export function TelemetryChart() {
         <div>
           <div className="widget-title"><Activity />Telemetria — Últimas 24h</div>
           <div className="widget-subtitle">
-            Sensor de temperatura · Linha 3 · PLC-07
+            Dados dos dispositivos conectados
             <span
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5,

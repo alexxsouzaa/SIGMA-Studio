@@ -4,6 +4,11 @@ from app.schemas.organization import OrganizationCreate, OrganizationUpdate, Org
 from app.schemas.site import SiteCreate, SiteUpdate, SiteResponse
 from app.schemas.project import ProjectCreate, ProjectUpdate, ProjectResponse
 from app.schemas.member import MemberResponse
+from app.schemas.telemetry import (
+    TelemetrySampleCreate,
+    TelemetrySampleResponse,
+    TelemetryIngestOk,
+)
 
 __all__ = [
     "StandardResponse",
@@ -22,4 +27,7 @@ __all__ = [
     "ProjectUpdate",
     "ProjectResponse",
     "MemberResponse",
+    "TelemetrySampleCreate",
+    "TelemetrySampleResponse",
+    "TelemetryIngestOk",
 ]

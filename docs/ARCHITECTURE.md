@@ -64,13 +64,26 @@ A plataforma é **web-first**: o frontend é uma SPA React que conversa com a AP
 - **Auth** — JWT + Google OAuth2 + RBAC por permissões por feature.
 - **Multi-tenant** — organizações isolam dados por `organization_id` (org padrão do usuário autenticado).
 
-### Fluxo de telemetria (alvo)
+### Fluxo de telemetria
 
 ```
-Firmware ──Serial──▶ Gateway ──MQTT──▶ mqtt/manager ──▶ Analytics ──▶ Dashboard/WebSocket
+Firmware ──MQTT──▶ mqtt/manager ──▶ mqtt/telemetry_handler ─┐
+                                                            ▼
+                    ┌──────────────────────────────┐   TelemetryService
+POST /api/v1/telemetry ──▶ schemas/telemetry.py ──▶│   resolve_device +    │
+                                                    │   ingest_for_device   │
+                                                    └───────────┬──────────┘
+                                                                ▼
+                                                           samples (SQLite)
+                                                                │
+                                                                ▼
+                                           WebSocket /ws/telemetry → Dashboard
 ```
 
-O `mqtt/manager` mantém um contador de mensagens exposto via `get_message_rate()` para o KPI de mensagens/min do dashboard.
+- **MQTT**: `MqttManager` (Paho) aceita wildcards de tópico (`+` e `#`) e despacha callbacks assíncronos. O startup registra o handler `sigma/{serial}/telemetry` (prefixo configurável via `SIGMA_MQTT_TOPIC_PREFIX`), que converte o payload (com aliases de campo como `temp`, `vib_x`, `rms_g`) em `TelemetrySampleCreate` e persiste via `TelemetryService`.
+- **HTTP**: `POST /api/v1/telemetry` recebe o mesmo contrato (`TelemetrySampleCreate`), protegido por `require_permission("telemetry")` e escopo multi-tenant (`org_scope`).
+- **`TelemetryService`** (`app/services/telemetry_service.py`) resolve o dispositivo por `serial_number` **ou** `device_id`, respeitando o escopo da organização, e grava na tabela `samples`.
+- O contador de mensagens do `MqttManager` continua exposto via `get_message_rate()` para o KPI de mensagens/min do dashboard.
 
 ---
 
