@@ -8,10 +8,15 @@ class GatewayService:
         self._repository = repository
 
     async def list_gateways(
-        self, skip: int = 0, limit: int = 100
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        organization_ids: set[int] | None = None,
     ) -> tuple[list[Gateway], int]:
-        gateways = await self._repository.list_all(skip=skip, limit=limit)
-        total = await self._repository.count()
+        gateways = await self._repository.list_all(
+            skip=skip, limit=limit, organization_ids=organization_ids
+        )
+        total = await self._repository.count(organization_ids=organization_ids)
         return gateways, total
 
     async def get_gateway(self, gateway_id: int) -> Gateway | None:

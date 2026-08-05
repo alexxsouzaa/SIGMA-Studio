@@ -123,8 +123,7 @@ export function TelemetryChart() {
 
   useEffect(() => {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const token = localStorage.getItem('access_token') ?? ''
-    const url = `${proto}//${window.location.host}${import.meta.env.BASE_URL}api/v1/ws/telemetry?token=${encodeURIComponent(token)}`
+    const url = `${proto}//${window.location.host}${import.meta.env.BASE_URL}api/v1/ws/telemetry`
     let ws: WebSocket | null = null
     let retry: ReturnType<typeof setTimeout> | undefined
 

@@ -35,6 +35,10 @@ class SiteService:
             raise HTTPException(status_code=404, detail="Site not found")
         return site
 
+    async def get_site_organization_id(self, site_id: int) -> int | None:
+        site = await self._session.get(Site, site_id)
+        return site.organization_id if site else None
+
     async def create_site(self, org_id: int, data: SiteCreate):
         site = Site(
             organization_id=org_id,

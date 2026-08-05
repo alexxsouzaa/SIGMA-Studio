@@ -41,9 +41,8 @@ export default function TelemetryPage() {
   useEffect(() => {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
     const base = import.meta.env.BASE_URL || '/'
-    const token = localStorage.getItem('access_token') ?? ''
-    const deviceParam = selectedDevice ? `&device_id=${encodeURIComponent(selectedDevice)}` : ''
-    const url = `${proto}//${window.location.host}${base}api/v1/ws/telemetry?token=${encodeURIComponent(token)}${deviceParam}`
+    const deviceParam = selectedDevice ? `?device_id=${encodeURIComponent(selectedDevice)}` : ''
+    const url = `${proto}//${window.location.host}${base}api/v1/ws/telemetry${deviceParam}`
     let retry: ReturnType<typeof setTimeout> | undefined
 
     function connect() {

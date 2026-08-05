@@ -8,10 +8,16 @@ class DeviceRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def list_all(self, skip: int = 0, limit: int = 100) -> list[Device]:
-        result = await self._session.execute(
-            select(Device).offset(skip).limit(limit)
-        )
+    async def list_all(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        organization_ids: set[int] | None = None,
+    ) -> list[Device]:
+        query = select(Device)
+        if organization_ids is not None:
+            query = query.where(Device.organization_id.in_(organization_ids))
+        result = await self._session.execute(query.offset(skip).limit(limit))
         return list(result.scalars().all())
 
     async def get_by_id(self, device_id: int) -> Device | None:
@@ -26,8 +32,11 @@ class DeviceRepository:
         )
         return result.scalar_one_or_none()
 
-    async def count(self) -> int:
-        result = await self._session.execute(select(func.count(Device.id)))
+    async def count(self, organization_ids: set[int] | None = None) -> int:
+        query = select(func.count(Device.id))
+        if organization_ids is not None:
+            query = query.where(Device.organization_id.in_(organization_ids))
+        result = await self._session.execute(query)
         return result.scalar() or 0
 
     async def create(self, device: Device) -> Device:

@@ -1,17 +1,23 @@
+import logging
 from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.config.settings import settings
 from app.api.router import router
+from app.api.rate_limit import limiter
 from app.database.session import engine, async_session, Base
 from app.websocket.manager import websocket_manager
 from app.mqtt.manager import MqttManager
 from sqlalchemy import select
 
-from app.utils.auth import hash_password
+from app.utils.auth import hash_password, verify_password
+
+logger = logging.getLogger(__name__)
 
 _PROJECT_ROOT = Path(__file__).resolve().parents[3]
 _API_VERSION = _PROJECT_ROOT.joinpath("VERSION").read_text(encoding="utf-8").strip()
@@ -21,6 +27,24 @@ app = FastAPI(
     version=_API_VERSION,
     description="Industrial Condition Monitoring Platform",
 )
+
+
+def _rate_limit_exceeded_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=429,
+        content={
+            "success": False,
+            "error": {"code": "RATE_LIMITED", "message": "Too many requests. Try again later."},
+            "timestamp": "",
+            "request_id": "",
+        },
+    )
+
+
+app.state.limiter = limiter
+app.add_middleware(SlowAPIMiddleware)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 
 app.state.mqtt_manager = MqttManager(
     broker=settings.mqtt_broker,
@@ -131,6 +155,16 @@ async def startup():
             select(User).where(User.username == "admin")
         )
         admin_user = existing_admin.scalar_one_or_none()
+        if admin_user:
+            legacy = admin_user.password_hash and verify_password(
+                "admin123", admin_user.password_hash
+            )
+            if legacy:
+                admin_user.password_hash = hash_password(settings.admin_password)
+                await session.commit()
+                logger.warning(
+                    "Senha padrao do admin foi substituida pela definida em SIGMA_ADMIN_PASSWORD."
+                )
         if not admin_user:
             admin_user = User(
                 username="admin",

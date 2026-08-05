@@ -8,10 +8,16 @@ class GatewayRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def list_all(self, skip: int = 0, limit: int = 100) -> list[Gateway]:
-        result = await self._session.execute(
-            select(Gateway).order_by(Gateway.id).offset(skip).limit(limit)
-        )
+    async def list_all(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        organization_ids: set[int] | None = None,
+    ) -> list[Gateway]:
+        query = select(Gateway)
+        if organization_ids is not None:
+            query = query.where(Gateway.organization_id.in_(organization_ids))
+        result = await self._session.execute(query.order_by(Gateway.id).offset(skip).limit(limit))
         return list(result.scalars().all())
 
     async def get_by_id(self, gateway_id: int) -> Gateway | None:
@@ -20,8 +26,11 @@ class GatewayRepository:
         )
         return result.scalar_one_or_none()
 
-    async def count(self) -> int:
-        result = await self._session.execute(select(func.count(Gateway.id)))
+    async def count(self, organization_ids: set[int] | None = None) -> int:
+        query = select(func.count(Gateway.id))
+        if organization_ids is not None:
+            query = query.where(Gateway.organization_id.in_(organization_ids))
+        result = await self._session.execute(query)
         return result.scalar() or 0
 
     async def create(self, gateway: Gateway) -> Gateway:

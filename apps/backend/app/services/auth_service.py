@@ -1,9 +1,10 @@
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 import json
 
+from app.config.settings import settings
 from app.database.session import get_session
 from app.models.user import User
 from app.models.role import Role
@@ -185,14 +186,31 @@ class AuthService:
         return user
 
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
+
+ACCESS_COOKIE = "access_token"
+REFRESH_COOKIE = "refresh_token"
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    request: Request = None,
     session: AsyncSession = Depends(get_session),
 ):
-    payload = decode_token(credentials.credentials)
+    raw_token: str | None = None
+    if credentials:
+        raw_token = credentials.credentials
+    elif request:
+        raw_token = request.cookies.get(ACCESS_COOKIE)
+
+    if not raw_token:
+        raise HTTPException(
+            status_code=401,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    payload = decode_token(raw_token)
     if not payload or payload.get("type") != "access":
         raise HTTPException(status_code=401, detail="Invalid token")
     user_id = int(payload["sub"])

@@ -81,10 +81,8 @@ export default function App() {
   const { checkAuth } = useAuthStore()
 
   useEffect(() => {
-    if (localStorage.getItem('access_token')) {
-      checkAuth()
-    }
-  }, [])
+    checkAuth()
+  }, [checkAuth])
 
   return (
     <BrowserRouter>

@@ -2,7 +2,7 @@
 
 > **SIGMA Engineering Framework (SEF)** — Plataforma web de monitoramento de condição industrial (Condition Monitoring).
 
-![Version](https://img.shields.io/badge/version-0.9.0-RealData?style=flat-square)
+![Version](https://img.shields.io/badge/version-0.9.1-FortifiedCore?style=flat-square)
 
 A plataforma SIGMA monitora ativos industriais em tempo real: conecta gateways por múltiplos protocolos (MQTT, OPC-UA, Modbus TCP, BLE), processa telemetria, dispara alarmes, e executa inferência TinyML na borda para manutenção preditiva.
 

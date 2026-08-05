@@ -11,24 +11,44 @@ class DashboardService:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def get_summary(self, messages_per_minute: int = 0) -> dict:
+    async def get_summary(
+        self,
+        messages_per_minute: int = 0,
+        organization_ids: set[int] | None = None,
+    ) -> dict:
+        device_where = []
+        if organization_ids is not None:
+            device_where = [Device.organization_id.in_(organization_ids)]
+        active_device_where = list(device_where) + [Device.active == True]
+        inactive_device_where = list(device_where) + [Device.active == False]
         total_devices = await self._session.scalar(
-            select(func.count(Device.id))
+            select(func.count(Device.id)).where(*device_where) if device_where
+            else select(func.count(Device.id))
         )
         active_devices = await self._session.scalar(
-            select(func.count(Device.id)).where(Device.active == True)
+            select(func.count(Device.id)).where(*active_device_where)
         )
         inactive_devices = await self._session.scalar(
-            select(func.count(Device.id)).where(Device.active == False)
+            select(func.count(Device.id)).where(*inactive_device_where)
         )
         total_alerts = await self._session.scalar(
-            select(func.count(Alert.id))
+            select(func.count(Alert.id)).join(Device, Device.id == Alert.device_id).where(*device_where)
+            if device_where
+            else select(func.count(Alert.id))
         )
         active_alerts = await self._session.scalar(
-            select(func.count(Alert.id)).where(Alert.acknowledged == False)
+            select(func.count(Alert.id))
+            .join(Device, Device.id == Alert.device_id)
+            .where(*device_where, Alert.acknowledged == False)
+            if device_where
+            else select(func.count(Alert.id)).where(Alert.acknowledged == False)
         )
         critical_alerts = await self._session.scalar(
-            select(func.count(Alert.id)).where(
+            select(func.count(Alert.id))
+            .join(Device, Device.id == Alert.device_id)
+            .where(*device_where, Alert.level == "critical", Alert.acknowledged == False)
+            if device_where
+            else select(func.count(Alert.id)).where(
                 Alert.level == "critical", Alert.acknowledged == False
             )
         )
@@ -43,8 +63,8 @@ class DashboardService:
             "messages_per_minute": messages_per_minute,
         }
 
-    async def get_protocols(self) -> list[dict]:
-        result = await self._session.execute(
+    async def get_protocols(self, organization_ids: set[int] | None = None) -> list[dict]:
+        query = (
             select(
                 Gateway.protocol,
                 func.count(Gateway.id).label("gateway_count"),
@@ -53,6 +73,9 @@ class DashboardService:
             .group_by(Gateway.protocol)
             .order_by(func.sum(Gateway.devices_count).desc())
         )
+        if organization_ids is not None:
+            query = query.where(Gateway.organization_id.in_(organization_ids))
+        result = await self._session.execute(query)
         rows = result.all()
         total_devices = sum(r.device_count for r in rows) or 1
         return [
@@ -65,11 +88,16 @@ class DashboardService:
             for r in rows
         ]
 
-    async def get_gateway_summary(self, limit: int = 4) -> list[dict]:
+    async def get_gateway_summary(
+        self,
+        limit: int = 4,
+        organization_ids: set[int] | None = None,
+    ) -> list[dict]:
+        query = select(Gateway)
+        if organization_ids is not None:
+            query = query.where(Gateway.organization_id.in_(organization_ids))
         result = await self._session.execute(
-            select(Gateway)
-            .order_by(Gateway.updated_at.desc())
-            .limit(limit)
+            query.order_by(Gateway.updated_at.desc()).limit(limit)
         )
         gateways = list(result.scalars().all())
         return [

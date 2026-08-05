@@ -5,7 +5,7 @@ from app.database.session import get_session
 from app.schemas.alert import AlertResponse
 from app.schemas.common import StandardResponse
 from app.services.alert_service import AlertService
-from app.services.auth_service import get_current_user
+from app.api.deps import require_permission, org_scope, can_access_org
 from app.models.user import User
 
 router = APIRouter()
@@ -18,11 +18,16 @@ async def list_alerts(
     level: str | None = None,
     device_id: int | None = None,
     session: AsyncSession = Depends(get_session),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("alarms")),
+    scope: set[int] | None = Depends(org_scope),
 ):
     service = AlertService(session)
     alerts, total = await service.list_alerts(
-        skip=skip, limit=limit, level=level, device_id=device_id
+        skip=skip,
+        limit=limit,
+        level=level,
+        device_id=device_id,
+        organization_ids=scope,
     )
     return StandardResponse(
         data=[AlertResponse.model_validate(a) for a in alerts],
@@ -33,10 +38,11 @@ async def list_alerts(
 @router.post("/acknowledge-all")
 async def acknowledge_all_alerts(
     session: AsyncSession = Depends(get_session),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("alarms")),
+    scope: set[int] | None = Depends(org_scope),
 ):
     service = AlertService(session)
-    count = await service.acknowledge_all()
+    count = await service.acknowledge_all(organization_ids=scope)
     return StandardResponse(
         data={"acknowledged": count},
         message=f"{count} alerts acknowledged",
@@ -47,12 +53,16 @@ async def acknowledge_all_alerts(
 async def acknowledge_alert(
     alert_id: int,
     session: AsyncSession = Depends(get_session),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("alarms")),
+    scope: set[int] | None = Depends(org_scope),
 ):
     service = AlertService(session)
-    alert = await service.acknowledge(alert_id)
-    if not alert:
+    org_id = await service.get_alert_organization_id(alert_id)
+    if org_id is None:
         raise HTTPException(status_code=404, detail="Alert not found")
+    if not can_access_org(scope, org_id):
+        raise HTTPException(status_code=403, detail="Access denied")
+    alert = await service.acknowledge(alert_id)
     return StandardResponse(
         data=AlertResponse.model_validate(alert),
         message="Alert acknowledged",

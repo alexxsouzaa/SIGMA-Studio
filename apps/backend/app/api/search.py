@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy import select, or_, func
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.session import get_session
-from app.services.auth_service import get_current_user
+from app.api.deps import require_permission, org_scope
 from app.models.user import User
 from app.models.device import Device
 from app.models.alert import Alert
@@ -18,7 +18,8 @@ async def search(
     category: str | None = None,
     limit: int = 20,
     session: AsyncSession = Depends(get_session),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("search")),
+    scope: set[int] | None = Depends(org_scope),
 ):
     term = f"%{q.strip()}%"
     results: list[dict] = []
@@ -27,18 +28,17 @@ async def search(
     search_alerts = category is None or category == "alarms"
 
     if q.strip() and search_devices:
-        query = (
-            select(Device)
-            .where(
-                or_(
-                    Device.name.ilike(term),
-                    Device.serial_number.ilike(term),
-                    Device.firmware_version.ilike(term),
-                    Device.location.ilike(term),
-                )
+        query = select(Device)
+        if scope is not None:
+            query = query.where(Device.organization_id.in_(scope))
+        query = query.where(
+            or_(
+                Device.name.ilike(term),
+                Device.serial_number.ilike(term),
+                Device.firmware_version.ilike(term),
+                Device.location.ilike(term),
             )
-            .limit(limit)
-        )
+        ).limit(limit)
         devices = (await session.execute(query)).scalars().all()
         for d in devices:
             results.append(
@@ -60,16 +60,16 @@ async def search(
         query = (
             select(Alert, Device)
             .join(Device, Device.id == Alert.device_id)
-            .where(
-                or_(
-                    Alert.alarm_type.ilike(term),
-                    Device.name.ilike(term),
-                    Device.serial_number.ilike(term),
-                )
-            )
-            .order_by(Alert.created_at.desc())
-            .limit(limit)
         )
+        if scope is not None:
+            query = query.where(Device.organization_id.in_(scope))
+        query = query.where(
+            or_(
+                Alert.alarm_type.ilike(term),
+                Device.name.ilike(term),
+                Device.serial_number.ilike(term),
+            )
+        ).order_by(Alert.created_at.desc()).limit(limit)
         rows = (await session.execute(query)).all()
         for alert, device in rows:
             level_tag = {

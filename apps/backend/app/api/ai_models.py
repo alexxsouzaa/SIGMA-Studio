@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from app.repositories.ai_model_repository import AIModelRepository
 from app.services.ai_model_service import AIModelService
-from app.services.auth_service import get_current_user
+from app.api.deps import require_permission
 from app.schemas.ai_model import AIModelCreate, AIModelUpdate, AIModelResponse
 from app.schemas.common import StandardResponse
 from app.models.user import User
@@ -22,7 +22,7 @@ async def list_models(
     skip: int = 0,
     limit: int = 100,
     service: AIModelService = Depends(get_ai_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("ia")),
 ):
     models, total = await service.list_models(skip=skip, limit=limit)
     return StandardResponse(
@@ -35,7 +35,7 @@ async def list_models(
 async def get_model(
     model_id: int,
     service: AIModelService = Depends(get_ai_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("ia")),
 ):
     model = await service.get_model(model_id)
     if not model:
@@ -50,7 +50,7 @@ async def get_model(
 async def create_model(
     data: AIModelCreate,
     service: AIModelService = Depends(get_ai_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("ia")),
 ):
     model = await service.create_model(data)
     return StandardResponse(
@@ -64,7 +64,7 @@ async def update_model(
     model_id: int,
     data: AIModelUpdate,
     service: AIModelService = Depends(get_ai_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("ia")),
 ):
     model = await service.update_model(model_id, data)
     if not model:
@@ -79,7 +79,7 @@ async def update_model(
 async def deploy_model(
     model_id: int,
     service: AIModelService = Depends(get_ai_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("ia")),
 ):
     model = await service.get_model(model_id)
     if not model:
@@ -95,7 +95,7 @@ async def deploy_model(
 async def delete_model(
     model_id: int,
     service: AIModelService = Depends(get_ai_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("ia")),
 ):
     deleted = await service.delete_model(model_id)
     if not deleted:

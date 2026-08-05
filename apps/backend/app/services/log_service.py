@@ -1,7 +1,8 @@
-from sqlalchemy import select, func
+from sqlalchemy import select, func, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.log import Log
+from app.models.device import Device
 
 
 class LogService:
@@ -9,10 +10,28 @@ class LogService:
         self._session = session
 
     async def list_logs(
-        self, skip: int = 0, limit: int = 100, level: str | None = None
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        level: str | None = None,
+        organization_ids: set[int] | None = None,
     ) -> tuple[list[Log], int]:
         query = select(Log)
         count_query = select(func.count(Log.id))
+
+        if organization_ids is not None:
+            query = query.outerjoin(Device, Device.id == Log.device_id).where(
+                or_(
+                    Log.device_id.is_(None),
+                    Device.organization_id.in_(organization_ids),
+                )
+            )
+            count_query = count_query.outerjoin(Device, Device.id == Log.device_id).where(
+                or_(
+                    Log.device_id.is_(None),
+                    Device.organization_id.in_(organization_ids),
+                )
+            )
 
         if level:
             query = query.where(Log.level == level)

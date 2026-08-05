@@ -19,7 +19,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  isAuthenticated: !!localStorage.getItem('access_token'),
+  isAuthenticated: false,
   isLoading: false,
   error: null,
 
@@ -65,18 +65,11 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   checkAuth: async () => {
-    const token = localStorage.getItem('access_token')
-    if (!token) {
-      set({ user: null, isAuthenticated: false })
-      return
-    }
     set({ isLoading: true })
     try {
       const res = await getMe()
       set({ user: res.data, isAuthenticated: true, isLoading: false })
     } catch {
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
       set({ user: null, isAuthenticated: false, isLoading: false })
     }
   },
@@ -89,8 +82,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       return true
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Erro ao conectar ao servidor'
-      localStorage.removeItem('access_token')
-      localStorage.removeItem('refresh_token')
       set({ user: null, isAuthenticated: false, isLoading: false, error: message })
       return false
     }

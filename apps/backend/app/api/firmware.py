@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.session import get_session
 from app.repositories.firmware_repository import FirmwareRepository
 from app.services.firmware_service import FirmwareService
-from app.services.auth_service import get_current_user
+from app.api.deps import require_permission
 from app.schemas.firmware import (
     FirmwareCreate,
     FirmwareUpdate,
@@ -27,7 +27,7 @@ async def list_firmwares(
     skip: int = 0,
     limit: int = 100,
     service: FirmwareService = Depends(get_firmware_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("firmware")),
 ):
     firmwares, total = await service.list_firmwares(skip=skip, limit=limit)
     return StandardResponse(
@@ -39,7 +39,7 @@ async def list_firmwares(
 @router.get("/status")
 async def device_firmware_status(
     service: FirmwareService = Depends(get_firmware_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("firmware")),
 ):
     rows = await service.device_status()
     return StandardResponse(
@@ -52,7 +52,7 @@ async def device_firmware_status(
 async def create_firmware(
     data: FirmwareCreate,
     service: FirmwareService = Depends(get_firmware_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("firmware")),
 ):
     firmware = await service.create_firmware(data)
     return StandardResponse(
@@ -66,7 +66,7 @@ async def update_firmware(
     firmware_id: int,
     data: FirmwareUpdate,
     service: FirmwareService = Depends(get_firmware_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("firmware")),
 ):
     firmware = await service.update_firmware(firmware_id, data)
     if not firmware:
@@ -81,7 +81,7 @@ async def update_firmware(
 async def delete_firmware(
     firmware_id: int,
     service: FirmwareService = Depends(get_firmware_service),
-    _user: User = Depends(get_current_user),
+    _user: User = Depends(require_permission("firmware")),
 ):
     deleted = await service.delete_firmware(firmware_id)
     if not deleted:

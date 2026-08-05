@@ -11,11 +11,20 @@ class OrganizationService:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def list_organizations(self, skip: int = 0, limit: int = 100):
-        query = select(Organization).offset(skip).limit(limit).order_by(Organization.name)
+    async def list_organizations(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+        organization_ids: set[int] | None = None,
+    ):
+        query = select(Organization)
+        count_query = select(func.count()).select_from(Organization)
+        if organization_ids is not None:
+            query = query.where(Organization.id.in_(organization_ids))
+            count_query = count_query.where(Organization.id.in_(organization_ids))
+        query = query.offset(skip).limit(limit).order_by(Organization.name)
         result = await self._session.execute(query)
         orgs = result.scalars().all()
-        count_query = select(func.count()).select_from(Organization)
         count_result = await self._session.execute(count_query)
         total = count_result.scalar()
         return list(orgs), total

@@ -23,14 +23,24 @@ export function exportJSON(filename: string, data: unknown) {
   URL.revokeObjectURL(url)
 }
 
+export function escapeHTML(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
 export function exportPDF(title: string, bodyHTML: string) {
   const win = window.open('', '_blank')
   if (!win) return
+  const safeTitle = escapeHTML(title)
   win.document.write(`<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>${title}</title>
+  <title>${safeTitle}</title>
   <style>
     body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; padding: 32px; color: #18181b; }
     h1 { font-size: 20px; margin-bottom: 4px; }
@@ -42,7 +52,7 @@ export function exportPDF(title: string, bodyHTML: string) {
   </style>
 </head>
 <body>
-  <h1>${title}</h1>
+  <h1>${safeTitle}</h1>
   <div class="meta">Gerado em ${new Date().toLocaleString('pt-BR')}</div>
   ${bodyHTML}
   <div class="footer">SIGMA Studio</div>

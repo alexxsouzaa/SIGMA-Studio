@@ -3,7 +3,7 @@ import { BellRing, Download, X, AlertTriangle, Info, ChevronLeft, ChevronRight, 
 import { useApi } from '@/lib/hooks'
 import { request } from '@/lib/api'
 import { pushToast } from '@/lib/toastStore'
-import { exportCSV, exportPDF } from '@/lib/export'
+import { exportCSV, exportPDF, escapeHTML } from '@/lib/export'
 import { LoadingSpinner, ErrorState } from '@/components/shared/StatusStates'
 
 interface Alert {
@@ -89,7 +89,7 @@ export default function AlarmsPage() {
 
   function handleExportPDF() {
     const rows = filtered
-      .map((a) => `<tr><td>${a.level}</td><td>DEV-${String(a.device_id).padStart(3, '0')}</td><td>${a.alarm_type}</td><td>${a.value ?? '—'}</td><td>${new Date(a.created_at).toLocaleString('pt-BR')}</td></tr>`)
+      .map((a) => `<tr><td>${escapeHTML(a.level)}</td><td>DEV-${String(a.device_id).padStart(3, '0')}</td><td>${escapeHTML(a.alarm_type)}</td><td>${escapeHTML(a.value)}</td><td>${escapeHTML(new Date(a.created_at).toLocaleString('pt-BR'))}</td></tr>`)
       .join('')
     exportPDF(
       'Relatório de Alarmes',

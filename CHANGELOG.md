@@ -8,29 +8,31 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Unreleased]
 
+## [0.9.1] — FortifiedCore
+
+### Security
+- Remediação completa dos achados **CRITICAL** e **HIGH** da auditoria de segurança:
+  - **Segredos**: `SIGMA_JWT_SECRET` (≥ 32 chars, sem default público) e `SIGMA_ADMIN_PASSWORD` (≥ 10 chars) obrigatórios — `settings._validate_settings()` falha rápido e impede o boot com valores padrão; senha `admin123` do admin é migrada automaticamente no startup para a definida no `.env`.
+  - **RBAC no servidor**: `require_permission`/`require_admin` validam permissões reais (antes só frontend). Aplicado em devices, gateways, alerts, firmware, ai_models, logs, dashboard, search, sites, projects, organizations e users.
+  - **Isolamento multi-tenant**: `org_scope` + `can_access_org` filtram todas as rotas e WebSockets pela organização do usuário (IDOR fechado).
+  - **OAuth Google**: `state` aleatório em cookie httpOnly validado com `compare_digest`; tokens nunca mais na URL.
+  - **Rate limiting**: `slowapi` (login 10/min, register 5/min, refresh 30/min, global 120/min) com handler `429`.
+  - **Tokens em cookies httpOnly** (`samesite=lax`): login/register/refresh/Google; frontend parou de usar `localStorage` para tokens.
+  - **WebSocket autenticado por cookie** `access_token` (sem token na query string) e filtrado por escopo do usuário.
+
 ### Added
 - `POST /alerts/acknowledge-all`: confirma todos os alarmes ativos de uma vez (`AlertService.acknowledge_all`).
 - `POST /users/{user_id}/reset-password`: gera e retorna senha temporária real (admin), sem simular envio de e-mail.
 - `DELETE /logs/`: limpa todos os logs (somente admin) via `LogService.clear_logs`.
-- `app/api/deps.py`: dependência compartilhada `require_admin` (movida de `users.py`).
-- `RealtimeService` (`app/services/realtime_service.py`): consultas de polling para WebSocket (`recent_unacknowledged_alerts`, `new_alerts_since`, `new_samples_since` com filtro por `device_id`).
-- WebSocket com dados reais e autenticação JWT obrigatória via `?token=`:
-  - `/ws/telemetry`: emite samples de `Sample` (polling 2s), aceita filtro `device_id`; fecha com código `4401` se o token for inválido.
-  - `/ws/alerts`: emite snapshots de alarmes não confirmados (polling 5s); fechamento por falta de confirmação no `open` (4401).
-- Fail-fast de segredos: `settings._validate_settings()` lança `RuntimeError` se `SIGMA_JWT_SECRET`/`SIGMA_ADMIN_PASSWORD` estiverem em default sem `SIGMA_DEBUG`; `SIGMA_ADMIN_PASSWORD` documentado no `.env.example`.
-- `TelemetryPage`: telemetria real via WS (temperatura, vibração X/Y/Z, RMS), filtro por dispositivo, exportação CSV real e empty state honesto (sem curva fake).
-- `TelemetryChart` (dashboard): consome `/ws/telemetry` com token JWT, não conecta sem `access_token` e mostra empty state quando não há dados.
-- `DevicesPage` (painel de detalhes): telemetria real por `device_id` via WS; curva sintética removida.
-- `liveAlerts.ts`: envia token JWT na URL do WS e não reconecta após o código `4401`.
-- AlarmsPage: botões Confirmar e Silenciar todos conectados à API com estados de carregamento.
-- DevicesPage: modal de Adicionar/Editar (POST/PUT em `/devices/`) e Remover com confirmação (DELETE).
-- FirmwarePage: painel de Detalhes com dados reais de status do firmware.
-- LogsPage: Limpar conectado à API com confirmação em dois passos.
-- UsersPage: Redefinir senha conectado à API (exibe a senha temporária gerada).
-- Testes backend: `acknowledge_all`/`clear_logs` (4) e `RealtimeService` (4) — 21 no total.
+- `app/api/rate_limit.py`: instância compartilhada do `Limiter` (slowapi).
+- `app/api/deps.py`: `require_admin`, `require_permission(permission)`, `org_scope`, `get_user_scope`, `can_access_org`.
+- `RealtimeService` com filtro por `organization_ids` em `recent_unacknowledged_alerts`, `new_alerts_since` e `new_samples_since`.
+- WebSocket com dados reais: `/ws/telemetry` (polling 2s, filtro `device_id`) e `/ws/alerts` (polling 5s), com códigos `4401` (não autenticado) e `4403` (fora do escopo).
+- `escapeHTML` em `lib/export.ts`: exportação PDF sanitiza `title` e dados interpolados (XSS mitigado).
+- Testes backend: `test_settings_security.py` (9) e `test_security_rbac.py` (10) — cobrem 401/403, isolamento por org, rate-limit `429` e rejeição de state OAuth inválido. **39 no total.**
 
 ### Fixed
-- `main.py`: seed do admin usa `settings.admin_password` (senha hardcoded `"admin123"` removida).
+- `main.py`: seed do admin usa `settings.admin_password` (senha hardcoded `"admin123"` removida); migração automática do valor legado.
 - Botões mortos do frontend removidos ou tornados honestos (sem ações simuladas):
   - `DevicesPage` Importar e Reiniciar: desabilitados com tooltip (sem endpoint no backend).
   - `FirmwarePage` OTA: desabilitado com tooltip (sem endpoint de atualização).
@@ -41,10 +43,13 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 - `.gitignore` reescrito (env, `.pytest_cache`, logs, `.env.*` com exceção de `.env.example`).
 - `seed_devices.py`: import morto removido; confirmação interativa antes de re-semear.
 - Documentação: stack real (Zustand) e contagem de modelos corrigidas no README/ARCHITECTURE.
+- `auth_service.get_current_user`: aceita Bearer **ou** cookie `access_token` (necessário para WebSocket).
+- `exportPDF`: valores de dados (`alarm_type`, `level`, etc.) escapados antes de `document.write`.
 
 ### Changed
-- `settings.py`: `_validate_settings()` com fail-fast em modo produção (logs warning em debug).
-- WebSockets deixaram de ser anônimos: `/ws/telemetry` e `/ws/alerts` exigem `access_token` válido.
+- `settings.py`: fail-fast rigoroso (sem gating por `SIGMA_DEBUG`); `debug` passa a ser `False` por padrão.
+- WebSockets deixaram de ser anônimos e deixaram de exigir token na query string: autenticação via cookie httpOnly + escopo por organização.
+- Frontend (`api.ts`, `authStore`, `GoogleCallbackPage`, WS consumers): tokens em `localStorage` substituídos por cookies httpOnly.
 - `TelemetryPage` e `TelemetryChart` deixaram de exibir dados fabricados no cliente.
 
 ## [0.9.0] — RealData
