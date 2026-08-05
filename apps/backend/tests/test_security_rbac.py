@@ -177,6 +177,29 @@ async def test_google_callback_rejects_invalid_state(client):
     assert response.status_code == 400
 
 
+async def test_google_login_sets_state_cookie(client):
+    response = await client.get("/api/v1/auth/google/login", follow_redirects=False)
+    assert response.status_code == 307
+    set_cookie = response.headers.get("set-cookie", "")
+    assert "oauth_state=" in set_cookie
+    assert "HttpOnly" in set_cookie
+
+
+async def test_login_by_email(client, seed_db):
+    response = await client.post(
+        "/api/v1/auth/login", json={"username": "eng@x.io", "password": "eng-pass-123"}
+    )
+    assert response.status_code == 200
+    assert response.json()["data"]["access_token"]
+
+
+async def test_login_rejects_wrong_password(client, seed_db):
+    response = await client.post(
+        "/api/v1/auth/login", json={"username": "engineer", "password": "wrong-pass"}
+    )
+    assert response.status_code == 401
+
+
 async def test_login_rate_limited(client, seed_db):
     login = {"username": "operator", "password": "op-pass-123"}
     statuses = []

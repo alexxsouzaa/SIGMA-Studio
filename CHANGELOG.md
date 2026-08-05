@@ -8,6 +8,20 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Unreleased]
 
+## [0.10.1] — LoginFix
+
+### Fixed
+- **Login Google OAuth quebrado**: em `google/login`, o cookie `oauth_state` era definido no `Response` injetado e retornava-se um `RedirectResponse` — o Starlette descarta os cookies do response injetado quando se retorna outro `Response`, então o `Set-Cookie` nunca chegava ao navegador e o callback sempre falhava com `400 Invalid OAuth state`. O cookie de estado agora é definido **no próprio `RedirectResponse`**.
+- **Login por e-mail falhava**: `AuthService.authenticate` buscava apenas por `username`, mas a tela rotula o campo como "E-mail" — quem digitava o e-mail levava `401 Credenciais invalidas`. Agora o login aceita usuário **ou** e-mail.
+- **Erro de login invisível no frontend**: `lib/api.ts` redirecionava para `/login` em **qualquer** `401`, inclusive credencial errada — a página recarregava e o erro sumia. `login/register/logout` não redirecionam mais e a mensagem real do backend (`detail`) é exibida no formulário.
+- Mensagens de autenticação em pt-BR ("Credenciais invalidas", "Usuario inativo").
+
+### Added
+- Testes backend: `google/login` define o cookie `oauth_state` (`HttpOnly`), login por e-mail retorna token, senha errada retorna `401`. **43 no total.**
+
+### Changed
+- Label do login para "E-mail ou usuário".
+
 ## [0.10.0] — ClientPortal
 
 ### Added

@@ -14,6 +14,7 @@ const API_BASE = '/api/v1'
 export async function request<T>(
   endpoint: string,
   options: RequestInit = {},
+  redirectOnUnauthorized = true,
 ): Promise<ApiResponse<T>> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -26,25 +27,34 @@ export async function request<T>(
     credentials: 'include',
   })
 
-  if (res.status === 401) {
-    window.location.href = '/login'
-    throw new Error('Sessão expirada. Faça login novamente.')
-  }
-
   const text = await res.text()
-  const json: ApiResponse<T> = text ? JSON.parse(text) : ({} as ApiResponse<T>)
+  let json: ApiResponse<T> | { detail?: string } = text
+    ? JSON.parse(text)
+    : ({} as ApiResponse<T>)
 
-  if (!res.ok || !json.success) {
-    throw new Error(json.message || `Erro na requisição (${res.status})`)
+  if (!res.ok || !(json as ApiResponse<T>).success) {
+    const message =
+      (json as ApiResponse<T>).message ||
+      (json as { detail?: string }).detail ||
+      `Erro na requisição (${res.status})`
+    if (res.status === 401 && redirectOnUnauthorized) {
+      window.location.href = '/login'
+      throw new Error('Sessão expirada. Faça login novamente.')
+    }
+    throw new Error(message)
   }
-  return json
+  return json as ApiResponse<T>
 }
 
 export async function login(data: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-  return request<LoginResponse>('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
+  return request<LoginResponse>(
+    '/auth/login',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+    false,
+  )
 }
 
 export function getGoogleLoginUrl() {
@@ -52,15 +62,19 @@ export function getGoogleLoginUrl() {
 }
 
 export async function register(data: RegisterRequest): Promise<ApiResponse<RegisterResponse>> {
-  return request<RegisterResponse>('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  })
+  return request<RegisterResponse>(
+    '/auth/register',
+    {
+      method: 'POST',
+      body: JSON.stringify(data),
+    },
+    false,
+  )
 }
 
 export async function logout(): Promise<void> {
   try {
-    await request('/auth/logout', { method: 'POST' })
+    await request('/auth/logout', { method: 'POST' }, false)
   } catch {
     return
   }

@@ -59,10 +59,12 @@ class AuthService:
         from datetime import datetime, timezone
 
         user = await self._repository.get_by_username(username)
+        if not user:
+            user = await self._repository.get_by_email(username)
         if not user or not verify_password(password, user.password_hash):
-            raise HTTPException(status_code=401, detail="Invalid credentials")
+            raise HTTPException(status_code=401, detail="Credenciais invalidas")
         if not user.active:
-            raise HTTPException(status_code=403, detail="User is inactive")
+            raise HTTPException(status_code=403, detail="Usuario inativo")
 
         user.last_login = datetime.now(timezone.utc)
         await self._session.commit()

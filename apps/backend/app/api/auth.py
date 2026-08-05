@@ -193,13 +193,14 @@ async def logout(response: Response):
 
 
 @router.get("/google/login")
-async def google_login(response: Response):
+async def google_login(request: Request):
     if not is_google_configured():
         raise HTTPException(
             status_code=503,
             detail="Login com Google nao configurado no servidor",
         )
     state = secrets.token_urlsafe(32)
+    response = RedirectResponse(url=build_authorization_url(state))
     response.set_cookie(
         key=_OAUTH_STATE_COOKIE,
         value=state,
@@ -209,7 +210,7 @@ async def google_login(response: Response):
         samesite="lax",
         path="/api/v1/auth",
     )
-    return RedirectResponse(url=build_authorization_url(state))
+    return response
 
 
 @router.get("/google/callback")

@@ -157,7 +157,7 @@ export function LoginPage() {
               className={`login-field${errors.username ? ' login-field-error' : ''}`}
             >
               <label className="login-label" htmlFor="login-username">
-                E-mail
+                E-mail ou usu&aacute;rio
               </label>
               <div className="login-input-wrap">
                 <input
