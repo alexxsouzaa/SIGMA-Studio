@@ -144,21 +144,41 @@ export default function DevicesPage() {
   const showingStart = filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
   const showingEnd = Math.min(page * PAGE_SIZE, filtered.length)
 
-  const telemetryData = useMemo(() => {
-    if (!selectedDevice) return []
-    const seed = selectedDevice.id * 137
-    const rng = (s: number) => { const x = Math.sin(s) * 10000; return x - Math.floor(x) }
-    return Array.from({ length: 40 }, (_, i) => {
-      const wave = Math.sin(i * 0.4 + seed) * 8
-      const noise = (rng(seed + i) - 0.5) * 4
-      return Math.round((25 + wave + noise) * 10) / 10
-    })
-  }, [selectedDevice])
+  const [detailTemp, setDetailTemp] = useState<number[]>([])
+  const deviceId = selectedDevice?.id
 
-  function telemetryPts(data: number[]) {
-    const min = Math.min(...data); const max = Math.max(...data); const range = max - min || 1
-    return data.map((v, i) => `${i * 10},${55 - ((v - min) / range) * 50}`).join(' ')
-  }
+  useEffect(() => {
+    setDetailTemp([])
+    if (!deviceId) return
+    const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const token = localStorage.getItem('access_token') ?? ''
+    const url = `${proto}//${window.location.host}${import.meta.env.BASE_URL}api/v1/ws/telemetry?token=${encodeURIComponent(token)}&device_id=${deviceId}`
+    let ws: WebSocket | null = null
+    let retry: ReturnType<typeof setTimeout> | undefined
+
+    function connect() {
+      ws = new WebSocket(url)
+      ws.onmessage = (ev) => {
+        try {
+          const msg = JSON.parse(ev.data)
+          if (msg.type !== 'telemetry') return
+          const t = msg.data?.temp
+          if (t != null && !Number.isNaN(t)) setDetailTemp((prev) => [...prev, t].slice(-40))
+        } catch { /* ignore malformed frames */ }
+      }
+      ws.onclose = (ev) => { if (ev.code !== 4401) retry = setTimeout(connect, 3000) }
+      ws.onerror = () => ws?.close()
+    }
+
+    connect()
+    return () => { if (retry) clearTimeout(retry); ws?.close() }
+  }, [deviceId])
+
+  const detailTempLast = detailTemp.length ? detailTemp[detailTemp.length - 1] : null
+  const detailMin = detailTemp.length ? Math.min(...detailTemp) : 0
+  const detailMax = detailTemp.length ? Math.max(...detailTemp) : 0
+  const detailRange = (detailMax - detailMin) || 1
+  const detailPts = detailTemp.map((v, i) => `${i * (400 / Math.max(1, detailTemp.length - 1))},${55 - ((v - detailMin) / detailRange) * 50}`).join(' ')
 
   useEffect(() => {
     if (isLoading) return
@@ -499,7 +519,7 @@ export default function DevicesPage() {
                     ['Protocolo', '---', false],
                     ['Ultima leitura', timeAgo(selectedDevice.updated_at), false],
                     ['Uptime', '---', true],
-                    ['Temperatura', telemetryData.length > 0 ? `${telemetryData[telemetryData.length - 1]}°C` : '---', true],
+                    ['Temperatura', detailTempLast != null ? `${detailTempLast.toLocaleString('pt-BR')}°C` : '---', true],
                   ].map(([label, value, mono]) => (
                     <div key={label as string} className="detail-info-item">
                       <span className="detail-info-label">{label as string}</span>
@@ -520,13 +540,19 @@ export default function DevicesPage() {
                 <div className="detail-section-title">Telemetria Recente</div>
                 <div className="detail-telemetry">
                   <div className="detail-telemetry-header">
-                    <span className="detail-telemetry-title">Temperatura (24h)</span>
-                    <span className="detail-telemetry-value">{telemetryData[telemetryData.length - 1] ?? '---'}°C</span>
+                    <span className="detail-telemetry-title">Temperatura (tempo real)</span>
+                    <span className="detail-telemetry-value">{detailTempLast != null ? `${detailTempLast.toLocaleString('pt-BR')}°C` : '---'}</span>
                   </div>
                   <div className="detail-telemetry-chart">
-                    <svg viewBox="0 0 400 60" preserveAspectRatio="none" role="img" aria-label="Grafico de telemetria">
-                      <polyline points={telemetryPts(telemetryData)} fill="none" stroke="var(--info)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    {detailTemp.length > 1 ? (
+                      <svg viewBox="0 0 400 60" preserveAspectRatio="none" role="img" aria-label="Grafico de telemetria">
+                        <polyline points={detailPts} fill="none" stroke="var(--info)" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    ) : (
+                      <div style={{ fontSize: 12, color: 'var(--fg-muted)', padding: '20px 0', textAlign: 'center' }}>
+                        Sem leituras de telemetria ainda.
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

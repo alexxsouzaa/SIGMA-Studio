@@ -13,14 +13,24 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 - `POST /users/{user_id}/reset-password`: gera e retorna senha temporária real (admin), sem simular envio de e-mail.
 - `DELETE /logs/`: limpa todos os logs (somente admin) via `LogService.clear_logs`.
 - `app/api/deps.py`: dependência compartilhada `require_admin` (movida de `users.py`).
-- `AlarmsPage`: botões Confirmar e Silenciar todos conectados à API com estados de carregamento.
-- `DevicesPage`: modal de Adicionar/Editar (POST/PUT em `/devices/`) e Remover com confirmação (DELETE).
-- `FirmwarePage`: painel de Detalhes com dados reais de status do firmware.
-- `LogsPage`: Limpar conectado à API com confirmação em dois passos.
-- `UsersPage`: Redefinir senha conectado à API (exibe a senha temporária gerada).
-- Testes backend: `acknowledge_all` e `clear_logs` — 4 testes novos (17 no total).
+- `RealtimeService` (`app/services/realtime_service.py`): consultas de polling para WebSocket (`recent_unacknowledged_alerts`, `new_alerts_since`, `new_samples_since` com filtro por `device_id`).
+- WebSocket com dados reais e autenticação JWT obrigatória via `?token=`:
+  - `/ws/telemetry`: emite samples de `Sample` (polling 2s), aceita filtro `device_id`; fecha com código `4401` se o token for inválido.
+  - `/ws/alerts`: emite snapshots de alarmes não confirmados (polling 5s); fechamento por falta de confirmação no `open` (4401).
+- Fail-fast de segredos: `settings._validate_settings()` lança `RuntimeError` se `SIGMA_JWT_SECRET`/`SIGMA_ADMIN_PASSWORD` estiverem em default sem `SIGMA_DEBUG`; `SIGMA_ADMIN_PASSWORD` documentado no `.env.example`.
+- `TelemetryPage`: telemetria real via WS (temperatura, vibração X/Y/Z, RMS), filtro por dispositivo, exportação CSV real e empty state honesto (sem curva fake).
+- `TelemetryChart` (dashboard): consome `/ws/telemetry` com token JWT, não conecta sem `access_token` e mostra empty state quando não há dados.
+- `DevicesPage` (painel de detalhes): telemetria real por `device_id` via WS; curva sintética removida.
+- `liveAlerts.ts`: envia token JWT na URL do WS e não reconecta após o código `4401`.
+- AlarmsPage: botões Confirmar e Silenciar todos conectados à API com estados de carregamento.
+- DevicesPage: modal de Adicionar/Editar (POST/PUT em `/devices/`) e Remover com confirmação (DELETE).
+- FirmwarePage: painel de Detalhes com dados reais de status do firmware.
+- LogsPage: Limpar conectado à API com confirmação em dois passos.
+- UsersPage: Redefinir senha conectado à API (exibe a senha temporária gerada).
+- Testes backend: `acknowledge_all`/`clear_logs` (4) e `RealtimeService` (4) — 21 no total.
 
 ### Fixed
+- `main.py`: seed do admin usa `settings.admin_password` (senha hardcoded `"admin123"` removida).
 - Botões mortos do frontend removidos ou tornados honestos (sem ações simuladas):
   - `DevicesPage` Importar e Reiniciar: desabilitados com tooltip (sem endpoint no backend).
   - `FirmwarePage` OTA: desabilitado com tooltip (sem endpoint de atualização).
@@ -31,6 +41,11 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 - `.gitignore` reescrito (env, `.pytest_cache`, logs, `.env.*` com exceção de `.env.example`).
 - `seed_devices.py`: import morto removido; confirmação interativa antes de re-semear.
 - Documentação: stack real (Zustand) e contagem de modelos corrigidas no README/ARCHITECTURE.
+
+### Changed
+- `settings.py`: `_validate_settings()` com fail-fast em modo produção (logs warning em debug).
+- WebSockets deixaram de ser anônimos: `/ws/telemetry` e `/ws/alerts` exigem `access_token` válido.
+- `TelemetryPage` e `TelemetryChart` deixaram de exibir dados fabricados no cliente.
 
 ## [0.9.0] — RealData
 

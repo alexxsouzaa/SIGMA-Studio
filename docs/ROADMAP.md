@@ -48,6 +48,17 @@ Correções de segurança/estrutura e eliminação de botões mortos no frontend
 - [x] Endpoints novos: `POST /alerts/acknowledge-all`, `POST /users/{id}/reset-password`, `DELETE /logs/`.
 - [x] Testes: backend 17 (4 novos), frontend 19.
 
+## Fase 6 — Lote C: Segredos & WebSocket com dados reais ✅
+
+Endurecimento de segurança e eliminação dos últimos dados fabricados (curvas fake).
+
+- [x] **Segredos via env com fail-fast**: `SIGMA_JWT_SECRET` e `SIGMA_ADMIN_PASSWORD` lançam `RuntimeError` em produção se não configurados (`settings._validate_settings()`); `SIGMA_ADMIN_PASSWORD` no `.env.example`.
+- [x] **Seed sem senha hardcoded**: `main.py` usa `hash_password(settings.admin_password)`.
+- [x] **WebSocket autenticado e com dados reais**: `/ws/telemetry` (samples, polling 2s, filtro `device_id`) e `/ws/alerts` (snapshots de não confirmados) exigem JWT via `?token=`, fechando com `4401` se inválido.
+- [x] **`RealtimeService`**: consultas de polling isoladas (`new_samples_since`, `new_alerts_since`, `recent_unacknowledged_alerts`).
+- [x] **Frontend honesto**: `TelemetryPage`, `TelemetryChart` (dashboard) e painel de detalhes do dispositivo consomem o WS com token e mostram empty states; curva sintética removida; exportar CSV real; `liveAlerts.ts` sem reconexão em `4401`.
+- [x] Testes: backend 21 (4 novos de `RealtimeService`), frontend 19, build e lint limpos.
+
 ## Além do roadmap
 
 - Docker + deploy

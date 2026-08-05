@@ -2,21 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { Activity, Maximize2, MoreVertical } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useThemeStore } from '@/stores/themeStore'
+import { EmptyState } from '@/components/shared/StatusStates'
 
 const ranges = ['24h', '7d', '30d'] as const
 type Range = (typeof ranges)[number]
 
 const MAX_POINTS = 48
 
-const initialTemp = [68, 69, 71, 72, 74, 75, 74, 73, 72, 73, 74, 76, 78, 79, 78, 77, 76, 77, 78, 79, 80, 81, 80, 79, 78, 77, 76, 75, 76, 77, 78, 79, 80, 81, 82, 82, 81, 80, 79, 78, 77, 76, 75, 74, 73, 72, 71, 70]
-const initialPress = [6.1, 6.0, 6.2, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9, 6.0, 6.1, 6.2, 6.3, 6.4, 6.3, 6.2, 6.1, 6.0, 5.9]
-const initialHumid = [45, 46, 47, 48, 49, 50, 51, 50, 49, 48, 47, 46, 45, 44, 45, 46, 47, 48, 49, 50, 51, 52, 51, 50, 49, 48, 47, 46, 45, 44, 45, 46, 47, 48, 49, 50, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42, 41, 40]
-
 function normalize(data: number[], min: number, max: number) {
-  return data.map(v => (v - min) / (max - min))
+  return data.map((v) => (v - min) / (max - min))
 }
 
-function drawChart(canvas: HTMLCanvasElement, temp: number[], press: number[], humid: number[]) {
+function drawChart(canvas: HTMLCanvasElement, temp: number[], rms: number[]) {
   const ctx = canvas.getContext('2d')!
   const dpr = window.devicePixelRatio || 1
   const rect = canvas.parentElement!.getBoundingClientRect()
@@ -37,12 +34,10 @@ function drawChart(canvas: HTMLCanvasElement, temp: number[], press: number[], h
   const fgMuted = style.getPropertyValue('--fg-muted').trim()
   const accentColor = style.getPropertyValue('--accent').trim()
   const infoColor = style.getPropertyValue('--info').trim()
-  const successColor = style.getPropertyValue('--success').trim()
   const chartFill = style.getPropertyValue('--chart-fill').trim()
 
-  const tempNorm = normalize(temp, 60, 85)
-  const pressNorm = normalize(press, 5.5, 6.5)
-  const humidNorm = normalize(humid, 35, 55)
+  const tempNorm = temp.length > 1 ? normalize(temp, 60, 85) : []
+  const rmsNorm = rms.length > 1 ? normalize(rms, 0, 1) : []
 
   ctx.strokeStyle = gridColor
   ctx.lineWidth = 1
@@ -71,6 +66,7 @@ function drawChart(canvas: HTMLCanvasElement, temp: number[], press: number[], h
   }
 
   function drawLine(data: number[], color: string, fill: string | null) {
+    if (data.length < 2) return
     ctx.beginPath()
     for (let i = 0; i < data.length; i++) {
       const x = pad.left + (chartW / (data.length - 1)) * i
@@ -92,43 +88,43 @@ function drawChart(canvas: HTMLCanvasElement, temp: number[], press: number[], h
   }
 
   drawLine(tempNorm, accentColor, chartFill)
-  drawLine(pressNorm, infoColor, null)
-  drawLine(humidNorm, successColor, null)
+  drawLine(rmsNorm, infoColor, null)
 
-  const lastX = pad.left + chartW
-  const lastY = pad.top + chartH - (tempNorm[tempNorm.length - 1] * chartH)
-  ctx.beginPath()
-  ctx.arc(lastX, lastY, 4, 0, Math.PI * 2)
-  ctx.fillStyle = accentColor
-  ctx.fill()
-  ctx.beginPath()
-  ctx.arc(lastX, lastY, 7, 0, Math.PI * 2)
-  ctx.strokeStyle = accentColor
-  ctx.lineWidth = 1.5
-  ctx.globalAlpha = 0.3
-  ctx.stroke()
-  ctx.globalAlpha = 1
+  if (tempNorm.length > 0) {
+    const lastX = pad.left + chartW
+    const lastY = pad.top + chartH - (tempNorm[tempNorm.length - 1] * chartH)
+    ctx.beginPath()
+    ctx.arc(lastX, lastY, 4, 0, Math.PI * 2)
+    ctx.fillStyle = accentColor
+    ctx.fill()
+    ctx.beginPath()
+    ctx.arc(lastX, lastY, 7, 0, Math.PI * 2)
+    ctx.strokeStyle = accentColor
+    ctx.lineWidth = 1.5
+    ctx.globalAlpha = 0.3
+    ctx.stroke()
+    ctx.globalAlpha = 1
+  }
 }
 
 interface TelemetryPoint {
-  temp: number
-  press: number
-  humid: number
+  temp: number | null
+  rms: number | null
 }
 
 export function TelemetryChart() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [activeRange, setActiveRange] = useState<Range>('24h')
-  const [temp, setTemp] = useState<number[]>(initialTemp)
-  const [press, setPress] = useState<number[]>(initialPress)
-  const [humid, setHumid] = useState<number[]>(initialHumid)
+  const [temp, setTemp] = useState<number[]>([])
+  const [rms, setRms] = useState<number[]>([])
   const [live, setLive] = useState(false)
   const { theme } = useThemeStore()
   const navigate = useNavigate()
 
   useEffect(() => {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const url = `${proto}//${window.location.host}${import.meta.env.BASE_URL}api/v1/ws/telemetry`
+    const token = localStorage.getItem('access_token') ?? ''
+    const url = `${proto}//${window.location.host}${import.meta.env.BASE_URL}api/v1/ws/telemetry?token=${encodeURIComponent(token)}`
     let ws: WebSocket | null = null
     let retry: ReturnType<typeof setTimeout> | undefined
 
@@ -140,13 +136,14 @@ export function TelemetryChart() {
           const msg = JSON.parse(ev.data)
           if (msg.type !== 'telemetry') return
           const d = msg.data as TelemetryPoint
-          setTemp((prev) => [...prev, d.temp].slice(-MAX_POINTS))
-          setPress((prev) => [...prev, d.press].slice(-MAX_POINTS))
-          setHumid((prev) => [...prev, d.humid].slice(-MAX_POINTS))
+          const t = d.temp, r = d.rms
+          if (t != null && !Number.isNaN(t)) setTemp((prev) => [...prev, t].slice(-MAX_POINTS))
+          if (r != null && !Number.isNaN(r)) setRms((prev) => [...prev, r].slice(-MAX_POINTS))
         } catch { /* ignore malformed frames */ }
       }
-      ws.onclose = () => {
+      ws.onclose = (ev) => {
         setLive(false)
+        if (ev.code === 4401) return
         retry = setTimeout(connect, 3000)
       }
       ws.onerror = () => ws?.close()
@@ -162,18 +159,20 @@ export function TelemetryChart() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    drawChart(canvas, temp, press, humid)
-  }, [temp, press, humid, activeRange, theme])
+    drawChart(canvas, temp, rms)
+  }, [temp, rms, activeRange, theme])
 
   useEffect(() => {
     const onResize = () => {
       const canvas = canvasRef.current
       if (!canvas) return
-      drawChart(canvas, temp, press, humid)
+      drawChart(canvas, temp, rms)
     }
     window.addEventListener('resize', onResize)
     return () => window.removeEventListener('resize', onResize)
-  }, [temp, press, humid, activeRange, theme])
+  }, [temp, rms, activeRange, theme])
+
+  const hasData = temp.length > 0
 
   return (
     <div className="widget">
@@ -221,7 +220,14 @@ export function TelemetryChart() {
         </div>
       </div>
       <div className="telemetry-chart-wrap">
-        <canvas ref={canvasRef} />
+        {hasData ? (
+          <canvas ref={canvasRef} />
+        ) : (
+          <EmptyState
+            title="Aguardando dados de telemetria"
+            description="Nenhuma leitura de sensor recebida ainda. O grafico sera preenchido quando o dispositivo enviar samples."
+          />
+        )}
       </div>
       <div className="telemetry-chart-legend">
         <div className="telemetry-chart-legend-item">
@@ -230,11 +236,7 @@ export function TelemetryChart() {
         </div>
         <div className="telemetry-chart-legend-item">
           <span className="telemetry-chart-legend-dot" style={{ background: 'var(--info)' }} />
-          Pressão (bar)
-        </div>
-        <div className="telemetry-chart-legend-item">
-          <span className="telemetry-chart-legend-dot" style={{ background: 'var(--success)' }} />
-          Umidade (%)
+          RMS (g)
         </div>
       </div>
     </div>

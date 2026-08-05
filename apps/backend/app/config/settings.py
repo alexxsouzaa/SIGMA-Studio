@@ -1,4 +1,11 @@
+import logging
+
 from pydantic_settings import BaseSettings
+
+logger = logging.getLogger(__name__)
+
+_DEFAULT_JWT_SECRET = "sigma-studio-secret-key-change-in-production"
+_DEFAULT_ADMIN_PASSWORD = "admin123"
 
 
 class Settings(BaseSettings):
@@ -14,10 +21,12 @@ class Settings(BaseSettings):
     serial_port: str = ""
     serial_baudrate: int = 115200
 
-    jwt_secret: str = "sigma-studio-secret-key-change-in-production"
+    jwt_secret: str = _DEFAULT_JWT_SECRET
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 60
     jwt_refresh_expire_days: int = 7
+
+    admin_password: str = _DEFAULT_ADMIN_PASSWORD
 
     google_client_id: str = ""
     google_client_secret: str = ""
@@ -30,3 +39,31 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def _validate_settings() -> None:
+    if settings.debug:
+        if settings.jwt_secret == _DEFAULT_JWT_SECRET:
+            logger.warning(
+                "SIGMA_JWT_SECRET em uso com valor padrao de desenvolvimento. "
+                "Defina um valor forte em .env antes de publicar."
+            )
+        if settings.admin_password == _DEFAULT_ADMIN_PASSWORD:
+            logger.warning(
+                "SIGMA_ADMIN_PASSWORD em uso com valor padrao de desenvolvimento. "
+                "Defina uma senha forte em .env antes de publicar."
+            )
+    else:
+        if settings.jwt_secret == _DEFAULT_JWT_SECRET:
+            raise RuntimeError(
+                "SIGMA_JWT_SECRET nao configurado. Defina um valor forte em .env "
+                "para executar sem SIGMA_DEBUG."
+            )
+        if settings.admin_password == _DEFAULT_ADMIN_PASSWORD:
+            raise RuntimeError(
+                "SIGMA_ADMIN_PASSWORD nao configurado. Defina uma senha forte em .env "
+                "para executar sem SIGMA_DEBUG."
+            )
+
+
+_validate_settings()

@@ -135,7 +135,7 @@ async def startup():
             admin_user = User(
                 username="admin",
                 email="admin@sigma.io",
-                password_hash=hash_password("admin123"),
+                password_hash=hash_password(settings.admin_password),
                 display_name="Administrator",
                 role_id=1,
                 active=True,

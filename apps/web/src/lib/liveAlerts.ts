@@ -23,7 +23,8 @@ function emit() {
 
 function connect() {
   const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-  const url = `${proto}//${window.location.host}${import.meta.env.BASE_URL}api/v1/ws/alerts`
+  const token = localStorage.getItem('access_token') ?? ''
+  const url = `${proto}//${window.location.host}${import.meta.env.BASE_URL}api/v1/ws/alerts?token=${encodeURIComponent(token)}`
   ws = new WebSocket(url)
   ws.onopen = () => emit()
   ws.onmessage = (ev) => {
@@ -34,8 +35,9 @@ function connect() {
       emit()
     } catch { /* ignore malformed frames */ }
   }
-  ws.onclose = () => {
+  ws.onclose = (ev) => {
     ws = null
+    if (ev.code === 4401) return
     setTimeout(connect, 4000)
   }
   ws.onerror = () => ws?.close()
