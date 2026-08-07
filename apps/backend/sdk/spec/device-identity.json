@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sigma:device-sdk:device-identity:v1",
+  "title": "DeviceIdentity",
+  "description": "Identidade de um dispositivo SIGMA — transportada por firmware e emulador de forma identica. Mapeia para o registro `DeviceCreate` no backend.",
+  "type": "object",
+  "required": [
+    "deviceId",
+    "serial",
+    "model",
+    "hardwareRevision",
+    "firmwareVersion",
+    "protocolVersion"
+  ],
+  "properties": {
+    "deviceId": { "type": "string", "maxLength": 64 },
+    "serial": { "type": "string", "maxLength": 50 },
+    "model": { "type": "string", "maxLength": 50 },
+    "hardwareRevision": { "type": "string", "maxLength": 20 },
+    "firmwareVersion": { "type": "string", "maxLength": 20 },
+    "protocolVersion": { "type": "string", "maxLength": 20 },
+    "capabilities": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "isEmulated": { "type": "boolean" }
+  },
+  "additionalProperties": false
+}

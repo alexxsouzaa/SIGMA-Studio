@@ -1,0 +1,11 @@
+{
+  "serial": "SIGMA-MONITOR-0001",
+  "deviceId": "SIGMA-MONITOR-0001",
+  "timestamp": "2026-08-07T12:00:00.000Z",
+  "status": "online",
+  "uptimeSeconds": 13638,
+  "firmwareVersion": "1.2.0",
+  "protocolVersion": "1.0",
+  "battery": 87,
+  "rssi": -63
+}

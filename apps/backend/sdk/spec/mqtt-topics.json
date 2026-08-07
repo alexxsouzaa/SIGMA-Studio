@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sigma:device-sdk:topics:v1",
+  "title": "MqttTopics",
+  "description": "Estrutura de topicos MQTT do protocolo SIGMA (v1.0). Categoria em `{serial}`: `telemetry` (QoS 1), `status` (QoS 0, retained), `events` (QoS 1).",
+  "type": "object",
+  "required": ["prefix", "categories"],
+  "properties": {
+    "prefix": { "const": "sigma" },
+    "categories": {
+      "type": "object",
+      "properties": {
+        "telemetry": { "type": "string", "const": "sigma/{serial}/telemetry" },
+        "status": { "type": "string", "const": "sigma/{serial}/status" },
+        "events": { "type": "string", "const": "sigma/{serial}/events" }
+      }
+    }
+  }
+}

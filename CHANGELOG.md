@@ -6,7 +6,15 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ---
 
-## [Unreleased]
+## [0.13.0] — EmulatorLab
+
+### Added
+- **Adoção do SIGMA Device SDK (ADR-001 do SIGMA Emu)**:
+  - Cópia sincronizada do contrato único em `apps/backend/sdk/` (`spec/` JSON Schema + `fixtures/` golden) — fonte da verdade em `SIGMA-Emu/packages/device-sdk`, sincronizada via `npm run sync:studio -w packages/device-sdk` (proibido editar localmente).
+  - Teste de conformidade `tests/test_contract_conformance.py`: garante que `TelemetrySampleCreate`/`DeviceCreate` (Pydantic) aceitam as fixtures golden e não sofrem drift em relação ao spec canônico.
+
+### Tests
+- Backend: **69** (inclui 4 de conformidade com o SDK).
 
 ## [0.12.0] — EmulatorLab
 

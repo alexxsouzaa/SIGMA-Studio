@@ -1,0 +1,10 @@
+{
+  "deviceId": "SIGMA-MONITOR-0001",
+  "serial": "SIGMA-MONITOR-0001",
+  "model": "SIGMA-Monitor",
+  "hardwareRevision": "1.0",
+  "firmwareVersion": "1.2.0",
+  "protocolVersion": "1.0",
+  "capabilities": ["temperature", "vibration", "current"],
+  "isEmulated": true
+}

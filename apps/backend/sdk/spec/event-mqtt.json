@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sigma:device-sdk:event-mqtt:v1",
+  "title": "EventMqtt",
+  "description": "Payload MQTT do topico `sigma/{serial}/events` (QoS 1). Eventos simulados e reais do dispositivo.",
+  "type": "object",
+  "required": [
+    "serial",
+    "deviceId",
+    "timestamp",
+    "sequence",
+    "event_type",
+    "severity",
+    "description",
+    "firmwareVersion",
+    "protocolVersion"
+  ],
+  "properties": {
+    "serial": { "type": "string", "maxLength": 50 },
+    "deviceId": { "type": "string", "maxLength": 50 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "sequence": { "type": "integer", "minimum": 0 },
+    "event_type": {
+      "enum": [
+        "boot",
+        "shutdown",
+        "restart",
+        "calibration",
+        "baseline",
+        "ota",
+        "battery_low",
+        "sensor_failure",
+        "configuration_changed"
+      ]
+    },
+    "severity": { "enum": ["info", "warning", "critical"] },
+    "description": { "type": "string", "maxLength": 200 },
+    "firmwareVersion": { "type": "string" },
+    "protocolVersion": { "type": "string" }
+  },
+  "additionalProperties": false
+}

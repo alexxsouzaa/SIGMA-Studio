@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sigma:device-sdk:telemetry-mqtt:v1",
+  "title": "TelemetryMqtt",
+  "description": "Payload MQTT do topico `sigma/{serial}/telemetry` (QoS 1). Envelope de identificacao + amostra canonica.",
+  "type": "object",
+  "required": [
+    "serial",
+    "deviceId",
+    "sequence",
+    "timestamp",
+    "recorded_at",
+    "firmwareVersion",
+    "protocolVersion",
+    "temperature",
+    "vibration_x",
+    "vibration_y",
+    "vibration_z",
+    "rms",
+    "peak",
+    "crest_factor",
+    "kurtosis"
+  ],
+  "properties": {
+    "serial": { "type": "string", "maxLength": 50 },
+    "deviceId": { "type": "string", "maxLength": 50 },
+    "sequence": { "type": "integer", "minimum": 0 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "firmwareVersion": { "type": "string" },
+    "protocolVersion": { "type": "string" },
+    "temperature": { "type": ["number", "null"] },
+    "vibration_x": { "type": ["number", "null"] },
+    "vibration_y": { "type": ["number", "null"] },
+    "vibration_z": { "type": ["number", "null"] },
+    "rms": { "type": ["number", "null"] },
+    "peak": { "type": ["number", "null"] },
+    "crest_factor": { "type": ["number", "null"] },
+    "kurtosis": { "type": ["number", "null"] }
+  },
+  "additionalProperties": false
+}

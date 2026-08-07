@@ -1,0 +1,17 @@
+{
+  "serial": "SIGMA-MONITOR-0001",
+  "deviceId": "SIGMA-MONITOR-0001",
+  "sequence": 42,
+  "timestamp": "2026-08-07T12:00:00.000Z",
+  "recorded_at": "2026-08-07T12:00:00.000Z",
+  "firmwareVersion": "1.2.0",
+  "protocolVersion": "1.0",
+  "temperature": 25.31,
+  "vibration_x": 0.12,
+  "vibration_y": 0.08,
+  "vibration_z": 0.21,
+  "rms": 0.17,
+  "peak": 0.43,
+  "crest_factor": 2.53,
+  "kurtosis": 3.11
+}

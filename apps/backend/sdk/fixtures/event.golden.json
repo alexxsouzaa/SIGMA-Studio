@@ -1,0 +1,11 @@
+{
+  "serial": "SIGMA-MONITOR-0001",
+  "deviceId": "SIGMA-MONITOR-0001",
+  "timestamp": "2026-08-07T12:00:00.000Z",
+  "sequence": 7,
+  "event_type": "boot",
+  "severity": "info",
+  "description": "Dispositivo inicializado",
+  "firmwareVersion": "1.2.0",
+  "protocolVersion": "1.0"
+}

@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sigma:device-sdk:status-mqtt:v1",
+  "title": "StatusMqtt",
+  "description": "Payload MQTT do topico `sigma/{serial}/status` (QoS 0, retained). Heartbeat e mudanca de estado do dispositivo.",
+  "type": "object",
+  "required": [
+    "serial",
+    "deviceId",
+    "timestamp",
+    "status",
+    "uptimeSeconds",
+    "firmwareVersion",
+    "protocolVersion",
+    "battery",
+    "rssi"
+  ],
+  "properties": {
+    "serial": { "type": "string", "maxLength": 50 },
+    "deviceId": { "type": "string", "maxLength": 50 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "status": { "enum": ["online", "offline"] },
+    "uptimeSeconds": { "type": "number", "minimum": 0 },
+    "firmwareVersion": { "type": "string" },
+    "protocolVersion": { "type": "string" },
+    "battery": { "type": "integer", "minimum": 0, "maximum": 100 },
+    "rssi": { "type": "number" }
+  },
+  "additionalProperties": false
+}

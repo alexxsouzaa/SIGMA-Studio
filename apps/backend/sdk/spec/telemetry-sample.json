@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sigma:device-sdk:telemetry-sample:v1",
+  "title": "TelemetrySample",
+  "description": "Amostra de telemetria canonica — ingestao HTTP `POST /api/v1/telemetry` (contrato `TelemetrySampleCreate` do SIGMA Studio). O dispositivo e identificado por `serial_number` ou `device_id`.",
+  "type": "object",
+  "properties": {
+    "serial_number": { "type": ["string", "null"], "maxLength": 50 },
+    "device_id": { "type": ["integer", "null"] },
+    "temperature": { "type": ["number", "null"] },
+    "vibration_x": { "type": ["number", "null"] },
+    "vibration_y": { "type": ["number", "null"] },
+    "vibration_z": { "type": ["number", "null"] },
+    "rms": { "type": ["number", "null"] },
+    "peak": { "type": ["number", "null"] },
+    "crest_factor": { "type": ["number", "null"] },
+    "kurtosis": { "type": ["number", "null"] },
+    "recorded_at": { "type": ["string", "null"], "format": "date-time" }
+  },
+  "anyOf": [{ "required": ["serial_number"] }, { "required": ["device_id"] }],
+  "additionalProperties": true
+}
