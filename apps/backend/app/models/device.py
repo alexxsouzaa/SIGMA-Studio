@@ -34,6 +34,9 @@ class Device(Base):
     firmware_version: Mapped[str] = mapped_column(String(20), nullable=False)
     location: Mapped[str | None] = mapped_column(String(200), nullable=True)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_emulated: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False, index=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -50,4 +53,5 @@ class Device(Base):
         Index("ix_device_org", "organization_id"),
         Index("ix_device_project", "project_id"),
         Index("ix_device_active", "active"),
+        Index("ix_device_is_emulated", "is_emulated"),
     )

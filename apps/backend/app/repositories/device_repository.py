@@ -13,10 +13,13 @@ class DeviceRepository:
         skip: int = 0,
         limit: int = 100,
         organization_ids: set[int] | None = None,
+        is_emulated: bool | None = None,
     ) -> list[Device]:
         query = select(Device)
         if organization_ids is not None:
             query = query.where(Device.organization_id.in_(organization_ids))
+        if is_emulated is not None:
+            query = query.where(Device.is_emulated == is_emulated)
         result = await self._session.execute(query.offset(skip).limit(limit))
         return list(result.scalars().all())
 
@@ -32,10 +35,16 @@ class DeviceRepository:
         )
         return result.scalar_one_or_none()
 
-    async def count(self, organization_ids: set[int] | None = None) -> int:
+    async def count(
+        self,
+        organization_ids: set[int] | None = None,
+        is_emulated: bool | None = None,
+    ) -> int:
         query = select(func.count(Device.id))
         if organization_ids is not None:
             query = query.where(Device.organization_id.in_(organization_ids))
+        if is_emulated is not None:
+            query = query.where(Device.is_emulated == is_emulated)
         result = await self._session.execute(query)
         return result.scalar() or 0
 

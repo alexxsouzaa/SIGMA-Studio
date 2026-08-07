@@ -21,11 +21,14 @@ def get_device_service(session: AsyncSession = Depends(get_session)) -> DeviceSe
 async def list_devices(
     skip: int = 0,
     limit: int = 100,
+    is_emulated: bool | None = None,
     service: DeviceService = Depends(get_device_service),
     _user: User = Depends(require_permission("devices")),
     scope: set[int] | None = Depends(org_scope),
 ):
-    devices, total = await service.list_devices(skip=skip, limit=limit, organization_ids=scope)
+    devices, total = await service.list_devices(
+        skip=skip, limit=limit, organization_ids=scope, is_emulated=is_emulated
+    )
     return StandardResponse(
         data=[DeviceResponse.model_validate(d) for d in devices],
         message="Devices retrieved successfully",

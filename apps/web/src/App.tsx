@@ -37,6 +37,7 @@ const SearchPage = lazy(() => import('@/features/search/pages/SearchPage'))
 const ProfilePage = lazy(() => import('@/features/profile/pages/ProfilePage'))
 const SettingsPage = lazy(() => import('@/features/settings/pages/SettingsPage'))
 const UsersPage = lazy(() => import('@/features/users/pages/UsersPage'))
+const LabPage = lazy(() => import('@/features/lab/pages/LabPage'))
 
 function LazyFallback() {
   return <LoadingSpinner />
@@ -133,6 +134,7 @@ export default function App() {
           <Route path="/app/profile" element={<PermissionRoute permission="profile"><ProfilePage /></PermissionRoute>} />
           <Route path="/app/settings" element={<PermissionRoute permission="settings"><SettingsPage /></PermissionRoute>} />
           <Route path="/app/users" element={<PermissionRoute permission="users"><UsersPage /></PermissionRoute>} />
+          <Route path="/app/lab" element={<PermissionRoute permission="devices"><LabPage /></PermissionRoute>} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

@@ -11,6 +11,7 @@ class DeviceCreate(BaseModel):
     serial_number: str = Field(..., max_length=50)
     firmware_version: str = Field(default="1.0.0", max_length=20)
     location: str | None = Field(default=None, max_length=200)
+    is_emulated: bool = False
 
 
 class DeviceUpdate(BaseModel):
@@ -20,6 +21,7 @@ class DeviceUpdate(BaseModel):
     site_id: int | None = None
     project_id: int | None = None
     active: bool | None = None
+    is_emulated: bool | None = None
 
 
 class DeviceResponse(BaseModel):
@@ -33,6 +35,7 @@ class DeviceResponse(BaseModel):
     firmware_version: str
     location: str | None
     active: bool
+    is_emulated: bool
     created_at: datetime
     updated_at: datetime
 

@@ -9,6 +9,7 @@ export interface Device {
   firmware_version: string
   location: string | null
   active: boolean
+  is_emulated: boolean
   created_at: string
   updated_at: string
 }

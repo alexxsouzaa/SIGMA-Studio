@@ -117,6 +117,23 @@ async def startup():
             )
         except Exception:
             pass
+        try:
+            await conn.run_sync(
+                lambda sync_conn: sync_conn.exec_driver_sql(
+                    "ALTER TABLE devices ADD COLUMN is_emulated BOOLEAN DEFAULT 0"
+                )
+            )
+        except Exception:
+            pass
+        try:
+            await conn.run_sync(
+                lambda sync_conn: sync_conn.exec_driver_sql(
+                    "CREATE INDEX IF NOT EXISTS ix_device_is_emulated "
+                    "ON devices (is_emulated)"
+                )
+            )
+        except Exception:
+            pass
 
     from app.models.role import Role
     from app.models.user import User
@@ -196,6 +213,23 @@ async def startup():
                 role_id=1,
             )
             session.add(member)
+            await session.commit()
+
+        existing_emu_org = await session.execute(
+            select(Organization).where(Organization.slug == "sigma-emu")
+        )
+        if not existing_emu_org.scalar_one_or_none():
+            emu_org = Organization(name="SIGMA Emu — Laboratório", slug="sigma-emu")
+            session.add(emu_org)
+            await session.commit()
+            await session.refresh(emu_org)
+
+            emu_member = Member(
+                user_id=admin_user.id,
+                organization_id=emu_org.id,
+                role_id=1,
+            )
+            session.add(emu_member)
             await session.commit()
 
 

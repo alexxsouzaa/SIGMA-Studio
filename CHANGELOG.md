@@ -8,6 +8,23 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ## [Unreleased]
 
+## [0.12.0] — EmulatorLab
+
+### Added
+- **Modo desenvolvedor/teste para o SIGMA Emu (isolado da frota real)**:
+  - Coluna `is_emulated` na tabela `devices` (índice `ix_device_is_emulated`), exposta em `DeviceCreate`/`DeviceUpdate`/`DeviceResponse` (`app/schemas/device.py`). Criação idempotente via `ALTER TABLE` no startup (`app/main.py`) para bancos existentes.
+  - Organização dedicada **"SIGMA Emu — Laboratório"** (slug `sigma-emu`) semeada no startup com vínculo do admin — dupla proteção de isolamento (org dedicada + flag `is_emulated`).
+  - `GET /api/v1/devices` ganha filtro `?is_emulated=true|false` (repository/service/endpoint), permitindo separar dispositivos simulados dos reais.
+- **Seção "Laboratório / Emulador"** no painel (`/app/lab`, permissão `devices`):
+  - Nova página `LabPage` (feature `lab`) listando apenas dispositivos emulados (badge "Emulador"), com stats (Total/Online/Offline), auto-refresh de 15 s e empty state orientando a configuração da integração.
+  - Botão "Abrir no Emulador" que abre a UI do SIGMA Emu (`VITE_EMU_WEB_URL`, padrão `http://localhost:5174`) — configuração nova documentada em `apps/web/.env.example`.
+  - Item de navegação "Emulador" na seção `Laboratorio` do `AppShell` + rota lazy no `App.tsx`.
+- **Isolamento das telas de frota real**: `useDevices` e a página `DevicesPage` passam a requisitar `?is_emulated=false` — o dashboard e a telemetria continuam exibindo apenas a frota real.
+- **Testes**: `tests/test_device_emulated.py` (default/flag no schema, persistência no service, filtro no repository/service, update). **65 no total.**
+
+### Changed
+- Documentação: flag `is_emulated` e organização `sigma-emu` documentadas no `README` e na arquitetura de integração (ver `docs/ECOSYSTEM-BACKEND.md` do SIGMA Emu).
+
 ## [0.11.0] — TelemetryIngest
 
 ### Added

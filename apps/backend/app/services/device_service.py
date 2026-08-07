@@ -12,11 +12,17 @@ class DeviceService:
         skip: int = 0,
         limit: int = 100,
         organization_ids: set[int] | None = None,
+        is_emulated: bool | None = None,
     ) -> tuple[list[Device], int]:
         devices = await self._repository.list_all(
-            skip=skip, limit=limit, organization_ids=organization_ids
+            skip=skip,
+            limit=limit,
+            organization_ids=organization_ids,
+            is_emulated=is_emulated,
         )
-        total = await self._repository.count(organization_ids=organization_ids)
+        total = await self._repository.count(
+            organization_ids=organization_ids, is_emulated=is_emulated
+        )
         return devices, total
 
     async def get_device(self, device_id: int) -> Device | None:
@@ -31,6 +37,7 @@ class DeviceService:
             organization_id=data.organization_id,
             site_id=data.site_id,
             project_id=data.project_id,
+            is_emulated=data.is_emulated,
         )
         return await self._repository.create(device)
 

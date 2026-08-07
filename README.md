@@ -121,6 +121,7 @@ O frontend aponta para a API relativa via `import.meta.env.BASE_URL`. Para servi
 - **Alarmes** — detecção, confirmação e histórico com exportação CSV/PDF
 - **Gateways** — CRUD completo com suporte a múltiplos protocolos
 - **Dispositivos** — inventário e detalhes por dispositivo
+- **Laboratório / Emulador** — seção dedicada (`/app/lab`) para dispositivos simulados do **SIGMA Emu**, isolados da frota real (organização `sigma-emu` + flag `is_emulated`) e com atalho para a UI do emulador (`VITE_EMU_WEB_URL`)
 - **Firmware** — atualizações OTA
 - **IA / TinyML** — modelos de manutenção preditiva
 - **Usuários & RBAC** — roles (admin, engineer, technician, operator, visitor) com permissões por feature

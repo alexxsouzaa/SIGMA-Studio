@@ -18,6 +18,7 @@ import {
   Moon,
   Sun,
   LogOut,
+  FlaskConical,
 } from 'lucide-react'
 import { useThemeStore } from '@/stores/themeStore'
 import { useAuthStore } from '@/stores/authStore'
@@ -78,6 +79,12 @@ const navSections = [
     ],
   },
   {
+    label: 'Laboratorio',
+    items: [
+      { icon: FlaskConical, label: 'Emulador', path: '/app/lab', permission: 'devices' },
+    ],
+  },
+  {
     label: 'Conta',
     items: [
       { icon: User, label: 'Perfil', path: '/app/profile', permission: 'profile' },
@@ -102,6 +109,7 @@ const titleMap: Record<string, string> = {
   '/app/ia': 'IA / TinyML',
   '/app/logs': 'Logs',
   '/app/search': 'Busca',
+  '/app/lab': 'Laboratório / Emulador',
   '/app/profile': 'Meu Perfil',
   '/app/settings': 'Configurações',
 }

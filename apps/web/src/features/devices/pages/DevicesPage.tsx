@@ -73,7 +73,7 @@ function statusLabel(s: string) {
 
 export default function DevicesPage() {
   const { user } = useAuthStore()
-  const { data: devices, isLoading, error, refetch } = useApi<Device[]>('/devices/?limit=500')
+  const { data: devices, isLoading, error, refetch } = useApi<Device[]>('/devices/?limit=500&is_emulated=false')
   const { data: alerts } = useApi<Alert[]>('/alerts/?limit=500')
 
   const [filter, setFilter] = useState('all')

@@ -42,7 +42,7 @@ export function useApi<T>(endpoint: string | null, options?: { refreshInterval?:
 }
 
 export function useDevices() {
-  return useApi<Device[]>('/devices/')
+  return useApi<Device[]>('/devices/?is_emulated=false')
 }
 
 export function usePreferences() {
