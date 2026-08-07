@@ -69,6 +69,10 @@ src/
 
 ## Como rodar
 
+### Execução rápida (Windows)
+
+Dê duplo clique em **`dev.cmd`** (raiz do repositório): valida o venv e o `node_modules`, sobe o backend (`:8000`) e o frontend (`:5173`) em janelas separadas e abre o navegador. Feche as janelas para encerrar.
+
 ### Pré-requisitos
 
 - Node.js ≥ 20
@@ -107,6 +111,7 @@ O frontend aponta para a API relativa via `import.meta.env.BASE_URL`. Para servi
 
 | Comando | Descrição |
 |---|---|
+| `dev.cmd` | Sobe backend + frontend com um clique (Windows) |
 | `npm run dev` | Sobe o Studio (Vite) |
 | `npm run build` | Build de produção (tsc + vite) |
 | `npm run lint` | Lint (oxlint) |
