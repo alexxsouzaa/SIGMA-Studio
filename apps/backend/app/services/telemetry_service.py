@@ -55,10 +55,15 @@ class TelemetryService:
         await self._session.refresh(sample)
         return sample
 
-    async def ingest(self, data: TelemetrySampleCreate) -> Sample | None:
+    async def ingest(
+        self,
+        data: TelemetrySampleCreate,
+        organization_ids: set[int] | None = None,
+    ) -> Sample | None:
         device = await self.resolve_device(
             serial_number=data.serial_number,
             device_id=data.device_id,
+            organization_ids=organization_ids,
         )
         if not device:
             return None

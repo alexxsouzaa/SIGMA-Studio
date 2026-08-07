@@ -83,6 +83,9 @@ async def startup():
     app.state.mqtt_manager.on_message(
         f"{settings.mqtt_topic_prefix}/+/telemetry", ingest_mqtt_telemetry
     )
+    app.state.mqtt_manager.on_message(
+        f"{settings.mqtt_topic_prefix}/+/+/telemetry", ingest_mqtt_telemetry
+    )
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
         try:

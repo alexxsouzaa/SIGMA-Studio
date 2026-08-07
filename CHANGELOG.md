@@ -6,6 +6,18 @@ O formato segue [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/) e o 
 
 ---
 
+## [0.14.0] — EmulatorLab
+
+### Added
+- **Ingestão MQTT com escopo de organização (ADR-002 do SIGMA Emu)**:
+  - Handler MQTT classifica o tópico por profundidade: `sigma/{org}/{serial}/telemetry` (canônico, 4 níveis) resolve a organização por **slug** (ou id, se numérico — com cache em memória) e o device **escopado à org**; `sigma/{serial}/telemetry` (legado, 3 níveis) mantém a resolução global atual. Org inexistente → amostra descartada com aviso (nunca cai para resolução global).
+  - `TelemetryService.ingest` aceita `organization_ids` (aplicado em `resolve_device`).
+  - `app/main.py` registra `sigma/+/+/telemetry` além de `sigma/+/telemetry`.
+  - Spec `sdk/spec/mqtt-topics.json` sincronizado com `canonical` + `legacy`.
+
+### Tests
+- Backend: **88** (novos casos de parse de tópico, resolução de org, ingest escopado, handler org-scoped/legado). E2E real confirmado com o SIGMA Emu publicando em `sigma/sigma-emu/...`.
+
 ## [0.13.0] — EmulatorLab
 
 ### Added

@@ -2,17 +2,20 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "sigma:device-sdk:topics:v1",
   "title": "MqttTopics",
-  "description": "Estrutura de topicos MQTT do protocolo SIGMA (v1.0). Categoria em `{serial}`: `telemetry` (QoS 1), `status` (QoS 0, retained), `events` (QoS 1).",
+  "description": "Estrutura de topicos MQTT do protocolo SIGMA (v1.0, ADR-002). Forma canonica: `sigma/{org}/{device}/{category}` — `{org}` e o slug da organizacao (aceita id numerico como compatibilidade), `{device}` e o identificador do device (serial). Forma legada (migracao compativel): `sigma/{device}/{category}`. Categorias: `telemetry` (QoS 1), `status` (QoS 0, retained), `events` (QoS 1).",
   "type": "object",
-  "required": ["prefix", "categories"],
+  "required": ["prefix", "canonical", "legacy", "categories"],
   "properties": {
     "prefix": { "const": "sigma" },
+    "canonical": { "type": "string", "const": "sigma/{org}/{device}/{category}" },
+    "legacy": { "type": "string", "const": "sigma/{device}/{category}" },
     "categories": {
       "type": "object",
+      "required": ["telemetry", "status", "events"],
       "properties": {
-        "telemetry": { "type": "string", "const": "sigma/{serial}/telemetry" },
-        "status": { "type": "string", "const": "sigma/{serial}/status" },
-        "events": { "type": "string", "const": "sigma/{serial}/events" }
+        "telemetry": { "type": "string", "const": "sigma/{org}/{device}/telemetry" },
+        "status": { "type": "string", "const": "sigma/{org}/{device}/status" },
+        "events": { "type": "string", "const": "sigma/{org}/{device}/events" }
       }
     }
   }
